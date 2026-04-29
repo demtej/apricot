@@ -1,0 +1,34 @@
+<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../components.css">
+<style>
+  html, body { margin: 0; padding: 0; background: var(--bg-page); }
+  body { padding: 16px; font-family: var(--font-sans); }
+  .label { font-size: 11px; color: var(--fg-secondary); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 500; margin-bottom: 12px; }
+  .chart { background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 18px; }
+  .chart-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .chart-ttl { font-size: 13px; font-weight: 500; color: var(--fg-primary); }
+  .chart-sub { font-size: 12px; color: var(--fg-secondary); font-family: var(--font-mono); }
+  svg { display: block; width: 100%; height: 100px; }
+</style>
+</head><body>
+  <div class="label">Chart container — soft, low-contrast</div>
+  <div class="chart">
+    <div class="chart-head">
+      <div class="chart-ttl">Balance over time</div>
+      <div class="chart-sub">last 90 days</div>
+    </div>
+    <svg viewBox="0 0 600 100" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#F4A26B" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#F4A26B" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="M0 80 L60 70 L120 75 L180 50 L240 55 L300 35 L360 40 L420 30 L480 38 L540 22 L600 28 L600 100 L0 100 Z" fill="url(#g)"/>
+      <path d="M0 80 L60 70 L120 75 L180 50 L240 55 L300 35 L360 40 L420 30 L480 38 L540 22 L600 28" fill="none" stroke="#EE8A4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+</body></html>

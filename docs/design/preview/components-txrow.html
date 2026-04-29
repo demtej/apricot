@@ -1,0 +1,47 @@
+<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../components.css">
+<style>
+  html, body { margin: 0; padding: 0; background: var(--bg-surface); }
+  body { padding: 16px; font-family: var(--font-sans); }
+  .stack { display: flex; flex-direction: column; gap: 8px; }
+  .label { font-size: 11px; color: var(--fg-secondary); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 500; margin-bottom: 12px; }
+  .arrow-svg { width: 18px; height: 18px; }
+</style>
+</head><body>
+  <div class="label">Transaction rows — incoming, outgoing, pending</div>
+  <div class="stack">
+    <div class="tx-row">
+      <div class="tx-icon tx-icon-in">
+        <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+      </div>
+      <div class="tx-main">
+        <div class="tx-title">Received</div>
+        <div class="tx-meta">Apr 19 · <span class="t-mono-sm">2 conf</span></div>
+      </div>
+      <div class="tx-amount tx-amount-in">+ 0.01250</div>
+    </div>
+    <div class="tx-row">
+      <div class="tx-icon tx-icon-out">
+        <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+      </div>
+      <div class="tx-main">
+        <div class="tx-title">Sent</div>
+        <div class="tx-meta">Apr 18 · <span class="t-mono-sm">142 conf</span></div>
+      </div>
+      <div class="tx-amount tx-amount-out">− 0.00420</div>
+    </div>
+    <div class="tx-row">
+      <div class="tx-icon tx-icon-pending">
+        <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      </div>
+      <div class="tx-main">
+        <div class="tx-title">Pending · in mempool</div>
+        <div class="tx-meta">a few seconds ago</div>
+      </div>
+      <div class="tx-amount tx-amount-out">− 0.00310</div>
+    </div>
+  </div>
+</body></html>

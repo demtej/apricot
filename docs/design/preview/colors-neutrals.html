@@ -1,0 +1,28 @@
+<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin: 0; padding: 0; background: var(--bg-page); }
+  body { padding: 20px; font-family: var(--font-sans); color: var(--fg-primary); }
+  .scale { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; }
+  .swatch { aspect-ratio: 1 / 1.1; border-radius: var(--radius-md); padding: 8px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(0,0,0,0.04); }
+  .step { font-size: 11px; font-weight: 600; }
+  .hex  { font-family: var(--font-mono); font-size: 10px; opacity: 0.85; }
+  .label { font-size: 11px; color: var(--fg-secondary); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 500; margin-bottom: 10px; }
+</style>
+</head><body>
+  <div class="label">Warm neutrals — taupe / cream</div>
+  <div class="scale">
+    <div class="swatch" style="background:#FFFDFA; color:#3A352C"><div class="step">0</div><div class="hex">FFFDFA</div></div>
+    <div class="swatch" style="background:#FAF6F0; color:#3A352C"><div class="step">50</div><div class="hex">FAF6F0</div></div>
+    <div class="swatch" style="background:#F2EBE0; color:#3A352C"><div class="step">100</div><div class="hex">F2EBE0</div></div>
+    <div class="swatch" style="background:#E6DCCB; color:#3A352C"><div class="step">200</div><div class="hex">E6DCCB</div></div>
+    <div class="swatch" style="background:#D2C5AF; color:#3A352C"><div class="step">300</div><div class="hex">D2C5AF</div></div>
+    <div class="swatch" style="background:#A89C86; color:#fff"><div class="step">400</div><div class="hex">A89C86</div></div>
+    <div class="swatch" style="background:#7C7261; color:#fff"><div class="step">500</div><div class="hex">7C7261</div></div>
+    <div class="swatch" style="background:#564F43; color:#fff"><div class="step">600</div><div class="hex">564F43</div></div>
+    <div class="swatch" style="background:#3A352C; color:#fff"><div class="step">700</div><div class="hex">3A352C</div></div>
+    <div class="swatch" style="background:#14120F; color:#fff"><div class="step">900</div><div class="hex">14120F</div></div>
+  </div>
+</body></html>

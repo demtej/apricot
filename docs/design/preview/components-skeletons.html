@@ -1,0 +1,43 @@
+<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../components.css">
+<style>
+  html, body { margin: 0; padding: 0; background: var(--bg-surface); }
+  body { padding: 16px; font-family: var(--font-sans); }
+  .label { font-size: 11px; color: var(--fg-secondary); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 500; margin-bottom: 12px; }
+  .row { display: flex; gap: 12px; }
+  .panel { flex: 1; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 14px; }
+  .stack { display: flex; flex-direction: column; gap: 8px; }
+</style>
+</head><body>
+  <div class="label">Loading skeletons</div>
+  <div class="row">
+    <div class="panel">
+      <div class="skeleton" style="width:60%; height:12px; margin-bottom:10px;"></div>
+      <div class="skeleton" style="width:90%; height:28px; margin-bottom:14px;"></div>
+      <div class="skeleton" style="width:40%; height:10px;"></div>
+    </div>
+    <div class="panel">
+      <div class="stack">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="skeleton" style="width:36px; height:36px; border-radius:999px;"></div>
+          <div style="flex:1">
+            <div class="skeleton" style="width:50%; height:11px; margin-bottom:6px;"></div>
+            <div class="skeleton" style="width:30%; height:9px;"></div>
+          </div>
+          <div class="skeleton" style="width:60px; height:14px;"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="skeleton" style="width:36px; height:36px; border-radius:999px;"></div>
+          <div style="flex:1">
+            <div class="skeleton" style="width:65%; height:11px; margin-bottom:6px;"></div>
+            <div class="skeleton" style="width:25%; height:9px;"></div>
+          </div>
+          <div class="skeleton" style="width:60px; height:14px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body></html>

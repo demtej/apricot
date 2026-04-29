@@ -1,0 +1,28 @@
+<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin: 0; padding: 0; background: var(--bg-page); }
+  body { padding: 24px; font-family: var(--font-sans); color: var(--fg-primary); }
+  .stack { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center; }
+  .panel { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 16px; }
+  .label { font-size: 11px; color: var(--fg-secondary); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 500; margin-bottom: 8px; }
+  .specimen-sans { font-family: var(--font-sans); font-size: 56px; font-weight: 600; line-height: 1; letter-spacing: -0.02em; color: var(--fg-primary); }
+  .specimen-mono { font-family: var(--font-mono); font-size: 36px; font-weight: 500; line-height: 1; color: var(--fg-primary); letter-spacing: -0.01em; }
+  .sub { font-size: 12px; color: var(--fg-secondary); margin-top: 6px; }
+</style>
+</head><body>
+  <div class="stack">
+    <div class="panel">
+      <div class="label">UI · Sans</div>
+      <div class="specimen-sans">Geist</div>
+      <div class="sub">400 / 500 / 600 / 700 — every interface element except blockchain data</div>
+    </div>
+    <div class="panel">
+      <div class="label">Data · Mono</div>
+      <div class="specimen-mono">0xJetBrains</div>
+      <div class="sub">400 / 500 — addresses, hashes, amounts, fees, blocks, timestamps</div>
+    </div>
+  </div>
+</body></html>

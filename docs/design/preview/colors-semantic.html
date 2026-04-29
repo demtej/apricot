@@ -1,0 +1,40 @@
+<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin: 0; padding: 0; background: var(--bg-page); }
+  body { padding: 20px; font-family: var(--font-sans); color: var(--fg-primary); }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .group { display: grid; grid-template-rows: 50px 50px auto; gap: 0; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-subtle); }
+  .pair { padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; }
+  .pair .h { font-family: var(--font-mono); font-size: 10px; opacity: 0.85; }
+  .pair .n { font-size: 11px; font-weight: 600; }
+  .meta { background: var(--bg-elevated); padding: 8px 12px; border-top: 1px solid var(--border-subtle); }
+  .meta .ttl { font-size: 12px; font-weight: 600; color: var(--fg-primary); }
+  .meta .sub { font-size: 11px; color: var(--fg-secondary); margin-top: 2px; }
+</style>
+</head><body>
+  <div class="grid">
+    <div class="group">
+      <div class="pair" style="background:#E4EDD9; color:#6B8E4E"><span class="n">100</span><span class="h">E4EDD9</span></div>
+      <div class="pair" style="background:#6B8E4E; color:#fff"><span class="n">600</span><span class="h">6B8E4E</span></div>
+      <div class="meta"><div class="ttl">Sage · received</div><div class="sub">Incoming, positive</div></div>
+    </div>
+    <div class="group">
+      <div class="pair" style="background:#F4DCD8; color:#9B5048"><span class="n">100</span><span class="h">F4DCD8</span></div>
+      <div class="pair" style="background:#9B5048; color:#fff"><span class="n">600</span><span class="h">9B5048</span></div>
+      <div class="meta"><div class="ttl">Rose · sent</div><div class="sub">Outgoing</div></div>
+    </div>
+    <div class="group">
+      <div class="pair" style="background:#FBE8C2; color:#A06A1F"><span class="n">100</span><span class="h">FBE8C2</span></div>
+      <div class="pair" style="background:#A06A1F; color:#fff"><span class="n">600</span><span class="h">A06A1F</span></div>
+      <div class="meta"><div class="ttl">Amber · pending</div><div class="sub">Unconfirmed, waiting</div></div>
+    </div>
+    <div class="group">
+      <div class="pair" style="background:#DCE8F0; color:#3F6A86"><span class="n">100</span><span class="h">DCE8F0</span></div>
+      <div class="pair" style="background:#3F6A86; color:#fff"><span class="n">600</span><span class="h">3F6A86</span></div>
+      <div class="meta"><div class="ttl">Sky · info</div><div class="sub">Education, hints</div></div>
+    </div>
+  </div>
+</body></html>

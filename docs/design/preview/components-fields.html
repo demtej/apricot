@@ -1,0 +1,30 @@
+<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../components.css">
+<style>
+  html, body { margin: 0; padding: 0; background: var(--bg-page); }
+  body { padding: 14px 20px; font-family: var(--font-sans); }
+  .stack { display: flex; flex-direction: column; gap: 12px; max-width: 520px; }
+  .label { font-size: 11px; color: var(--fg-secondary); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 500; margin-bottom: 4px; }
+  .field-label { font-size: 13px; color: var(--fg-secondary); margin-bottom: 6px; display: block; }
+  /* Tighter vertical padding for this card-sized preview */
+  .search-field { min-height: 48px; padding-top: 12px; padding-bottom: 12px; }
+  .field { min-height: 42px; padding-top: 10px; padding-bottom: 10px; }
+</style>
+</head><body>
+  <div class="stack">
+    <div>
+      <div class="label">Search field</div>
+      <div class="search-wrap">
+        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input class="search-field" placeholder="Search a Bitcoin address or transaction…">
+      </div>
+    </div>
+    <div>
+      <label class="field-label">Bitcoin address</label>
+      <input class="field" style="font-family: var(--font-mono); font-size: 14px" value="bc1qar0srrr7xfkvy5l643lydnw9re59gtzz">
+    </div>
+  </div>
+</body></html>

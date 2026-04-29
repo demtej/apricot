@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Apricot — UI Kit</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../../components.css">
+<style>
+  html, body { margin: 0; padding: 0; background: #F2EBE0; min-height: 100vh; font-family: var(--font-sans); }
+  .stage { display: flex; gap: 24px; flex-wrap: wrap; padding: 32px; justify-content: center; align-items: flex-start; }
+  .frame-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .frame-label { font-size: 12px; color: var(--fg-secondary); font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; }
+  /* Safe-area wrapper inside the ios frame.
+     Top: status bar + dynamic island ~ 56px. Bottom: home indicator ~ 28px. */
+  .ios-screen-content {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-top: 56px;
+    padding-bottom: 28px;
+    box-sizing: border-box;
+  }
+  /* Make sure no inner element forces horizontal overflow */
+  .ios-screen-content * { max-width: 100%; box-sizing: border-box; }
+  .ios-screen-content input { min-width: 0; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body class="apricot-base">
+<div id="root"></div>
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="atoms.jsx"></script>
+<script type="text/babel" src="HomeScreen.jsx"></script>
+<script type="text/babel" src="AddressScreen.jsx"></script>
+<script type="text/babel" src="TxScreen.jsx"></script>
+<script type="text/babel" src="StateScreens.jsx"></script>
+<script type="text/babel">
+
+const Frame = ({ label, children, screenId }) => (
+  <div className="frame-wrap" data-screen-label={label}>
+    <div className="frame-label">{label}</div>
+    <IOSDevice width={360} height={720}>
+      <div className="ios-screen-content">{children}</div>
+    </IOSDevice>
+  </div>
+);
+
+const App = () => {
+  // Each frame holds its own navigation state for click-thru
+  const [home, setHome] = React.useState("search");
+  const [addr, setAddr] = React.useState("summary");
+
+  return (
+    <div className="stage">
+      <Frame label="01 Home / Search">
+        <HomeScreen onSearch={() => {}} />
+      </Frame>
+
+      <Frame label="02 Address Summary">
+        <AddressScreen onBack={() => {}} onTx={() => {}} />
+      </Frame>
+
+      <Frame label="03 Transaction Detail">
+        <TxScreen onBack={() => {}} />
+      </Frame>
+
+      <Frame label="04 Loading">
+        <LoadingScreen onBack={() => {}} />
+      </Frame>
+
+      <Frame label="05 Error">
+        <ErrorScreen onBack={() => {}} onRetry={() => {}} />
+      </Frame>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

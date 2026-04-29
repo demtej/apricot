@@ -1,0 +1,36 @@
+<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../components.css">
+<style>
+  html, body { margin: 0; padding: 0; background: var(--bg-page); }
+  body { padding: 16px; font-family: var(--font-sans); }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .state { background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 22px 18px; text-align: center; }
+  .icon { width: 48px; height: 48px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-full); }
+  .empty .icon { background: var(--accent-soft); color: var(--apricot-600); }
+  .error .icon { background: var(--out-bg); color: var(--out-fg); }
+  .ttl { font-size: 15px; font-weight: 600; color: var(--fg-primary); margin-bottom: 4px; }
+  .desc { font-size: 13px; color: var(--fg-secondary); line-height: 1.5; max-width: 240px; margin: 0 auto 12px; }
+</style>
+</head><body>
+  <div class="row">
+    <div class="state empty">
+      <div class="icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      </div>
+      <div class="ttl">Nothing here yet</div>
+      <div class="desc">Search for a Bitcoin address or transaction id to see what's happened.</div>
+      <button class="btn btn-soft btn-sm">Try a sample</button>
+    </div>
+    <div class="state error">
+      <div class="icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+      </div>
+      <div class="ttl">We can't reach the network</div>
+      <div class="desc">Check your connection and try again. Your search is saved.</div>
+      <button class="btn btn-secondary btn-sm">Try again</button>
+    </div>
+  </div>
+</body></html>

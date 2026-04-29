@@ -1,0 +1,67 @@
+<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin: 0; padding: 0; background: linear-gradient(135deg, #FFF6EE 0%, #FBD3AE 100%); }
+  body { padding: 18px 28px; font-family: var(--font-sans); display: flex; align-items: center; gap: 26px; }
+  .word { font-family: var(--font-sans); font-size: 56px; font-weight: 600; letter-spacing: -0.03em; color: #4A2412; line-height: 1; }
+  .tag { font-family: var(--font-mono); font-size: 13px; color: #7E3C1E; margin-top: 8px; letter-spacing: -0.01em; }
+</style>
+</head><body>
+  <svg width="140" height="140" viewBox="0 0 140 140" fill="none">
+    <defs>
+      <radialGradient id="apricotBlush" cx="0.42" cy="0.42" r="0.65">
+        <stop offset="0%"  stop-color="#E64A2C"/>
+        <stop offset="35%" stop-color="#F26B33"/>
+        <stop offset="70%" stop-color="#F7A23A"/>
+        <stop offset="100%" stop-color="#F4C04A"/>
+      </radialGradient>
+      <linearGradient id="leafGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"  stop-color="#9CC36B"/>
+        <stop offset="100%" stop-color="#4A7A2C"/>
+      </linearGradient>
+    </defs>
+
+    <!-- Whole apricot — single irregular silhouette enclosing both lobes.
+         Slightly asymmetrical: wider on the right (where the cleft lobe lives),
+         a touch flatter on the bottom-left, gentle bulges, not a perfect circle. -->
+    <path d="
+      M 70 24
+      C 52 22, 32 32, 24 50
+      C 18 64, 20 84, 30 100
+      C 40 116, 60 122, 78 120
+      C 96 118, 112 108, 118 92
+      C 124 76, 122 56, 112 42
+      C 102 30, 86 24, 70 24
+      Z"
+      fill="url(#apricotBlush)"/>
+
+    <!-- Subtle bottom shadow to give roundness -->
+    <path d="M 30 100 C 50 116, 90 120, 116 100"
+          stroke="#C24818" stroke-width="1" stroke-linecap="round"
+          fill="none" opacity="0.18"/>
+
+    <!-- Stem -->
+    <path d="M 76 26 C 78 18, 76 12, 72 10"
+          stroke="#6B4423" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+    <circle cx="72" cy="10" r="2" fill="#6B4423"/>
+
+    <!-- Leaf — pointed almond shape -->
+    <path d="M72 18 C 56 4, 32 6, 22 18 C 32 30, 56 30, 72 24 Z"
+          fill="url(#leafGrad)"/>
+    <path d="M72 20 C 56 18, 38 20, 24 22"
+          stroke="#2F5418" stroke-width="1.1" stroke-linecap="round"
+          fill="none" opacity="0.75"/>
+    <path d="M62 19 C 60 15, 56 13, 54 13" stroke="#2F5418" stroke-width="0.7" fill="none" opacity="0.55"/>
+    <path d="M52 20 C 50 16, 46 14, 44 14" stroke="#2F5418" stroke-width="0.7" fill="none" opacity="0.55"/>
+    <path d="M42 20 C 40 17, 36 15, 34 15" stroke="#2F5418" stroke-width="0.7" fill="none" opacity="0.55"/>
+    <path d="M62 22 C 60 26, 56 28, 54 28" stroke="#2F5418" stroke-width="0.7" fill="none" opacity="0.5"/>
+    <path d="M50 22 C 48 26, 44 28, 42 28" stroke="#2F5418" stroke-width="0.7" fill="none" opacity="0.5"/>
+  </svg>
+
+  <div>
+    <div class="word">Apricot</div>
+    <div class="tag">// soft, calm, plain-language crypto</div>
+  </div>
+</body></html>

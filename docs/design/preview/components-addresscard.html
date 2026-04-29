@@ -1,0 +1,38 @@
+<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../components.css">
+<style>
+  html, body { margin: 0; padding: 0; background: var(--bg-surface); }
+  body { padding: 18px; font-family: var(--font-sans); }
+  .summary { background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 22px; box-shadow: var(--shadow-sm); }
+  .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+  .addr { font-family: var(--font-mono); font-size: 13px; color: var(--fg-secondary); letter-spacing: -0.01em; }
+  .balance { font-family: var(--font-mono); font-size: 36px; font-weight: 500; line-height: 1; letter-spacing: -0.01em; color: var(--fg-primary); font-variant-numeric: tabular-nums; }
+  .unit { font-size: 16px; color: var(--fg-secondary); margin-left: 6px; }
+  .fiat { font-size: 14px; color: var(--fg-secondary); margin-top: 6px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+  .mini { background: var(--bg-surface); border-radius: var(--radius-md); padding: 12px 14px; }
+  .mini .l { font-size: 11px; color: var(--fg-secondary); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 500; }
+  .mini .v { font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--fg-primary); margin-top: 4px; font-variant-numeric: tabular-nums; }
+</style>
+</head><body>
+  <div class="summary">
+    <div class="head">
+      <div>
+        <div class="t-label" style="margin-bottom: 4px">This wallet</div>
+        <div class="addr">bc1qar0srrr7xfk…59gtzz</div>
+      </div>
+      <span class="badge badge-neutral">P2WPKH</span>
+    </div>
+    <div class="balance">0.04827<span class="unit">BTC</span></div>
+    <div class="fiat">≈ $3,142.18 USD</div>
+    <div class="grid">
+      <div class="mini"><div class="l">Received</div><div class="v">2.31094</div></div>
+      <div class="mini"><div class="l">Sent</div><div class="v">2.26267</div></div>
+      <div class="mini"><div class="l">Transactions</div><div class="v">147</div></div>
+      <div class="mini"><div class="l">First seen</div><div class="v">2021-08-14</div></div>
+    </div>
+  </div>
+</body></html>
