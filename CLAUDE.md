@@ -1,4 +1,6 @@
-# Claude Code Instructions
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 You are helping build Apricot, a portfolio-grade iOS app with a Kotlin Multiplatform shared layer.
 
@@ -14,78 +16,94 @@ Work incrementally. Do not implement unrelated features unless explicitly reques
 - Keep UI code clean and readable.
 - Do not introduce external dependencies without asking first.
 
+## Build Commands
+
+> These will be filled in once the project skeleton exists. Expected setup: Xcode for the iOS app, Gradle for the KMP shared module, and a top-level Makefile for convenience.
+
 ## Swift Version
 
-This project must target Swift 5.9.
+- Target: Swift 5.9, iOS 17.0+, Xcode 15.x.
+- Do not use Swift 6-only features or APIs requiring Swift 5.10+.
+- The iOS app must compile with Swift 5 language mode.
 
-Do not use Swift 6-only features.
+## Architecture
 
-Avoid APIs or syntax that require Swift 5.10+ or Swift 6 unless explicitly requested.
+```
+Apricot iOS App
+├── SwiftUI Presentation
+├── Apricot Design System
+├── Observability
+└── Shared KMP Module
+    ├── Domain (Bitcoin models)
+    ├── Data (DTOs, mappers, repositories)
+    ├── Use Cases
+    ├── Mempool API Client
+    └── Cache
+```
 
-The iOS app should compile with Swift 5 language mode.
+**Layer ownership:**
+- iOS app: SwiftUI views, navigation, app composition, design system, platform integrations.
+- KMP shared module: domain models, DTOs, mappers, repositories, use cases, Mempool API client, cache.
 
-Preferred iOS deployment target: iOS 17.0.
-
-## Architecture Rules
-
-- The iOS app owns SwiftUI views, navigation, app composition, and platform-specific integrations.
-- The KMP shared module owns Bitcoin domain models, DTOs, mappers, repositories, use cases, and cache.
+**Rules:**
 - DTOs must not leak into presentation code.
-- Domain models should not depend on API-specific naming.
-- Provider-specific code should be isolated behind repository interfaces.
-- Feature flags should be abstracted behind a provider protocol.
-- Observability should be abstracted behind protocols.
+- Domain models must not depend on API-specific naming.
+- Provider-specific code (Mempool.space) must be isolated behind repository interfaces.
+- Feature flags must be abstracted behind a provider protocol.
+- Observability must be abstracted behind protocols.
 - Avoid business logic inside SwiftUI views.
+
+## Data Provider
+
+Initial provider: `mempool.space`. The KMP shared module hides all provider-specific details from the iOS app.
+
+## Feature Flag
+
+Initial flag: `addressInsightsEnabled`
+
+When enabled, shows additional address-level insights: first/last activity, incoming/outgoing/mixed transaction classification, and simple activity insights.
+
+## Observability
+
+The observability layer is abstracted behind protocols. The first implementation is console-based.
+
+Initial events: `address_search_started`, `address_search_succeeded`, `address_search_failed`, `transaction_opened`, `transaction_graph_viewed`, `cache_hit`, `cache_miss`.
+
+## Cache
+
+Simple in-memory TTL cache in the KMP shared module.
+
+Targets: address summary (short TTL), transaction list (short TTL), confirmed transaction detail (longer TTL), pending transaction detail (short TTL).
+
+## Testing Priorities
+
+- KMP: domain models, DTO→domain mappers, address summary calculations, transaction direction classification, repository behavior, cache hit/miss/expiration.
+- iOS: ViewModel state transitions, snapshot tests for main screens, UI test for happy path (search address → open transaction).
 
 ## Current Scope
 
-Bitcoin only.
+Bitcoin only. MVP: search a public Bitcoin address, show address summary, show transaction list, open transaction detail, explain transaction data visually.
 
-MVP:
-
-- Search a public Bitcoin address.
-- Show address summary.
-- Show transaction list.
-- Open transaction detail.
-- Explain transaction data visually and in simple language.
-
-Out of scope for now:
-
-- Ethereum.
-- Wallet connection.
-- Trading.
-- Authentication.
-- Push notifications.
-- App Store release.
-- Complex AI summaries.
+Out of scope: Ethereum, wallet connection, trading, authentication, push notifications, App Store release, complex AI summaries.
 
 ## Design System
 
-Design reference files are located in:
+Reference files in `docs/design/`:
+- `colors_and_type.css` — color tokens and typography
+- `components.css` — component recipes
+- `design-system-summary.md` — design guidelines
+- `ui_kits/` — screen mockups (Home, Address, Transaction, Loading, Error states)
+- `screenshots/` and `preview/` — visual references
 
-`docs/design/`
+CSS files are references only. The iOS app uses native SwiftUI components and Swift design tokens.
 
-Important files:
+Aesthetic: pastel, calm, premium, educational, approachable. Avoid neon/cyberpunk crypto aesthetics.
 
-- `docs/design/colors_and_type.css`
-- `docs/design/components.css`
-- `docs/design/design-system-summary.md`
-- `docs/design/screenshots/`
-- `docs/design/ui_kits/`
-- `docs/design/preview/`
-
-The CSS files are references only. The iOS app must use native SwiftUI components and Swift design tokens.
-
-The design system should feel pastel, calm, premium, educational, and approachable.
-
-Blockchain-specific values such as addresses, transaction ids, hashes, fees, and amounts should use a polished monospaced style.
+Blockchain-specific values (addresses, transaction IDs, hashes, fees, amounts) must use a polished monospaced style.
 
 ## Code Style
 
-- Prefer explicit names.
-- Prefer small types.
-- Avoid force unwraps.
-- Avoid large ViewModels.
+- Prefer explicit names and small types.
+- Avoid force unwraps and large ViewModels.
 - Favor async/await where appropriate.
-- Add comments only when they clarify non-obvious decisions.
-- Add tests for business logic and important state transitions.
+- Comments only when they clarify non-obvious decisions.
