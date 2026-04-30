@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+env:
+  GRADLE_USER_HOME: ${{ github.workspace }}/.gradle-ci
+  DERIVED_DATA_PATH: ${{ github.workspace }}/DerivedData
+
+jobs:
+  ci:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Install CI tools
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+        run: |
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+          brew list swiftlint >/dev/null 2>&1 || brew install swiftlint
+          brew list swiftformat >/dev/null 2>&1 || brew install swiftformat
+
+      - name: Run SwiftLint
+        run: make lint
+
+      - name: Run SwiftFormat check
+        run: make format-check
+
+      - name: Run KMP tests
+        run: ./gradlew :shared:allTests
+
+      - name: Build KMP XCFramework
+        run: make kmp
+
+      - name: Generate Xcode project
+        run: make xcode
+
+      - name: Resolve iOS simulator destination
+        id: simulator
+        run: |
+          chmod +x scripts/ci/select-ios-simulator.sh
+          echo "destination=$(scripts/ci/select-ios-simulator.sh Apricot.xcodeproj Apricot)" >> "$GITHUB_OUTPUT"
+
+      - name: Run iOS tests
+        run: |
+          xcodebuild \
+            -project Apricot.xcodeproj \
+            -scheme Apricot \
+            -destination "${{ steps.simulator.outputs.destination }}" \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            test
+
+      - name: Build iOS app
+        run: |
+          xcodebuild \
+            -project Apricot.xcodeproj \
+            -scheme Apricot \
+            -destination "${{ steps.simulator.outputs.destination }}" \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            build
