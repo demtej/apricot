@@ -11,6 +11,7 @@ import com.apricot.shared.domain.error.BitcoinRepositoryError
 import com.apricot.shared.domain.repository.BitcoinRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
@@ -99,6 +100,11 @@ class MempoolBitcoinRepository(
                             ignoreUnknownKeys = true
                             isLenient = true
                         })
+                    }
+                    install(HttpTimeout) {
+                        requestTimeoutMillis = 15_000
+                        connectTimeoutMillis = 10_000
+                        socketTimeoutMillis = 15_000
                     }
                 },
                 baseUrl = baseUrl,

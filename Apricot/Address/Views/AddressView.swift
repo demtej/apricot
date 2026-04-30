@@ -2,13 +2,15 @@ import SwiftUI
 
 struct AddressView: View {
     let initialAddress: String
+    private let service: BitcoinServiceProtocol
 
     @StateObject private var viewModel: AddressSearchViewModel
     @State private var selectedTransaction: TransactionItem?
     @State private var loadedAddress: String = ""
 
-    init(address: String, viewModel: AddressSearchViewModel) {
+    init(address: String, viewModel: AddressSearchViewModel, service: BitcoinServiceProtocol) {
         initialAddress = address
+        self.service = service
         _viewModel = StateObject(wrappedValue: viewModel)
     }
 
@@ -25,7 +27,7 @@ struct AddressView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Address")
         .navigationDestination(item: $selectedTransaction) { tx in
-            TransactionDetailView(transaction: tx, forAddress: loadedAddress)
+            TransactionDetailView(transaction: tx, forAddress: loadedAddress, service: service)
         }
         .task {
             viewModel.addressInput = initialAddress
@@ -131,10 +133,12 @@ struct AddressView: View {
 }
 
 #Preview {
-    NavigationStack {
+    let service = LiveBitcoinService()
+    return NavigationStack {
         AddressView(
             address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzz",
-            viewModel: AddressSearchViewModel()
+            viewModel: AddressSearchViewModel(service: service),
+            service: service
         )
     }
 }

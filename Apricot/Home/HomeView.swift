@@ -1,13 +1,18 @@
 import SwiftUI
 
 struct HomeView: View {
+    private let bitcoinService: BitcoinServiceProtocol
     private let makeAddressSearchViewModel: (RecentSearchStoring?) -> AddressSearchViewModel
 
     @State private var searchQuery = ""
     @State private var searchedAddress: String? = nil
     @EnvironmentObject private var recentSearchStore: RecentSearchStore
 
-    init(makeAddressSearchViewModel: @escaping (RecentSearchStoring?) -> AddressSearchViewModel) {
+    init(
+        bitcoinService: BitcoinServiceProtocol,
+        makeAddressSearchViewModel: @escaping (RecentSearchStoring?) -> AddressSearchViewModel
+    ) {
+        self.bitcoinService = bitcoinService
         self.makeAddressSearchViewModel = makeAddressSearchViewModel
     }
 
@@ -27,7 +32,8 @@ struct HomeView: View {
         .navigationDestination(item: $searchedAddress) { address in
             AddressView(
                 address: address,
-                viewModel: makeAddressSearchViewModel(recentSearchStore)
+                viewModel: makeAddressSearchViewModel(recentSearchStore),
+                service: bitcoinService
             )
         }
     }
@@ -170,9 +176,11 @@ struct HomeView: View {
 
 #Preview {
     let store = RecentSearchStore()
+    let service = LiveBitcoinService()
     return NavigationStack {
-        HomeView {
+        HomeView(bitcoinService: service) {
             AddressSearchViewModel(
+                service: service,
                 featureFlags: LocalFeatureFlags(addressInsightsEnabled: false),
                 recentSearchStore: $0
             )
