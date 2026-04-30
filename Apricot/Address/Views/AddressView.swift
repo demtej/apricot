@@ -3,14 +3,21 @@ import SwiftUI
 struct AddressView: View {
     let initialAddress: String
     private let service: BitcoinServiceProtocol
+    private let observability: AppObservability
 
     @StateObject private var viewModel: AddressSearchViewModel
     @State private var selectedTransaction: TransactionItem?
     @State private var loadedAddress: String = ""
 
-    init(address: String, viewModel: AddressSearchViewModel, service: BitcoinServiceProtocol) {
+    init(
+        address: String,
+        viewModel: AddressSearchViewModel,
+        service: BitcoinServiceProtocol,
+        observability: AppObservability = .noop
+    ) {
         initialAddress = address
         self.service = service
+        self.observability = observability
         _viewModel = StateObject(wrappedValue: viewModel)
     }
 
@@ -27,7 +34,12 @@ struct AddressView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Address")
         .navigationDestination(item: $selectedTransaction) { tx in
-            TransactionDetailView(transaction: tx, forAddress: loadedAddress, service: service)
+            TransactionDetailView(
+                transaction: tx,
+                forAddress: loadedAddress,
+                service: service,
+                observability: observability
+            )
         }
         .task {
             viewModel.addressInput = initialAddress
@@ -87,6 +99,7 @@ struct AddressView: View {
                 ForEach(transactions) { tx in
                     Button {
                         loadedAddress = summary.address
+                        viewModel.didOpenTransaction(tx, forAddress: summary.address)
                         selectedTransaction = tx
                     } label: {
                         TransactionRow(transaction: tx, showsDirectionClassification: showsInsights)

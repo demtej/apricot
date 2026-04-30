@@ -6,10 +6,18 @@ struct TransactionDetailView: View {
 
     @StateObject private var viewModel: TransactionDetailViewModel
 
-    init(transaction: TransactionItem, forAddress: String, service: BitcoinServiceProtocol = LiveBitcoinService()) {
+    init(
+        transaction: TransactionItem,
+        forAddress: String,
+        service: BitcoinServiceProtocol = LiveBitcoinService(),
+        observability: AppObservability = .noop
+    ) {
         self.transaction = transaction
         self.forAddress = forAddress
-        _viewModel = StateObject(wrappedValue: TransactionDetailViewModel(service: service))
+        _viewModel = StateObject(wrappedValue: TransactionDetailViewModel(
+            service: service,
+            observability: observability
+        ))
     }
 
     var body: some View {
@@ -63,6 +71,9 @@ struct TransactionDetailView: View {
                     outputs: detail.outputs,
                     feeSats: detail.feeSats
                 )
+                .onAppear {
+                    viewModel.trackTransactionGraphViewed(txId: detail.id)
+                }
                 ioSection(title: "INPUTS", count: detail.inputCount, items: detail.inputs)
                 ioSection(title: "OUTPUTS", count: detail.outputCount, items: detail.outputs)
             }

@@ -5,10 +5,17 @@ import XCTest
 final class AddressSearchViewModelTests: XCTestCase {
     private var mockService = MockBitcoinService()
     private var viewModel = AddressSearchViewModel(service: MockBitcoinService())
+    private var analytics = TestAnalyticsTracker()
+    private var logger = TestLogger()
 
     override func setUp() async throws {
         mockService = MockBitcoinService()
-        viewModel = AddressSearchViewModel(service: mockService)
+        analytics = TestAnalyticsTracker()
+        logger = TestLogger()
+        viewModel = AddressSearchViewModel(
+            service: mockService,
+            observability: AppObservability(analytics: analytics, logger: logger)
+        )
     }
 
     // MARK: - Initial state
@@ -62,6 +69,14 @@ final class AddressSearchViewModelTests: XCTestCase {
         XCTAssertEqual(loadedSummary, summary)
         XCTAssertEqual(loadedTransactions.count, 1)
         XCTAssertTrue(showsInsights)
+        XCTAssertEqual(analytics.events.first, .addressSearchStarted(addressPreview: "bc1qtest"))
+        XCTAssertEqual(analytics.events.count, 2)
+        guard case let .addressSearchSucceeded(addressPreview, resultCount, durationMs) = analytics.events[1] else {
+            return XCTFail("Expected address_search_succeeded event")
+        }
+        XCTAssertEqual(addressPreview, "bc1qtest")
+        XCTAssertEqual(resultCount, 1)
+        XCTAssertGreaterThanOrEqual(durationMs, 0)
     }
 
     // MARK: - Success: empty
@@ -114,6 +129,13 @@ final class AddressSearchViewModelTests: XCTestCase {
         try await waitForNonLoading()
 
         XCTAssertEqual(viewModel.state, .failed(.notFound))
+        XCTAssertEqual(analytics.events.count, 2)
+        guard case let .addressSearchFailed(addressPreview, errorCategory, durationMs) = analytics.events[1] else {
+            return XCTFail("Expected address_search_failed event")
+        }
+        XCTAssertEqual(addressPreview, "bc1qtest")
+        XCTAssertEqual(errorCategory, "not_found")
+        XCTAssertGreaterThanOrEqual(durationMs, 0)
     }
 
     func test_search_failure_network_setsFailedNetworkState() async throws {
@@ -167,6 +189,19 @@ final class AddressSearchViewModelTests: XCTestCase {
             return
         }
         XCTAssertEqual(loadedSummary.address, "bc1qsecond")
+    }
+
+    func test_didOpenTransaction_tracksTransactionOpened() {
+        let transaction = makeTransaction()
+
+        viewModel.didOpenTransaction(transaction, forAddress: "bc1qtestaddress123")
+
+        XCTAssertEqual(analytics.events, [
+            .transactionOpened(
+                txIdPreview: "abc123de…6789",
+                addressPreview: "bc1qtestad…"
+            )
+        ])
     }
 
     // MARK: - Helpers

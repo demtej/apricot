@@ -17,6 +17,7 @@ class CachingBitcoinRepository(
     private val addressTransactionsTtlMillis: Long = 60_000L,
     private val confirmedTxTtlMillis: Long = 600_000L,
     private val pendingTxTtlMillis: Long = 30_000L,
+    private val onCacheEvent: ((String, String, String) -> Unit)? = null,
 ) : BitcoinRepository {
 
     private val summaryCache = TtlCache<String, AddressSummary>(clock)
@@ -24,21 +25,33 @@ class CachingBitcoinRepository(
     private val txDetailCache = TtlCache<String, BitcoinTransaction>(clock)
 
     override suspend fun getAddressSummary(address: BitcoinAddress): Result<AddressSummary> {
-        summaryCache.get(address.value)?.let { return Result.success(it) }
+        summaryCache.get(address.value)?.let {
+            onCacheEvent?.invoke("cache_hit", "address_summary", address.value)
+            return Result.success(it)
+        }
+        onCacheEvent?.invoke("cache_miss", "address_summary", address.value)
         return delegate.getAddressSummary(address).onSuccess { summary ->
             summaryCache.put(address.value, summary, addressSummaryTtlMillis)
         }
     }
 
     override suspend fun getAddressTransactions(address: BitcoinAddress): Result<List<BitcoinTransaction>> {
-        transactionsCache.get(address.value)?.let { return Result.success(it) }
+        transactionsCache.get(address.value)?.let {
+            onCacheEvent?.invoke("cache_hit", "address_transactions", address.value)
+            return Result.success(it)
+        }
+        onCacheEvent?.invoke("cache_miss", "address_transactions", address.value)
         return delegate.getAddressTransactions(address).onSuccess { txs ->
             transactionsCache.put(address.value, txs, addressTransactionsTtlMillis)
         }
     }
 
     override suspend fun getTransactionDetail(id: TransactionId): Result<BitcoinTransaction> {
-        txDetailCache.get(id.value)?.let { return Result.success(it) }
+        txDetailCache.get(id.value)?.let {
+            onCacheEvent?.invoke("cache_hit", "transaction_detail", id.value)
+            return Result.success(it)
+        }
+        onCacheEvent?.invoke("cache_miss", "transaction_detail", id.value)
         return delegate.getTransactionDetail(id).onSuccess { tx ->
             val ttl = if (tx.status is TransactionStatus.Confirmed) confirmedTxTtlMillis else pendingTxTtlMillis
             txDetailCache.put(id.value, tx, ttl)

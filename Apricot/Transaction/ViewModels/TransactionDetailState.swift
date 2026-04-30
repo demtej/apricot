@@ -38,6 +38,19 @@ enum TransactionDetailError: Equatable, Error {
             "An unexpected error occurred. Please try again."
         }
     }
+
+    var analyticsCategory: String {
+        switch self {
+        case .notFound:
+            "not_found"
+        case .network:
+            "network"
+        case .decoding:
+            "decoding"
+        case .unknown:
+            "unknown"
+        }
+    }
 }
 
 // MARK: - Display model
