@@ -1,20 +1,121 @@
 import SwiftUI
-import shared
 
 struct HomeView: View {
-    private let greeting = Greeting().greet()
+    @State private var searchQuery = ""
+
+    private let recentItems: [(kind: String, value: String, time: String)] = [
+        (kind: "addr", value: "bc1qar0srrr7xfkvy5l643…59gtzz",   time: "Today"),
+        (kind: "tx",   value: "a1075db55d416d3ca199f55b6084e2…", time: "Today"),
+        (kind: "addr", value: "1A1zP1eP5QGefi2DMPTfTL5SLmv7…",  time: "Yesterday"),
+    ]
 
     var body: some View {
-        VStack(spacing: 16) {
-            Text("Apricot")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-            Text(greeting)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
+        ZStack {
+            Color.apricotBgPage.ignoresSafeArea()
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    brandHeader
+                    heroSection
+                    searchSection
+                    recentSection
+                }
+            }
         }
+    }
+
+    // MARK: - Sections
+
+    private var brandHeader: some View {
+        HStack(spacing: 10) {
+            ApricotLogo(size: 32)
+            Text("Apricot")
+                .font(.system(size: 20, weight: .semibold))
+                .tracking(-0.4)
+                .foregroundStyle(Color.apricotFgPrimary)
+        }
+        .padding(.horizontal, ApricotSpacing.s5)
+        .padding(.vertical, ApricotSpacing.s3)
+    }
+
+    private var heroSection: some View {
+        VStack(alignment: .leading, spacing: ApricotSpacing.s2) {
+            Text("Look up a wallet\nor transaction")
+                .font(.apricotH1)
+                .tracking(-0.68)
+                .foregroundStyle(Color.apricotFgPrimary)
+
+            Text("Paste a Bitcoin address or transaction ID.\nWe'll explain what we find.")
+                .font(.apricotCaption)
+                .foregroundStyle(Color.apricotFgSecondary)
+                .lineSpacing(3)
+        }
+        .padding(.horizontal, ApricotSpacing.s5)
+        .padding(.top, ApricotSpacing.s4)
+        .padding(.bottom, ApricotSpacing.s4)
+    }
+
+    private var searchSection: some View {
+        ApricotSearchField(text: $searchQuery)
+            .padding(.horizontal, ApricotSpacing.s5)
+            .padding(.bottom, ApricotSpacing.s6)
+    }
+
+    private var recentSection: some View {
+        VStack(alignment: .leading, spacing: ApricotSpacing.s3) {
+            Text("RECENT")
+                .font(.apricotLabel)
+                .tracking(.apricotTrackingWide)
+                .foregroundStyle(Color.apricotFgSecondary)
+                .padding(.horizontal, ApricotSpacing.s5)
+
+            VStack(spacing: 8) {
+                ForEach(recentItems, id: \.value) { item in
+                    recentRow(item)
+                }
+            }
+            .padding(.horizontal, ApricotSpacing.s5)
+        }
+    }
+
+    // MARK: - Recent row
+
+    private func recentRow(_ item: (kind: String, value: String, time: String)) -> some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(item.kind == "addr" ? Color.apricotAccentSoft : Color.apricotInfoBg)
+                    .frame(width: 32, height: 32)
+                Text(item.kind == "addr" ? "bc" : "tx")
+                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(
+                        item.kind == "addr" ? Color.Apricot.scale700 : Color.Apricot.sky600
+                    )
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(item.value)
+                    .apricotMono(.small)
+                    .foregroundStyle(Color.apricotFgPrimary)
+                    .lineLimit(1)
+                Text(item.time)
+                    .font(.apricotLabel)
+                    .foregroundStyle(Color.apricotFgSecondary)
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(Color.apricotFgMuted)
+        }
+        .padding(14)
+        .background(Color.apricotBgElevated)
+        .clipShape(RoundedRectangle(cornerRadius: ApricotRadius.md))
+        .overlay(
+            RoundedRectangle(cornerRadius: ApricotRadius.md)
+                .strokeBorder(Color.apricotBorderSubtle, lineWidth: 1)
+        )
     }
 }
 
