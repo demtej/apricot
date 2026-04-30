@@ -72,21 +72,29 @@ struct ApricotSoftButtonStyle: ButtonStyle {
     }
 }
 
-// Convenience extension so call sites read: .buttonStyle(.apricotPrimary)
+/// Convenience extension so call sites read: .buttonStyle(.apricotPrimary)
 extension ButtonStyle where Self == ApricotPrimaryButtonStyle {
-    static var apricotPrimary: ApricotPrimaryButtonStyle { .init() }
+    static var apricotPrimary: ApricotPrimaryButtonStyle {
+        .init()
+    }
 }
 
 extension ButtonStyle where Self == ApricotSecondaryButtonStyle {
-    static var apricotSecondary: ApricotSecondaryButtonStyle { .init() }
+    static var apricotSecondary: ApricotSecondaryButtonStyle {
+        .init()
+    }
 }
 
 extension ButtonStyle where Self == ApricotGhostButtonStyle {
-    static var apricotGhost: ApricotGhostButtonStyle { .init() }
+    static var apricotGhost: ApricotGhostButtonStyle {
+        .init()
+    }
 }
 
 extension ButtonStyle where Self == ApricotSoftButtonStyle {
-    static var apricotSoft: ApricotSoftButtonStyle { .init() }
+    static var apricotSoft: ApricotSoftButtonStyle {
+        .init()
+    }
 }
 
 #Preview {

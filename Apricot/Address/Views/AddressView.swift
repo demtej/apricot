@@ -56,11 +56,11 @@ struct AddressView: View {
             Spacer()
         case .loading:
             ApricotLoadingState()
-        case .loaded(let summary, let transactions, let showsInsights):
+        case let .loaded(summary, transactions, showsInsights):
             loadedView(summary: summary, transactions: transactions, showsInsights: showsInsights)
-        case .empty(let summary, _):
+        case let .empty(summary, _):
             emptyView(summary: summary)
-        case .failed(let error):
+        case let .failed(error):
             ApricotErrorState(
                 title: error.title,
                 message: error.message,

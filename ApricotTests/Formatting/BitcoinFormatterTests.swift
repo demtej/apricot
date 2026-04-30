@@ -1,8 +1,7 @@
-import XCTest
 @testable import Apricot
+import XCTest
 
 final class BitcoinFormatterTests: XCTestCase {
-
     // MARK: - BTC formatting
 
     func test_btc_zero() {
@@ -67,7 +66,7 @@ final class BitcoinFormatterTests: XCTestCase {
     }
 
     func test_sats_typicalFee() {
-        XCTAssertEqual(BitcoinFormatter.sats(1_234), "1,234 sats")
+        XCTAssertEqual(BitcoinFormatter.sats(1234), "1,234 sats")
     }
 
     func test_sats_millions() {

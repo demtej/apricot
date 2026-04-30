@@ -33,9 +33,9 @@ struct TransactionDetailView: View {
             EmptyView()
         case .loading:
             ApricotLoadingState()
-        case .loaded(let detail):
+        case let .loaded(detail):
             loadedView(detail: detail)
-        case .failed(let error):
+        case let .failed(error):
             ApricotErrorState(
                 title: error.title,
                 message: error.message,

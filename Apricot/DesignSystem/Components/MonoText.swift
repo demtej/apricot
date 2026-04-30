@@ -6,7 +6,7 @@ import SwiftUI
 struct MonoText: View {
     let text: String
     var size: ApricotMonoModifier.Size = .regular
-    var color: Color? = nil
+    var color: Color?
 
     var body: some View {
         Text(text)
@@ -15,7 +15,7 @@ struct MonoText: View {
     }
 }
 
-// Inline code chip for hashes / addresses embedded in prose.
+/// Inline code chip for hashes / addresses embedded in prose.
 struct MonoChip: View {
     let text: String
 

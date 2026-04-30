@@ -1,8 +1,8 @@
 import SwiftUI
 
-// At most this many nodes are shown per side before the "Show N more" button appears.
+/// At most this many nodes are shown per side before the "Show N more" button appears.
 private let kMaxVisibleNodes = 3
-// Beyond this threshold per side, swap to a compact count-only layout.
+/// Beyond this threshold per side, swap to a compact count-only layout.
 private let kComplexThreshold = 9
 
 struct TransactionFlowCard: View {
@@ -59,7 +59,7 @@ struct TransactionFlowCard: View {
             ForEach(visibleInputs) { item in
                 flowNode(item)
             }
-            if !showAllInputs && hiddenInputCount > 0 {
+            if !showAllInputs, hiddenInputCount > 0 {
                 expandButton(hidden: hiddenInputCount) {
                     withAnimation(.easeInOut(duration: 0.2)) {
                         showAllInputs = true
@@ -86,7 +86,7 @@ struct TransactionFlowCard: View {
             ForEach(visibleOutputs) { item in
                 flowNode(item)
             }
-            if !showAllOutputs && hiddenOutputCount > 0 {
+            if !showAllOutputs, hiddenOutputCount > 0 {
                 expandButton(hidden: hiddenOutputCount) {
                     withAnimation(.easeInOut(duration: 0.2)) {
                         showAllOutputs = true
@@ -248,12 +248,36 @@ struct TransactionFlowCard: View {
 
 #Preview("Simple transaction") {
     let inputs = [
-        IOItem(index: 0, address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq", amountBTC: "0.02850000 BTC", amountSats: "2,850,000 sat", isRelevantAddress: false),
-        IOItem(index: 1, address: "bc1qc7slrfxkknqcq2jevvvkdgvrt8080852dfjewc", amountBTC: "0.02000000 BTC", amountSats: "2,000,000 sat", isRelevantAddress: false),
+        IOItem(
+            index: 0,
+            address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+            amountBTC: "0.02850000 BTC",
+            amountSats: "2,850,000 sat",
+            isRelevantAddress: false
+        ),
+        IOItem(
+            index: 1,
+            address: "bc1qc7slrfxkknqcq2jevvvkdgvrt8080852dfjewc",
+            amountBTC: "0.02000000 BTC",
+            amountSats: "2,000,000 sat",
+            isRelevantAddress: false
+        )
     ]
     let outputs = [
-        IOItem(index: 0, address: "bc1q59gtvv4gkq3kxs5m8lspwmd7fqkdgw6txbfnt", amountBTC: "0.01250000 BTC", amountSats: "1,250,000 sat", isRelevantAddress: true),
-        IOItem(index: 1, address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", amountBTC: "0.03554600 BTC", amountSats: "3,554,600 sat", isRelevantAddress: false),
+        IOItem(
+            index: 0,
+            address: "bc1q59gtvv4gkq3kxs5m8lspwmd7fqkdgw6txbfnt",
+            amountBTC: "0.01250000 BTC",
+            amountSats: "1,250,000 sat",
+            isRelevantAddress: true
+        ),
+        IOItem(
+            index: 1,
+            address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+            amountBTC: "0.03554600 BTC",
+            amountSats: "3,554,600 sat",
+            isRelevantAddress: false
+        )
     ]
     return ScrollView {
         TransactionFlowCard(inputs: inputs, outputs: outputs, feeSats: "4,600 sat")
@@ -263,11 +287,23 @@ struct TransactionFlowCard: View {
 }
 
 #Preview("Progressive disclosure") {
-    let inputs = (0..<5).map { i in
-        IOItem(index: i, address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf\(i)mdq", amountBTC: "0.01000000 BTC", amountSats: "1,000,000 sat", isRelevantAddress: i == 0)
+    let inputs = (0 ..< 5).map { i in
+        IOItem(
+            index: i,
+            address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf\(i)mdq",
+            amountBTC: "0.01000000 BTC",
+            amountSats: "1,000,000 sat",
+            isRelevantAddress: i == 0
+        )
     }
-    let outputs = (0..<4).map { i in
-        IOItem(index: i, address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx\(i)wlh", amountBTC: "0.01200000 BTC", amountSats: "1,200,000 sat", isRelevantAddress: i == 1)
+    let outputs = (0 ..< 4).map { i in
+        IOItem(
+            index: i,
+            address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx\(i)wlh",
+            amountBTC: "0.01200000 BTC",
+            amountSats: "1,200,000 sat",
+            isRelevantAddress: i == 1
+        )
     }
     return ScrollView {
         TransactionFlowCard(inputs: inputs, outputs: outputs, feeSats: "2,100 sat")
@@ -277,11 +313,23 @@ struct TransactionFlowCard: View {
 }
 
 #Preview("Complex transaction") {
-    let inputs = (0..<12).map { i in
-        IOItem(index: i, address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf\(i)mdq", amountBTC: "0.00500000 BTC", amountSats: "500,000 sat", isRelevantAddress: false)
+    let inputs = (0 ..< 12).map { i in
+        IOItem(
+            index: i,
+            address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf\(i)mdq",
+            amountBTC: "0.00500000 BTC",
+            amountSats: "500,000 sat",
+            isRelevantAddress: false
+        )
     }
-    let outputs = (0..<10).map { i in
-        IOItem(index: i, address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx\(i)wlh", amountBTC: "0.00600000 BTC", amountSats: "600,000 sat", isRelevantAddress: i == 2)
+    let outputs = (0 ..< 10).map { i in
+        IOItem(
+            index: i,
+            address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx\(i)wlh",
+            amountBTC: "0.00600000 BTC",
+            amountSats: "600,000 sat",
+            isRelevantAddress: i == 2
+        )
     }
     return ScrollView {
         TransactionFlowCard(inputs: inputs, outputs: outputs, feeSats: "1,800 sat")

@@ -3,7 +3,7 @@ import Foundation
 private let kMaxCount = 5
 private let kDefaultsKey = "apricot.recentSearches"
 
-// Protocol allows swapping UserDefaults for a mock in tests.
+/// Protocol allows swapping UserDefaults for a mock in tests.
 protocol RecentSearchStoring: AnyObject {
     var searches: [RecentSearch] { get }
     func add(address: String)
@@ -19,8 +19,8 @@ final class RecentSearchStore: ObservableObject, RecentSearchStoring {
         load()
     }
 
-    // Inserts address at the top. Moves it there if it already exists.
-    // Trims the list to kMaxCount after inserting.
+    /// Inserts address at the top. Moves it there if it already exists.
+    /// Trims the list to kMaxCount after inserting.
     func add(address: String) {
         var updated = searches.filter { $0.address != address }
         updated.insert(RecentSearch(address: address), at: 0)

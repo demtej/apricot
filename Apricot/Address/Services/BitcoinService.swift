@@ -16,7 +16,6 @@ struct AddressData {
 // MARK: - Live implementation
 
 final class LiveBitcoinService: BitcoinServiceProtocol {
-
     private let facade: IosAddressFacade
 
     init(facade: IosAddressFacade = IosAddressFacade.companion.create()) {
@@ -78,10 +77,10 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
 
     private func parseDirection(_ raw: String) -> TransactionDirectionDisplay {
         switch raw {
-        case "incoming": return .incoming
-        case "outgoing": return .outgoing
-        case "mixed":    return .mixed
-        default:         return .unknown
+        case "incoming": .incoming
+        case "outgoing": .outgoing
+        case "mixed": .mixed
+        default: .unknown
         }
     }
 
@@ -115,7 +114,7 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
         let timestamp = blockTime.map { BitcoinFormatter.timestamp(epochSeconds: $0) }
         let netAmountDisplay = BitcoinFormatter.btc(abs(netSats))
 
-        let inputs: [IOItem] = (0..<Int(facade.inputCount(tx: tx))).map { i in
+        let inputs: [IOItem] = (0 ..< Int(facade.inputCount(tx: tx))).map { i in
             let address = facade.inputAddressAt(tx: tx, index: Int32(i))
             let sats = facade.inputAmountSatsAt(tx: tx, index: Int32(i))
             return IOItem(
@@ -127,7 +126,7 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
             )
         }
 
-        let outputs: [IOItem] = (0..<Int(facade.outputCount(tx: tx))).map { i in
+        let outputs: [IOItem] = (0 ..< Int(facade.outputCount(tx: tx))).map { i in
             let address = facade.outputAddressAt(tx: tx, index: Int32(i))
             let sats = facade.outputAmountSatsAt(tx: tx, index: Int32(i))
             return IOItem(
@@ -168,7 +167,7 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
         direction: TransactionDirectionDisplay,
         status: TransactionStatusDisplay,
         netAmountBTC: String,
-        isPositive: Bool
+        isPositive _: Bool
     ) -> String {
         let statusWord = status == .pending ? "pending" : "confirmed"
         switch direction {
@@ -186,7 +185,8 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
     private func classifyTransactionError(_ error: Error) -> TransactionDetailError {
         let description = error.localizedDescription
         if description.contains("not found") || description.contains("Not Found") ||
-           description.contains("Resource not found") {
+            description.contains("Resource not found")
+        {
             return .notFound
         }
         if description.contains("decode") || description.contains("Decode") {
@@ -201,7 +201,8 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
         // BitcoinRepositoryError.NotFound sets message "Resource not found"
         let description = error.localizedDescription
         if description.contains("not found") || description.contains("Not Found") ||
-           description.contains("Resource not found") {
+            description.contains("Resource not found")
+        {
             return .notFound
         }
         if description.contains("decode") || description.contains("Decode") {

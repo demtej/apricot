@@ -6,7 +6,7 @@ struct RecentSearch: Codable, Identifiable, Equatable {
     let searchedAt: Date
 
     init(address: String, searchedAt: Date = Date()) {
-        self.id = UUID()
+        id = UUID()
         self.address = address
         self.searchedAt = searchedAt
     }

@@ -4,8 +4,8 @@ struct ApricotEmptyState: View {
     let title: String
     let message: String
     var systemImage: String = "magnifyingglass"
-    var actionTitle: String? = nil
-    var action: (() -> Void)? = nil
+    var actionTitle: String?
+    var action: (() -> Void)?
 
     var body: some View {
         VStack(spacing: ApricotSpacing.s5) {
@@ -47,5 +47,5 @@ struct ApricotEmptyState: View {
         systemImage: "arrow.left.arrow.right",
         actionTitle: "Search another address"
     ) {}
-    .background(Color.apricotBgPage)
+        .background(Color.apricotBgPage)
 }

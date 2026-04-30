@@ -74,6 +74,26 @@ This project is intended to demonstrate:
 - Xcode 15.x recommended
 - JDK and Gradle for the KMP shared module
 
+## Tooling
+
+Install the local formatting and linting tools with Homebrew:
+
+```bash
+brew install swiftlint swiftformat
+```
+
+Available commands:
+
+```bash
+make lint
+make format
+make format-check
+```
+
+- `make lint`: runs SwiftLint with the project configuration.
+- `make format`: formats Swift files in `Apricot/` and `ApricotTests/` using the project configuration.
+- `make format-check`: runs SwiftFormat in lint mode to verify formatting without changing files.
+
 The iOS app should be written using Swift 5.9-compatible APIs. Avoid Swift 6-only language features or APIs that require newer compiler versions unless explicitly approved.
 
 ## Architecture Direction

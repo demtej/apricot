@@ -1,11 +1,10 @@
-import XCTest
 @testable import Apricot
+import XCTest
 
 @MainActor
 final class TransactionDetailViewModelTests: XCTestCase {
-
-    private var mockService: MockTransactionService!
-    private var viewModel: TransactionDetailViewModel!
+    private var mockService = MockTransactionService()
+    private var viewModel = TransactionDetailViewModel(service: MockTransactionService())
 
     override func setUp() async throws {
         mockService = MockTransactionService()
@@ -35,7 +34,7 @@ final class TransactionDetailViewModelTests: XCTestCase {
         viewModel.load(txId: item.id, forAddress: "bc1qtest")
         try await waitForNonLoading()
 
-        guard case .loaded(let loaded) = viewModel.state else {
+        guard case let .loaded(loaded) = viewModel.state else {
             XCTFail("Expected .loaded, got \(viewModel.state)")
             return
         }
@@ -110,7 +109,7 @@ final class TransactionDetailViewModelTests: XCTestCase {
         viewModel.load(txId: second.id, forAddress: "bc1qtest")
         try await waitForNonLoading()
 
-        guard case .loaded(let loaded) = viewModel.state else {
+        guard case let .loaded(loaded) = viewModel.state else {
             XCTFail("Expected .loaded, got \(viewModel.state)")
             return
         }
@@ -178,11 +177,11 @@ final class MockTransactionService: BitcoinServiceProtocol {
     var transactionResult: Result<TransactionDetailItem, Error> = .failure(TransactionDetailError.unknown)
     var delay: UInt64 = 0
 
-    func fetchAddressData(address: String) async throws -> AddressData {
+    func fetchAddressData(address _: String) async throws -> AddressData {
         throw AddressSearchError.unknown
     }
 
-    func fetchTransactionDetail(txId: String, forAddress: String) async throws -> TransactionDetailItem {
+    func fetchTransactionDetail(txId _: String, forAddress _: String) async throws -> TransactionDetailItem {
         if delay > 0 {
             try await Task.sleep(nanoseconds: delay)
         }

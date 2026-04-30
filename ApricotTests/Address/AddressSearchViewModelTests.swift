@@ -1,11 +1,10 @@
-import XCTest
 @testable import Apricot
+import XCTest
 
 @MainActor
 final class AddressSearchViewModelTests: XCTestCase {
-
-    private var mockService: MockBitcoinService!
-    private var viewModel: AddressSearchViewModel!
+    private var mockService = MockBitcoinService()
+    private var viewModel = AddressSearchViewModel(service: MockBitcoinService())
 
     override func setUp() async throws {
         mockService = MockBitcoinService()
@@ -56,7 +55,7 @@ final class AddressSearchViewModelTests: XCTestCase {
         viewModel.search()
         try await waitForNonLoading()
 
-        guard case .loaded(let loadedSummary, let loadedTransactions, let showsInsights) = viewModel.state else {
+        guard case let .loaded(loadedSummary, loadedTransactions, showsInsights) = viewModel.state else {
             XCTFail("Expected .loaded, got \(viewModel.state)")
             return
         }
@@ -75,7 +74,7 @@ final class AddressSearchViewModelTests: XCTestCase {
         viewModel.search()
         try await waitForNonLoading()
 
-        guard case .empty(let loadedSummary, let showsInsights) = viewModel.state else {
+        guard case let .empty(loadedSummary, showsInsights) = viewModel.state else {
             XCTFail("Expected .empty, got \(viewModel.state)")
             return
         }
@@ -96,7 +95,7 @@ final class AddressSearchViewModelTests: XCTestCase {
         viewModel.search()
         try await waitForNonLoading()
 
-        guard case .loaded(let loadedSummary, let loadedTransactions, let showsInsights) = viewModel.state else {
+        guard case let .loaded(loadedSummary, loadedTransactions, showsInsights) = viewModel.state else {
             XCTFail("Expected .loaded, got \(viewModel.state)")
             return
         }
@@ -163,7 +162,7 @@ final class AddressSearchViewModelTests: XCTestCase {
 
         try await waitForNonLoading()
 
-        guard case .empty(let loadedSummary, _) = viewModel.state else {
+        guard case let .empty(loadedSummary, _) = viewModel.state else {
             XCTFail("Expected .empty, got \(viewModel.state)")
             return
         }
@@ -222,14 +221,14 @@ final class MockBitcoinService: BitcoinServiceProtocol {
     ))
     var delay: UInt64 = 0
 
-    func fetchAddressData(address: String) async throws -> AddressData {
+    func fetchAddressData(address _: String) async throws -> AddressData {
         if delay > 0 {
             try await Task.sleep(nanoseconds: delay)
         }
         return try result.get()
     }
 
-    func fetchTransactionDetail(txId: String, forAddress: String) async throws -> TransactionDetailItem {
+    func fetchTransactionDetail(txId _: String, forAddress _: String) async throws -> TransactionDetailItem {
         throw TransactionDetailError.unknown
     }
 }
