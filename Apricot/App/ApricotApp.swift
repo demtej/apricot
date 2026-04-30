@@ -4,7 +4,9 @@ import SwiftUI
 struct ApricotApp: App {
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            NavigationStack {
+                HomeView()
+            }
         }
     }
 }
