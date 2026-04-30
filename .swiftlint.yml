@@ -1,0 +1,39 @@
+included:
+  - Apricot
+  - ApricotTests
+
+excluded:
+  - .build
+  - DerivedData
+  - Apricot.xcodeproj
+  - shared/build
+  - .gradle
+
+reporter: xcode
+
+opt_in_rules:
+  - empty_count
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+  - sorted_imports
+
+disabled_rules:
+  - file_length
+  - function_body_length
+  - identifier_name
+  - implicit_optional_initialization
+  - line_length
+  - opening_brace
+  - type_body_length
+
+force_unwrapping:
+  severity: error
+
+implicitly_unwrapped_optional:
+  severity: error
+
+empty_count:
+  severity: warning
+
+sorted_imports:
+  severity: warning

@@ -19,23 +19,23 @@ enum TransactionDetailError: Equatable, Error {
 
     var title: String {
         switch self {
-        case .notFound: return "Transaction Not Found"
-        case .network:  return "Network Error"
-        case .decoding: return "Data Error"
-        case .unknown:  return "Something Went Wrong"
+        case .notFound: "Transaction Not Found"
+        case .network: "Network Error"
+        case .decoding: "Data Error"
+        case .unknown: "Something Went Wrong"
         }
     }
 
     var message: String {
         switch self {
         case .notFound:
-            return "No data was found for this transaction ID."
+            "No data was found for this transaction ID."
         case .network:
-            return "Could not reach the network. Check your connection and try again."
+            "Could not reach the network. Check your connection and try again."
         case .decoding:
-            return "The response could not be read. Please try again later."
+            "The response could not be read. Please try again later."
         case .unknown:
-            return "An unexpected error occurred. Please try again."
+            "An unexpected error occurred. Please try again."
         }
     }
 }
@@ -73,15 +73,15 @@ enum TransactionStatusDisplay: Equatable {
 
     var label: String {
         switch self {
-        case .confirmed: return "Confirmed"
-        case .pending:   return "Pending"
+        case .confirmed: "Confirmed"
+        case .pending: "Pending"
         }
     }
 
     var badgeVariant: ApricotBadgeVariant {
         switch self {
-        case .confirmed: return .info
-        case .pending:   return .pending
+        case .confirmed: .info
+        case .pending: .pending
         }
     }
 }
@@ -95,5 +95,7 @@ struct IOItem: Equatable, Identifiable {
     let amountSats: String
     let isRelevantAddress: Bool
 
-    var id: Int { index }
+    var id: Int {
+        index
+    }
 }

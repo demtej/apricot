@@ -3,7 +3,7 @@ import SwiftUI
 struct ApricotStatCard: View {
     let label: String
     let value: String
-    var unit: String? = nil
+    var unit: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: ApricotSpacing.s1) {

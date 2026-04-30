@@ -5,13 +5,12 @@ import Foundation
 /// BTC amounts always use a dot decimal separator regardless of device locale.
 /// Sats use comma grouping. Dates use the device locale and timezone.
 enum BitcoinFormatter {
-
     // MARK: - Cached formatters
 
     private static let btcFormatter: NumberFormatter = {
         let f = NumberFormatter()
         f.numberStyle = .decimal
-        f.decimalSeparator = "."        // explicit dot — ignores device locale
+        f.decimalSeparator = "." // explicit dot — ignores device locale
         f.usesGroupingSeparator = false
         f.minimumFractionDigits = 2
         f.maximumFractionDigits = 8

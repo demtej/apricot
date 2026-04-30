@@ -13,7 +13,7 @@ struct SkeletonView: View {
             .onAppear {
                 withAnimation(
                     .easeInOut(duration: 0.9)
-                    .repeatForever(autoreverses: true)
+                        .repeatForever(autoreverses: true)
                 ) {
                     opacity = 0.4
                 }
@@ -38,7 +38,7 @@ struct ApricotLoadingState: View {
                         columns: [GridItem(.flexible()), GridItem(.flexible())],
                         spacing: 8
                     ) {
-                        ForEach(0..<4, id: \.self) { _ in
+                        ForEach(0 ..< 4, id: \.self) { _ in
                             VStack(alignment: .leading, spacing: 6) {
                                 SkeletonView().frame(width: 60, height: 10)
                                 SkeletonView().frame(width: 80, height: 14)
@@ -52,7 +52,7 @@ struct ApricotLoadingState: View {
             }
 
             // Transaction row skeletons
-            ForEach(0..<3, id: \.self) { _ in
+            ForEach(0 ..< 3, id: \.self) { _ in
                 txRowSkeleton
             }
         }

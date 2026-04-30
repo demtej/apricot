@@ -20,23 +20,23 @@ enum AddressSearchError: Equatable, Error {
 
     var title: String {
         switch self {
-        case .notFound: return "Address Not Found"
-        case .network:  return "Network Error"
-        case .decoding: return "Data Error"
-        case .unknown:  return "Something Went Wrong"
+        case .notFound: "Address Not Found"
+        case .network: "Network Error"
+        case .decoding: "Data Error"
+        case .unknown: "Something Went Wrong"
         }
     }
 
     var message: String {
         switch self {
         case .notFound:
-            return "No data was found for this address. Check that it is a valid public Bitcoin address."
+            "No data was found for this address. Check that it is a valid public Bitcoin address."
         case .network:
-            return "Could not reach the network. Check your connection and try again."
+            "Could not reach the network. Check your connection and try again."
         case .decoding:
-            return "The response could not be read. Please try again later."
+            "The response could not be read. Please try again later."
         case .unknown:
-            return "An unexpected error occurred. Please try again."
+            "An unexpected error occurred. Please try again."
         }
     }
 }
@@ -77,18 +77,18 @@ enum TransactionDirectionDisplay: Equatable {
 
     var label: String {
         switch self {
-        case .incoming: return "Received"
-        case .outgoing: return "Sent"
-        case .mixed:    return "Mixed"
-        case .unknown:  return "—"
+        case .incoming: "Received"
+        case .outgoing: "Sent"
+        case .mixed: "Mixed"
+        case .unknown: "—"
         }
     }
 
     var badgeVariant: ApricotBadgeVariant {
         switch self {
-        case .incoming: return .received
-        case .outgoing: return .sent
-        case .mixed, .unknown: return .neutral
+        case .incoming: .received
+        case .outgoing: .sent
+        case .mixed, .unknown: .neutral
         }
     }
 }

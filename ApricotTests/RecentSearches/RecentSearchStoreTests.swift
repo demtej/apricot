@@ -1,15 +1,13 @@
-import XCTest
 @testable import Apricot
+import XCTest
 
 final class RecentSearchStoreTests: XCTestCase {
-
-    private var store: RecentSearchStore!
-    private var defaults: UserDefaults!
-
     private let suiteName = "apricot.tests.recentSearches"
+    private var defaults: UserDefaults = .standard
+    private var store: RecentSearchStore = .init(defaults: .standard)
 
-    override func setUp() {
-        defaults = UserDefaults(suiteName: suiteName)!
+    override func setUpWithError() throws {
+        defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
         defaults.removePersistentDomain(forName: suiteName)
         store = RecentSearchStore(defaults: defaults)
     }
@@ -86,7 +84,7 @@ final class RecentSearchStoreTests: XCTestCase {
     // MARK: - Max count
 
     func test_add_exceedsMaxCount_trimsToFive() {
-        for i in 0..<7 {
+        for i in 0 ..< 7 {
             store.add(address: "bc1qaddr\(i)")
         }
 
@@ -94,7 +92,7 @@ final class RecentSearchStoreTests: XCTestCase {
     }
 
     func test_add_exceedsMaxCount_keepsNewest() {
-        for i in 0..<7 {
+        for i in 0 ..< 7 {
             store.add(address: "bc1qaddr\(i)")
         }
 
@@ -116,8 +114,8 @@ final class RecentSearchStoreTests: XCTestCase {
         XCTAssertEqual(newStore.searches[1].address, "bc1qpersisted")
     }
 
-    func test_persistence_emptyOnFreshDefaults() {
-        let freshDefaults = UserDefaults(suiteName: "apricot.tests.fresh")!
+    func test_persistence_emptyOnFreshDefaults() throws {
+        let freshDefaults = try XCTUnwrap(UserDefaults(suiteName: "apricot.tests.fresh"))
         freshDefaults.removePersistentDomain(forName: "apricot.tests.fresh")
         let freshStore = RecentSearchStore(defaults: freshDefaults)
 
@@ -127,7 +125,7 @@ final class RecentSearchStoreTests: XCTestCase {
     }
 
     func test_persistence_maxCountRespectedAfterReload() {
-        for i in 0..<7 {
+        for i in 0 ..< 7 {
             store.add(address: "bc1qaddr\(i)")
         }
 

@@ -20,7 +20,7 @@ final class AddressSearchViewModel: ObservableObject {
         self.recentSearchStore = recentSearchStore
     }
 
-    // Sets state to .loading synchronously, then starts the async fetch.
+    /// Sets state to .loading synchronously, then starts the async fetch.
     func search() {
         let trimmed = addressInput.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }

@@ -29,21 +29,21 @@ struct ApricotBadge: View {
 
     private var background: Color {
         switch variant {
-        case .received: return .apricotInBg
-        case .sent:     return .apricotOutBg
-        case .pending:  return .apricotPendingBg
-        case .info:     return .apricotInfoBg
-        case .neutral:  return .apricotBgSurface2
+        case .received: .apricotInBg
+        case .sent: .apricotOutBg
+        case .pending: .apricotPendingBg
+        case .info: .apricotInfoBg
+        case .neutral: .apricotBgSurface2
         }
     }
 
     private var foreground: Color {
         switch variant {
-        case .received: return .apricotInFg
-        case .sent:     return .apricotOutFg
-        case .pending:  return .apricotPendingFg
-        case .info:     return .apricotInfoFg
-        case .neutral:  return .apricotFgSecondary
+        case .received: .apricotInFg
+        case .sent: .apricotOutFg
+        case .pending: .apricotPendingFg
+        case .info: .apricotInfoFg
+        case .neutral: .apricotFgSecondary
         }
     }
 }

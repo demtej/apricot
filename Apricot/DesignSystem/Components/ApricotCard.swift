@@ -29,25 +29,25 @@ struct ApricotCard<Content: View>: View {
 
     private var shadowColor: Color {
         switch style {
-        case .flat:     return .clear
-        case .default:  return Color(red: 0.298, green: 0.212, blue: 0.11).opacity(0.04)
-        case .elevated: return Color(red: 0.298, green: 0.212, blue: 0.11).opacity(0.06)
+        case .flat: .clear
+        case .default: Color(red: 0.298, green: 0.212, blue: 0.11).opacity(0.04)
+        case .elevated: Color(red: 0.298, green: 0.212, blue: 0.11).opacity(0.06)
         }
     }
 
     private var shadowRadius: CGFloat {
         switch style {
-        case .flat:     return 0
-        case .default:  return 1
-        case .elevated: return 8
+        case .flat: 0
+        case .default: 1
+        case .elevated: 8
         }
     }
 
     private var shadowY: CGFloat {
         switch style {
-        case .flat:     return 0
-        case .default:  return 1
-        case .elevated: return 6
+        case .flat: 0
+        case .default: 1
+        case .elevated: 6
         }
     }
 }

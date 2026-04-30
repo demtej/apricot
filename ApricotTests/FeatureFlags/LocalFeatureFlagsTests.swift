@@ -1,8 +1,7 @@
-import XCTest
 @testable import Apricot
+import XCTest
 
 final class LocalFeatureFlagsTests: XCTestCase {
-
     func test_defaultAddressInsightsEnabled_isTrue() {
         let flags = LocalFeatureFlags()
 

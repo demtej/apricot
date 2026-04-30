@@ -4,8 +4,8 @@ struct ApricotErrorState: View {
     let title: String
     let message: String
     var retryTitle: String = "Try again"
-    var onRetry: (() -> Void)? = nil
-    var onBack: (() -> Void)? = nil
+    var onRetry: (() -> Void)?
+    var onBack: (() -> Void)?
 
     var body: some View {
         VStack(spacing: ApricotSpacing.s5) {
