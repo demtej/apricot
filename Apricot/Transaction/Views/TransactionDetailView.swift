@@ -52,6 +52,11 @@ struct TransactionDetailView: View {
                     confirmationCard(detail: detail)
                 }
                 amountCard(detail: detail)
+                TransactionFlowCard(
+                    inputs: detail.inputs,
+                    outputs: detail.outputs,
+                    feeSats: detail.feeSats
+                )
                 ioSection(title: "INPUTS", count: detail.inputCount, items: detail.inputs)
                 ioSection(title: "OUTPUTS", count: detail.outputCount, items: detail.outputs)
             }
