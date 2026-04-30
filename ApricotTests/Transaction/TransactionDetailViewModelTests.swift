@@ -5,10 +5,17 @@ import XCTest
 final class TransactionDetailViewModelTests: XCTestCase {
     private var mockService = MockTransactionService()
     private var viewModel = TransactionDetailViewModel(service: MockTransactionService())
+    private var analytics = TestAnalyticsTracker()
+    private var logger = TestLogger()
 
     override func setUp() async throws {
         mockService = MockTransactionService()
-        viewModel = TransactionDetailViewModel(service: mockService)
+        analytics = TestAnalyticsTracker()
+        logger = TestLogger()
+        viewModel = TransactionDetailViewModel(
+            service: mockService,
+            observability: AppObservability(analytics: analytics, logger: logger)
+        )
     }
 
     // MARK: - Initial state
@@ -39,6 +46,12 @@ final class TransactionDetailViewModelTests: XCTestCase {
             return
         }
         XCTAssertEqual(loaded.id, item.id)
+        XCTAssertEqual(analytics.events.count, 1)
+        guard case let .transactionDetailLoaded(txIdPreview, durationMs) = analytics.events[0] else {
+            return XCTFail("Expected transaction_detail_loaded event")
+        }
+        XCTAssertEqual(txIdPreview, "abc123def456")
+        XCTAssertGreaterThanOrEqual(durationMs, 0)
     }
 
     // MARK: - Failure: not found
@@ -50,6 +63,13 @@ final class TransactionDetailViewModelTests: XCTestCase {
         try await waitForNonLoading()
 
         XCTAssertEqual(viewModel.state, .failed(.notFound))
+        XCTAssertEqual(analytics.events.count, 1)
+        guard case let .transactionDetailFailed(txIdPreview, errorCategory, durationMs) = analytics.events[0] else {
+            return XCTFail("Expected transaction_detail_failed event")
+        }
+        XCTAssertEqual(txIdPreview, "abc123")
+        XCTAssertEqual(errorCategory, "not_found")
+        XCTAssertGreaterThanOrEqual(durationMs, 0)
     }
 
     // MARK: - Failure: network
@@ -114,6 +134,17 @@ final class TransactionDetailViewModelTests: XCTestCase {
             return
         }
         XCTAssertEqual(loaded.id, second.id)
+    }
+
+    func test_trackTransactionGraphViewed_tracksOncePerTransaction() {
+        viewModel.trackTransactionGraphViewed(txId: "abc123def456")
+        viewModel.trackTransactionGraphViewed(txId: "abc123def456")
+        viewModel.trackTransactionGraphViewed(txId: "bbbb2222cccc")
+
+        XCTAssertEqual(analytics.events, [
+            .transactionGraphViewed(txIdPreview: "abc123def456"),
+            .transactionGraphViewed(txIdPreview: "bbbb2222cccc")
+        ])
     }
 
     // MARK: - Helpers

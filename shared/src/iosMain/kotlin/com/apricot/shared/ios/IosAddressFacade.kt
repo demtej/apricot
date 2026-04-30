@@ -91,8 +91,13 @@ class IosAddressFacade(
     fun outputAmountSatsAt(tx: BitcoinTransaction, index: Int): Long = tx.outputs[index].amount.amount
 
     companion object {
-        fun create(): IosAddressFacade {
-            val repo = CachingBitcoinRepository(MempoolBitcoinRepository.create())
+        fun create(
+            onCacheEvent: ((String, String, String) -> Unit)? = null,
+        ): IosAddressFacade {
+            val repo = CachingBitcoinRepository(
+                delegate = MempoolBitcoinRepository.create(),
+                onCacheEvent = onCacheEvent,
+            )
             return IosAddressFacade(
                 getSummary = GetAddressSummary(repo),
                 getTransactions = GetAddressTransactions(repo),

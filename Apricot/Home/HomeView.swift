@@ -2,7 +2,9 @@ import SwiftUI
 
 struct HomeView: View {
     private let bitcoinService: BitcoinServiceProtocol
+    private let observability: AppObservability
     private let makeAddressSearchViewModel: (RecentSearchStoring?) -> AddressSearchViewModel
+    @StateObject private var viewModel: HomeViewModel
 
     @State private var searchQuery = ""
     @State private var searchedAddress: String? = nil
@@ -10,10 +12,14 @@ struct HomeView: View {
 
     init(
         bitcoinService: BitcoinServiceProtocol,
+        viewModel: HomeViewModel,
+        observability: AppObservability = .noop,
         makeAddressSearchViewModel: @escaping (RecentSearchStoring?) -> AddressSearchViewModel
     ) {
         self.bitcoinService = bitcoinService
+        self.observability = observability
         self.makeAddressSearchViewModel = makeAddressSearchViewModel
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
 
     var body: some View {
@@ -33,7 +39,8 @@ struct HomeView: View {
             AddressView(
                 address: address,
                 viewModel: makeAddressSearchViewModel(recentSearchStore),
-                service: bitcoinService
+                service: bitcoinService,
+                observability: observability
             )
         }
     }
@@ -73,9 +80,7 @@ struct HomeView: View {
         ApricotSearchField(
             text: $searchQuery,
             onSubmit: {
-                let trimmed = searchQuery.trimmingCharacters(in: .whitespaces)
-                guard !trimmed.isEmpty else { return }
-                searchedAddress = trimmed
+                searchedAddress = viewModel.submitSearch(query: searchQuery)
             }
         )
         .padding(.horizontal, ApricotSpacing.s5)
@@ -107,7 +112,7 @@ struct HomeView: View {
 
     private func recentRow(_ item: RecentSearch) -> some View {
         Button {
-            searchedAddress = item.address
+            searchedAddress = viewModel.selectRecentSearch(item)
         } label: {
             HStack(spacing: 12) {
                 ZStack {
@@ -178,7 +183,7 @@ struct HomeView: View {
     let store = RecentSearchStore()
     let service = LiveBitcoinService()
     return NavigationStack {
-        HomeView(bitcoinService: service) {
+        HomeView(bitcoinService: service, viewModel: HomeViewModel()) {
             AddressSearchViewModel(
                 service: service,
                 featureFlags: LocalFeatureFlags(addressInsightsEnabled: false),

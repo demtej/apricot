@@ -3,17 +3,30 @@ import SwiftUI
 @main
 struct ApricotApp: App {
     @StateObject private var recentSearchStore = RecentSearchStore()
-    private let featureFlags = LocalFeatureFlags()
-    private let bitcoinService: BitcoinServiceProtocol = LiveBitcoinService()
+    private let featureFlags: LocalFeatureFlags
+    private let observability: AppObservability
+    private let bitcoinService: BitcoinServiceProtocol
+
+    init() {
+        let observability = AppObservability.live()
+        featureFlags = LocalFeatureFlags()
+        self.observability = observability
+        bitcoinService = LiveBitcoinService(observability: observability)
+    }
 
     var body: some Scene {
         WindowGroup {
             NavigationStack {
-                HomeView(bitcoinService: bitcoinService) { recentSearchStore in
+                HomeView(
+                    bitcoinService: bitcoinService,
+                    viewModel: HomeViewModel(observability: observability),
+                    observability: observability
+                ) { recentSearchStore in
                     AddressSearchViewModel(
                         service: bitcoinService,
                         featureFlags: featureFlags,
-                        recentSearchStore: recentSearchStore
+                        recentSearchStore: recentSearchStore,
+                        observability: observability
                     )
                 }
             }

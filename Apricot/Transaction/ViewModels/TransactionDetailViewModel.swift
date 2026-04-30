@@ -5,17 +5,29 @@ final class TransactionDetailViewModel: ObservableObject {
     @Published private(set) var state: TransactionDetailState = .idle
 
     private let service: BitcoinServiceProtocol
+    private let observability: AppObservability
     private var loadTask: Task<Void, Never>?
+    private var graphViewTrackedTxId: String?
 
-    init(service: BitcoinServiceProtocol = LiveBitcoinService()) {
+    init(
+        service: BitcoinServiceProtocol = LiveBitcoinService(),
+        observability: AppObservability = .noop
+    ) {
         self.service = service
+        self.observability = observability
     }
 
     func load(txId: String, forAddress: String) {
         loadTask?.cancel()
         state = .loading
+        graphViewTrackedTxId = nil
+        let startedAt = Date()
+        let txPreview = ObservabilityPrivacy.txIdPreview(txId)
+        observability.logger.log(level: .info, message: "Transaction detail load started", metadata: [
+            "tx_id_preview": .string(txPreview)
+        ])
         loadTask = Task { [weak self] in
-            await self?.doLoad(txId: txId, forAddress: forAddress)
+            await self?.doLoad(txId: txId, forAddress: forAddress, startedAt: startedAt)
         }
     }
 
@@ -25,14 +37,49 @@ final class TransactionDetailViewModel: ObservableObject {
 
     // MARK: - Private
 
-    private func doLoad(txId: String, forAddress: String) async {
+    func trackTransactionGraphViewed(txId: String) {
+        guard graphViewTrackedTxId != txId else { return }
+        graphViewTrackedTxId = txId
+        observability.analytics.track(.transactionGraphViewed(
+            txIdPreview: ObservabilityPrivacy.txIdPreview(txId)
+        ))
+    }
+
+    private func doLoad(txId: String, forAddress: String, startedAt: Date) async {
         do {
             let item = try await service.fetchTransactionDetail(txId: txId, forAddress: forAddress)
             guard !Task.isCancelled else { return }
             state = .loaded(item)
+            let durationMs = Self.durationMs(since: startedAt)
+            let txPreview = ObservabilityPrivacy.txIdPreview(txId)
+            observability.analytics.track(.transactionDetailLoaded(
+                txIdPreview: txPreview,
+                durationMs: durationMs
+            ))
+            observability.logger.log(level: .info, message: "Transaction detail loaded", metadata: [
+                "duration_ms": .int(durationMs),
+                "tx_id_preview": .string(txPreview)
+            ])
         } catch {
             guard !Task.isCancelled else { return }
-            state = .failed((error as? TransactionDetailError) ?? .unknown)
+            let detailError = (error as? TransactionDetailError) ?? .unknown
+            state = .failed(detailError)
+            let durationMs = Self.durationMs(since: startedAt)
+            let txPreview = ObservabilityPrivacy.txIdPreview(txId)
+            observability.analytics.track(.transactionDetailFailed(
+                txIdPreview: txPreview,
+                errorCategory: detailError.analyticsCategory,
+                durationMs: durationMs
+            ))
+            observability.logger.log(level: .error, message: "Transaction detail failed", metadata: [
+                "duration_ms": .int(durationMs),
+                "error_category": .string(detailError.analyticsCategory),
+                "tx_id_preview": .string(txPreview)
+            ])
         }
+    }
+
+    private static func durationMs(since startedAt: Date) -> Int {
+        Int(Date().timeIntervalSince(startedAt) * 1000)
     }
 }

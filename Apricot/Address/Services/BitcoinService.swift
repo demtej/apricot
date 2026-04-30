@@ -18,8 +18,37 @@ struct AddressData {
 final class LiveBitcoinService: BitcoinServiceProtocol {
     private let facade: IosAddressFacade
 
-    init(facade: IosAddressFacade = IosAddressFacade.companion.create()) {
-        self.facade = facade
+    init(
+        observability: AppObservability = .noop,
+        facade: IosAddressFacade? = nil
+    ) {
+        if let facade {
+            self.facade = facade
+        } else {
+            let logger = observability.logger
+            let analytics = observability.analytics
+            self.facade = IosAddressFacade.companion.create { eventName, resourceName, key in
+                guard let resource = CacheResource(rawValue: resourceName) else { return }
+
+                let preview = ObservabilityPrivacy.cacheKeyPreview(key, resource: resource)
+                let event: ProductEvent
+                switch eventName {
+                case "cache_hit":
+                    event = .cacheHit(resource: resource, keyPreview: preview)
+                case "cache_miss":
+                    event = .cacheMiss(resource: resource, keyPreview: preview)
+                default:
+                    logger.log(level: .debug, message: "Unknown cache event", metadata: [
+                        "event_name": .string(eventName),
+                        "resource": .string(resourceName)
+                    ])
+                    return
+                }
+
+                analytics.track(event)
+                logger.log(level: .debug, message: "Cache event observed", metadata: event.properties)
+            }
+        }
     }
 
     func fetchAddressData(address: String) async throws -> AddressData {
@@ -33,7 +62,7 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
             let summaryItem = mapSummary(summary, address: address)
             // Kotlin List<BitcoinTransaction> is bridged as NSArray<SharedBitcoinTransaction *>,
             // which arrives in Swift as [BitcoinTransaction].
-            let txItems = (transactions as? [BitcoinTransaction] ?? []).map {
+            let txItems = transactions.map {
                 mapTransaction($0, address: address)
             }
             return AddressData(summary: summaryItem, transactions: txItems)
