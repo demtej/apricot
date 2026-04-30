@@ -5,6 +5,7 @@ import shared
 
 protocol BitcoinServiceProtocol {
     func fetchAddressData(address: String) async throws -> AddressData
+    func fetchTransactionDetail(txId: String, forAddress: String) async throws -> TransactionDetailItem
 }
 
 struct AddressData {
@@ -103,6 +104,124 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
         formatter.usesGroupingSeparator = true
         let number = formatter.string(from: NSNumber(value: sats)) ?? "\(sats)"
         return number + " sat"
+    }
+
+    func fetchTransactionDetail(txId: String, forAddress: String) async throws -> TransactionDetailItem {
+        do {
+            let tx = try await facade.getTransactionDetail(txId: txId)
+            return mapTransactionDetail(tx, txId: txId, forAddress: forAddress)
+        } catch {
+            throw classifyTransactionError(error)
+        }
+    }
+
+    // MARK: - Transaction detail mapper
+
+    private func mapTransactionDetail(
+        _ tx: BitcoinTransaction,
+        txId: String,
+        forAddress: String
+    ) -> TransactionDetailItem {
+        let netSats = facade.transactionNetAmountSats(tx: tx, forAddressString: forAddress)
+        let directionStr = facade.transactionDirection(tx: tx, forAddressString: forAddress)
+        let isConfirmed = facade.isTransactionConfirmed(tx: tx)
+        let feeSats = facade.transactionFeeSats(tx: tx)
+
+        let blockHeight: Int? = isConfirmed ? Int(facade.transactionBlockHeight(tx: tx)) : nil
+        let confirmations: Int? = isConfirmed ? Int(facade.transactionConfirmations(tx: tx)) : nil
+        let blockTime: Int64? = isConfirmed ? facade.transactionBlockTimeEpochSeconds(tx: tx) : nil
+
+        let status: TransactionStatusDisplay = isConfirmed ? .confirmed : .pending
+        let direction = parseDirection(directionStr)
+        let timestamp = blockTime.map { formatTimestamp(epochSeconds: $0) }
+        let netAmountDisplay = formatBTC(abs(netSats))
+
+        let inputs: [IOItem] = (0..<Int(facade.inputCount(tx: tx))).map { i in
+            let address = facade.inputAddressAt(tx: tx, index: Int32(i))
+            let sats = facade.inputAmountSatsAt(tx: tx, index: Int32(i))
+            return IOItem(
+                index: i,
+                address: address,
+                amountBTC: formatBTC(sats),
+                amountSats: formatSats(sats),
+                isRelevantAddress: address == forAddress
+            )
+        }
+
+        let outputs: [IOItem] = (0..<Int(facade.outputCount(tx: tx))).map { i in
+            let address = facade.outputAddressAt(tx: tx, index: Int32(i))
+            let sats = facade.outputAmountSatsAt(tx: tx, index: Int32(i))
+            return IOItem(
+                index: i,
+                address: address,
+                amountBTC: formatBTC(sats),
+                amountSats: formatSats(sats),
+                isRelevantAddress: address == forAddress
+            )
+        }
+
+        return TransactionDetailItem(
+            id: txId,
+            shortId: String(txId.prefix(8)) + "…",
+            summary: buildSummary(
+                direction: direction,
+                status: status,
+                netAmountBTC: netAmountDisplay,
+                isPositive: netSats >= 0
+            ),
+            direction: direction,
+            status: status,
+            confirmations: confirmations,
+            blockHeight: blockHeight,
+            timestamp: timestamp,
+            feeBTC: formatBTC(feeSats),
+            feeSats: formatSats(feeSats),
+            netAmountDisplay: netAmountDisplay,
+            netAmountIsPositive: netSats >= 0,
+            inputCount: inputs.count,
+            outputCount: outputs.count,
+            inputs: inputs,
+            outputs: outputs
+        )
+    }
+
+    private func buildSummary(
+        direction: TransactionDirectionDisplay,
+        status: TransactionStatusDisplay,
+        netAmountBTC: String,
+        isPositive: Bool
+    ) -> String {
+        let statusWord = status == .pending ? "pending" : "confirmed"
+        switch direction {
+        case .incoming:
+            return "You received \(netAmountBTC) in this \(statusWord) transaction."
+        case .outgoing:
+            return "You sent \(netAmountBTC) in this \(statusWord) transaction."
+        case .mixed:
+            return "This \(statusWord) transaction both spent and received funds for this address."
+        case .unknown:
+            return "Transaction details for this address."
+        }
+    }
+
+    private func formatTimestamp(epochSeconds: Int64) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(epochSeconds))
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
+
+    private func classifyTransactionError(_ error: Error) -> TransactionDetailError {
+        let description = error.localizedDescription
+        if description.contains("not found") || description.contains("Not Found") ||
+           description.contains("Resource not found") {
+            return .notFound
+        }
+        if description.contains("decode") || description.contains("Decode") {
+            return .decoding
+        }
+        return .network
     }
 
     // MARK: - Error classification

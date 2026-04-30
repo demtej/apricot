@@ -5,9 +5,12 @@ import com.apricot.shared.domain.AddressSummary
 import com.apricot.shared.domain.BitcoinAddress
 import com.apricot.shared.domain.BitcoinTransaction
 import com.apricot.shared.domain.TransactionDirection
+import com.apricot.shared.domain.TransactionId
+import com.apricot.shared.domain.TransactionStatus
 import com.apricot.shared.domain.error.BitcoinRepositoryError
 import com.apricot.shared.usecase.GetAddressSummary
 import com.apricot.shared.usecase.GetAddressTransactions
+import com.apricot.shared.usecase.GetTransactionDetail
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -24,6 +27,7 @@ import kotlin.coroutines.cancellation.CancellationException
 class IosAddressFacade(
     private val getSummary: GetAddressSummary,
     private val getTransactions: GetAddressTransactions,
+    private val getDetail: GetTransactionDetail,
 ) {
     @Throws(BitcoinRepositoryError::class, CancellationException::class)
     suspend fun getAddressSummary(addressString: String): AddressSummary =
@@ -57,12 +61,41 @@ class IosAddressFacade(
 
     fun isTransactionConfirmed(tx: BitcoinTransaction): Boolean = tx.status.isConfirmed
 
+    // MARK: - Transaction detail
+
+    @Throws(BitcoinRepositoryError::class, CancellationException::class)
+    suspend fun getTransactionDetail(txId: String): BitcoinTransaction =
+        getDetail(TransactionId(txId)).getOrThrow()
+
+    fun transactionFeeSats(tx: BitcoinTransaction): Long = tx.fee.amount
+
+    /** Returns -1 if the transaction is not confirmed. */
+    fun transactionBlockHeight(tx: BitcoinTransaction): Int =
+        (tx.status as? TransactionStatus.Confirmed)?.blockHeight ?: -1
+
+    /** Returns -1 if the transaction is not confirmed. */
+    fun transactionConfirmations(tx: BitcoinTransaction): Int =
+        (tx.status as? TransactionStatus.Confirmed)?.confirmations ?: -1
+
+    /** Returns -1 if the transaction is not confirmed. */
+    fun transactionBlockTimeEpochSeconds(tx: BitcoinTransaction): Long =
+        (tx.status as? TransactionStatus.Confirmed)?.blockTimeEpochSeconds ?: -1L
+
+    fun inputCount(tx: BitcoinTransaction): Int = tx.inputs.size
+    fun inputAddressAt(tx: BitcoinTransaction, index: Int): String? = tx.inputs[index].address?.value
+    fun inputAmountSatsAt(tx: BitcoinTransaction, index: Int): Long = tx.inputs[index].amount.amount
+
+    fun outputCount(tx: BitcoinTransaction): Int = tx.outputs.size
+    fun outputAddressAt(tx: BitcoinTransaction, index: Int): String? = tx.outputs[index].address?.value
+    fun outputAmountSatsAt(tx: BitcoinTransaction, index: Int): Long = tx.outputs[index].amount.amount
+
     companion object {
         fun create(): IosAddressFacade {
             val repo = MempoolBitcoinRepository.create()
             return IosAddressFacade(
                 getSummary = GetAddressSummary(repo),
                 getTransactions = GetAddressTransactions(repo),
+                getDetail = GetTransactionDetail(repo),
             )
         }
     }
