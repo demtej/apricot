@@ -7,9 +7,9 @@ struct AddressView: View {
     @State private var selectedTransaction: TransactionItem?
     @State private var loadedAddress: String = ""
 
-    init(address: String, recentSearchStore: RecentSearchStoring? = nil) {
+    init(address: String, viewModel: AddressSearchViewModel) {
         initialAddress = address
-        _viewModel = StateObject(wrappedValue: AddressSearchViewModel(recentSearchStore: recentSearchStore))
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
 
     var body: some View {
@@ -54,9 +54,9 @@ struct AddressView: View {
             Spacer()
         case .loading:
             ApricotLoadingState()
-        case .loaded(let summary, let transactions):
-            loadedView(summary: summary, transactions: transactions)
-        case .empty(let summary):
+        case .loaded(let summary, let transactions, let showsInsights):
+            loadedView(summary: summary, transactions: transactions, showsInsights: showsInsights)
+        case .empty(let summary, _):
             emptyView(summary: summary)
         case .failed(let error):
             ApricotErrorState(
@@ -70,7 +70,11 @@ struct AddressView: View {
 
     // MARK: - Loaded
 
-    private func loadedView(summary: AddressSummaryItem, transactions: [TransactionItem]) -> some View {
+    private func loadedView(
+        summary: AddressSummaryItem,
+        transactions: [TransactionItem],
+        showsInsights: Bool
+    ) -> some View {
         ScrollView {
             LazyVStack(spacing: ApricotSpacing.s3) {
                 AddressSummaryCard(summary: summary)
@@ -83,7 +87,7 @@ struct AddressView: View {
                         loadedAddress = summary.address
                         selectedTransaction = tx
                     } label: {
-                        TransactionRow(transaction: tx)
+                        TransactionRow(transaction: tx, showsDirectionClassification: showsInsights)
                     }
                     .buttonStyle(.plain)
                 }
@@ -128,6 +132,9 @@ struct AddressView: View {
 
 #Preview {
     NavigationStack {
-        AddressView(address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzz")
+        AddressView(
+            address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzz",
+            viewModel: AddressSearchViewModel()
+        )
     }
 }

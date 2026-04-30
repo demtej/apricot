@@ -5,8 +5,8 @@ import SwiftUI
 enum AddressSearchState: Equatable {
     case idle
     case loading
-    case loaded(summary: AddressSummaryItem, transactions: [TransactionItem])
-    case empty(summary: AddressSummaryItem)
+    case loaded(summary: AddressSummaryItem, transactions: [TransactionItem], showsInsights: Bool)
+    case empty(summary: AddressSummaryItem, showsInsights: Bool)
     case failed(AddressSearchError)
 }
 

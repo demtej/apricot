@@ -2,10 +2,13 @@ import SwiftUI
 
 struct TransactionRow: View {
     let transaction: TransactionItem
+    let showsDirectionClassification: Bool
 
     var body: some View {
         HStack(spacing: ApricotSpacing.s3) {
-            directionBadge
+            if showsDirectionClassification {
+                directionBadge
+            }
             idColumn
             Spacer()
             amountColumn
@@ -56,7 +59,7 @@ struct TransactionRow: View {
             amountIsPositive: true,
             isConfirmed: true,
             statusLabel: "Confirmed"
-        ))
+        ), showsDirectionClassification: true)
         TransactionRow(transaction: TransactionItem(
             id: "def456abc123789defabc",
             shortId: "def456ab…fabc",
@@ -65,7 +68,7 @@ struct TransactionRow: View {
             amountIsPositive: false,
             isConfirmed: false,
             statusLabel: "Pending"
-        ))
+        ), showsDirectionClassification: true)
         TransactionRow(transaction: TransactionItem(
             id: "999888777666555444333222111000abc",
             shortId: "99988877…0abc",
@@ -74,7 +77,7 @@ struct TransactionRow: View {
             amountIsPositive: true,
             isConfirmed: true,
             statusLabel: "Confirmed"
-        ))
+        ), showsDirectionClassification: false)
     }
     .padding()
     .background(Color.apricotBgPage)
