@@ -59,6 +59,10 @@ struct TransactionDetailItem: Equatable {
     let outputCount: Int
     let inputs: [IOItem]
     let outputs: [IOItem]
+
+    var signedNetAmountDisplay: String {
+        (netAmountIsPositive ? "+" : "−") + netAmountDisplay
+    }
 }
 
 // MARK: - Status

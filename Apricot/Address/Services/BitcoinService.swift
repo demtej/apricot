@@ -50,10 +50,11 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
         // Accessing summary.balance gives Int64 directly — no .amount needed.
         AddressSummaryItem(
             address: address,
-            confirmedBalanceBTC: formatBTC(summary.balance),
-            confirmedBalanceSats: formatSats(summary.balance),
-            totalReceivedBTC: formatBTC(summary.totalReceived),
-            totalSentBTC: formatBTC(summary.totalSent),
+            shortAddress: BitcoinFormatter.shortAddress(address),
+            confirmedBalanceBTC: BitcoinFormatter.btc(summary.balance),
+            confirmedBalanceSats: BitcoinFormatter.sats(summary.balance),
+            totalReceivedBTC: BitcoinFormatter.btc(summary.totalReceived),
+            totalSentBTC: BitcoinFormatter.btc(summary.totalSent),
             transactionCount: Int(summary.transactionCount)
         )
     }
@@ -66,9 +67,9 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
 
         return TransactionItem(
             id: txId,
-            shortId: String(txId.prefix(8)) + "…",
+            shortId: BitcoinFormatter.shortTxId(txId),
             direction: parseDirection(directionString),
-            amountDisplay: formatBTC(abs(netSats)),
+            amountDisplay: BitcoinFormatter.btc(abs(netSats)),
             amountIsPositive: netSats >= 0,
             isConfirmed: isConfirmed,
             statusLabel: isConfirmed ? "Confirmed" : "Pending"
@@ -82,28 +83,6 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
         case "mixed":    return .mixed
         default:         return .unknown
         }
-    }
-
-    // MARK: - Formatting
-
-    private func formatBTC(_ sats: Int64) -> String {
-        let btc = Double(sats) / 100_000_000.0
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 8
-        formatter.usesGroupingSeparator = false
-        let number = formatter.string(from: NSNumber(value: btc)) ?? String(format: "%.8f", btc)
-        return number + " BTC"
-    }
-
-    private func formatSats(_ sats: Int64) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.groupingSeparator = ","
-        formatter.usesGroupingSeparator = true
-        let number = formatter.string(from: NSNumber(value: sats)) ?? "\(sats)"
-        return number + " sat"
     }
 
     func fetchTransactionDetail(txId: String, forAddress: String) async throws -> TransactionDetailItem {
@@ -133,8 +112,8 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
 
         let status: TransactionStatusDisplay = isConfirmed ? .confirmed : .pending
         let direction = parseDirection(directionStr)
-        let timestamp = blockTime.map { formatTimestamp(epochSeconds: $0) }
-        let netAmountDisplay = formatBTC(abs(netSats))
+        let timestamp = blockTime.map { BitcoinFormatter.timestamp(epochSeconds: $0) }
+        let netAmountDisplay = BitcoinFormatter.btc(abs(netSats))
 
         let inputs: [IOItem] = (0..<Int(facade.inputCount(tx: tx))).map { i in
             let address = facade.inputAddressAt(tx: tx, index: Int32(i))
@@ -142,8 +121,8 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
             return IOItem(
                 index: i,
                 address: address,
-                amountBTC: formatBTC(sats),
-                amountSats: formatSats(sats),
+                amountBTC: BitcoinFormatter.btc(sats),
+                amountSats: BitcoinFormatter.sats(sats),
                 isRelevantAddress: address == forAddress
             )
         }
@@ -154,15 +133,15 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
             return IOItem(
                 index: i,
                 address: address,
-                amountBTC: formatBTC(sats),
-                amountSats: formatSats(sats),
+                amountBTC: BitcoinFormatter.btc(sats),
+                amountSats: BitcoinFormatter.sats(sats),
                 isRelevantAddress: address == forAddress
             )
         }
 
         return TransactionDetailItem(
             id: txId,
-            shortId: String(txId.prefix(8)) + "…",
+            shortId: BitcoinFormatter.shortTxId(txId),
             summary: buildSummary(
                 direction: direction,
                 status: status,
@@ -174,8 +153,8 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
             confirmations: confirmations,
             blockHeight: blockHeight,
             timestamp: timestamp,
-            feeBTC: formatBTC(feeSats),
-            feeSats: formatSats(feeSats),
+            feeBTC: BitcoinFormatter.btc(feeSats),
+            feeSats: BitcoinFormatter.sats(feeSats),
             netAmountDisplay: netAmountDisplay,
             netAmountIsPositive: netSats >= 0,
             inputCount: inputs.count,
@@ -202,14 +181,6 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
         case .unknown:
             return "Transaction details for this address."
         }
-    }
-
-    private func formatTimestamp(epochSeconds: Int64) -> String {
-        let date = Date(timeIntervalSince1970: TimeInterval(epochSeconds))
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        return formatter.string(from: date)
     }
 
     private func classifyTransactionError(_ error: Error) -> TransactionDetailError {

@@ -159,10 +159,11 @@ final class AddressSearchViewModelTests: XCTestCase {
     private func makeSummary(address: String = "bc1qtest") -> AddressSummaryItem {
         AddressSummaryItem(
             address: address,
-            confirmedBalanceBTC: "0.01000000 BTC",
-            confirmedBalanceSats: "1,000,000 sat",
-            totalReceivedBTC: "0.05000000 BTC",
-            totalSentBTC: "0.04000000 BTC",
+            shortAddress: BitcoinFormatter.shortAddress(address),
+            confirmedBalanceBTC: "0.01 BTC",
+            confirmedBalanceSats: "1,000,000 sats",
+            totalReceivedBTC: "0.05 BTC",
+            totalSentBTC: "0.04 BTC",
             transactionCount: 3
         )
     }
@@ -186,8 +187,9 @@ final class MockBitcoinService: BitcoinServiceProtocol {
     var result: Result<AddressData, Error> = .success(AddressData(
         summary: AddressSummaryItem(
             address: "bc1qdefault",
+            shortAddress: "bc1qdefault",
             confirmedBalanceBTC: "0.00 BTC",
-            confirmedBalanceSats: "0 sat",
+            confirmedBalanceSats: "0 sats",
             totalReceivedBTC: "0.00 BTC",
             totalSentBTC: "0.00 BTC",
             transactionCount: 0
