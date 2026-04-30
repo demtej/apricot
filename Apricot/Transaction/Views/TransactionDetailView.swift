@@ -4,7 +4,13 @@ struct TransactionDetailView: View {
     let transaction: TransactionItem
     let forAddress: String
 
-    @StateObject private var viewModel = TransactionDetailViewModel()
+    @StateObject private var viewModel: TransactionDetailViewModel
+
+    init(transaction: TransactionItem, forAddress: String, service: BitcoinServiceProtocol = LiveBitcoinService()) {
+        self.transaction = transaction
+        self.forAddress = forAddress
+        _viewModel = StateObject(wrappedValue: TransactionDetailViewModel(service: service))
+    }
 
     var body: some View {
         ZStack {

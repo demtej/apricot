@@ -1,5 +1,6 @@
 package com.apricot.shared.ios
 
+import com.apricot.shared.data.repository.CachingBitcoinRepository
 import com.apricot.shared.data.repository.MempoolBitcoinRepository
 import com.apricot.shared.domain.AddressSummary
 import com.apricot.shared.domain.BitcoinAddress
@@ -91,7 +92,7 @@ class IosAddressFacade(
 
     companion object {
         fun create(): IosAddressFacade {
-            val repo = MempoolBitcoinRepository.create()
+            val repo = CachingBitcoinRepository(MempoolBitcoinRepository.create())
             return IosAddressFacade(
                 getSummary = GetAddressSummary(repo),
                 getTransactions = GetAddressTransactions(repo),
