@@ -6,11 +6,17 @@ final class AddressSearchViewModel: ObservableObject {
     @Published var addressInput: String = ""
 
     private let service: BitcoinServiceProtocol
+    private let featureFlags: any FeatureFlagProviding
     private let recentSearchStore: RecentSearchStoring?
     private var searchTask: Task<Void, Never>?
 
-    init(service: BitcoinServiceProtocol = LiveBitcoinService(), recentSearchStore: RecentSearchStoring? = nil) {
+    init(
+        service: BitcoinServiceProtocol = LiveBitcoinService(),
+        featureFlags: any FeatureFlagProviding = LocalFeatureFlags(),
+        recentSearchStore: RecentSearchStoring? = nil
+    ) {
         self.service = service
+        self.featureFlags = featureFlags
         self.recentSearchStore = recentSearchStore
     }
 
@@ -38,10 +44,15 @@ final class AddressSearchViewModel: ObservableObject {
         do {
             let data = try await service.fetchAddressData(address: address)
             guard !Task.isCancelled else { return }
+            let showsInsights = featureFlags.addressInsightsEnabled
             if data.transactions.isEmpty {
-                state = .empty(summary: data.summary)
+                state = .empty(summary: data.summary, showsInsights: showsInsights)
             } else {
-                state = .loaded(summary: data.summary, transactions: data.transactions)
+                state = .loaded(
+                    summary: data.summary,
+                    transactions: data.transactions,
+                    showsInsights: showsInsights
+                )
             }
             recentSearchStore?.add(address: address)
         } catch {

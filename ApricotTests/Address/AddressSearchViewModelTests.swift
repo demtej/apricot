@@ -56,12 +56,13 @@ final class AddressSearchViewModelTests: XCTestCase {
         viewModel.search()
         try await waitForNonLoading()
 
-        guard case .loaded(let loadedSummary, let loadedTransactions) = viewModel.state else {
+        guard case .loaded(let loadedSummary, let loadedTransactions, let showsInsights) = viewModel.state else {
             XCTFail("Expected .loaded, got \(viewModel.state)")
             return
         }
         XCTAssertEqual(loadedSummary, summary)
         XCTAssertEqual(loadedTransactions.count, 1)
+        XCTAssertTrue(showsInsights)
     }
 
     // MARK: - Success: empty
@@ -74,11 +75,34 @@ final class AddressSearchViewModelTests: XCTestCase {
         viewModel.search()
         try await waitForNonLoading()
 
-        guard case .empty(let loadedSummary) = viewModel.state else {
+        guard case .empty(let loadedSummary, let showsInsights) = viewModel.state else {
             XCTFail("Expected .empty, got \(viewModel.state)")
             return
         }
         XCTAssertEqual(loadedSummary, summary)
+        XCTAssertTrue(showsInsights)
+    }
+
+    func test_search_success_withInsightsDisabled_setsLoadedStateWithoutInsights() async throws {
+        let summary = makeSummary()
+        let transactions = [makeTransaction(direction: .incoming)]
+        mockService.result = .success(AddressData(summary: summary, transactions: transactions))
+        viewModel = AddressSearchViewModel(
+            service: mockService,
+            featureFlags: LocalFeatureFlags(addressInsightsEnabled: false)
+        )
+
+        viewModel.addressInput = "bc1qtest"
+        viewModel.search()
+        try await waitForNonLoading()
+
+        guard case .loaded(let loadedSummary, let loadedTransactions, let showsInsights) = viewModel.state else {
+            XCTFail("Expected .loaded, got \(viewModel.state)")
+            return
+        }
+        XCTAssertEqual(loadedSummary, summary)
+        XCTAssertEqual(loadedTransactions.count, 1)
+        XCTAssertFalse(showsInsights)
     }
 
     // MARK: - Failure
@@ -139,7 +163,7 @@ final class AddressSearchViewModelTests: XCTestCase {
 
         try await waitForNonLoading()
 
-        guard case .empty(let loadedSummary) = viewModel.state else {
+        guard case .empty(let loadedSummary, _) = viewModel.state else {
             XCTFail("Expected .empty, got \(viewModel.state)")
             return
         }

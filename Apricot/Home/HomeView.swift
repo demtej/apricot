@@ -1,9 +1,15 @@
 import SwiftUI
 
 struct HomeView: View {
+    private let makeAddressSearchViewModel: (RecentSearchStoring?) -> AddressSearchViewModel
+
     @State private var searchQuery = ""
     @State private var searchedAddress: String? = nil
     @EnvironmentObject private var recentSearchStore: RecentSearchStore
+
+    init(makeAddressSearchViewModel: @escaping (RecentSearchStoring?) -> AddressSearchViewModel) {
+        self.makeAddressSearchViewModel = makeAddressSearchViewModel
+    }
 
     var body: some View {
         ZStack {
@@ -19,7 +25,10 @@ struct HomeView: View {
             }
         }
         .navigationDestination(item: $searchedAddress) { address in
-            AddressView(address: address, recentSearchStore: recentSearchStore)
+            AddressView(
+                address: address,
+                viewModel: makeAddressSearchViewModel(recentSearchStore)
+            )
         }
     }
 
@@ -162,7 +171,12 @@ struct HomeView: View {
 #Preview {
     let store = RecentSearchStore()
     return NavigationStack {
-        HomeView()
+        HomeView {
+            AddressSearchViewModel(
+                featureFlags: LocalFeatureFlags(addressInsightsEnabled: false),
+                recentSearchStore: $0
+            )
+        }
     }
     .environmentObject(store)
 }
