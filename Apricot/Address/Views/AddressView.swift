@@ -7,9 +7,9 @@ struct AddressView: View {
     @State private var selectedTransaction: TransactionItem?
     @State private var loadedAddress: String = ""
 
-    init(address: String) {
+    init(address: String, recentSearchStore: RecentSearchStoring? = nil) {
         initialAddress = address
-        _viewModel = StateObject(wrappedValue: AddressSearchViewModel())
+        _viewModel = StateObject(wrappedValue: AddressSearchViewModel(recentSearchStore: recentSearchStore))
     }
 
     var body: some View {
