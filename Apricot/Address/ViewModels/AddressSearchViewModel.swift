@@ -6,10 +6,12 @@ final class AddressSearchViewModel: ObservableObject {
     @Published var addressInput: String = ""
 
     private let service: BitcoinServiceProtocol
+    private let recentSearchStore: RecentSearchStoring?
     private var searchTask: Task<Void, Never>?
 
-    init(service: BitcoinServiceProtocol = LiveBitcoinService()) {
+    init(service: BitcoinServiceProtocol = LiveBitcoinService(), recentSearchStore: RecentSearchStoring? = nil) {
         self.service = service
+        self.recentSearchStore = recentSearchStore
     }
 
     // Sets state to .loading synchronously, then starts the async fetch.
@@ -41,6 +43,7 @@ final class AddressSearchViewModel: ObservableObject {
             } else {
                 state = .loaded(summary: data.summary, transactions: data.transactions)
             }
+            recentSearchStore?.add(address: address)
         } catch {
             guard !Task.isCancelled else { return }
             state = .failed((error as? AddressSearchError) ?? .unknown)
