@@ -1,5 +1,15 @@
 # Apricot
 
+<p align="center">
+  <img src="docs/assets/app-icon.png" width="96" alt="Apricot app icon" />
+</p>
+
+<h1 align="center">Apricot</h1>
+
+<p align="center">
+  A human-friendly Bitcoin address explorer built with SwiftUI and Kotlin Multiplatform.
+</p>
+
 Apricot is a mobile-first Bitcoin address explorer designed to make blockchain activity easier to understand for non-technical users.
 
 The app lets users search a public Bitcoin address, view its balance and activity, inspect transactions, and understand inputs, outputs, fees, confirmations, and transaction flow through a clean and visual interface.
