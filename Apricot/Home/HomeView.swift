@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     @State private var searchQuery = ""
+    @State private var searchedAddress: String? = nil
 
     private let recentItems: [(kind: String, value: String, time: String)] = [
         (kind: "addr", value: "bc1qar0srrr7xfkvy5l643…59gtzz",   time: "Today"),
@@ -21,6 +22,9 @@ struct HomeView: View {
                     recentSection
                 }
             }
+        }
+        .navigationDestination(item: $searchedAddress) { address in
+            AddressView(address: address)
         }
     }
 
@@ -56,9 +60,16 @@ struct HomeView: View {
     }
 
     private var searchSection: some View {
-        ApricotSearchField(text: $searchQuery)
-            .padding(.horizontal, ApricotSpacing.s5)
-            .padding(.bottom, ApricotSpacing.s6)
+        ApricotSearchField(
+            text: $searchQuery,
+            onSubmit: {
+                let trimmed = searchQuery.trimmingCharacters(in: .whitespaces)
+                guard !trimmed.isEmpty else { return }
+                searchedAddress = trimmed
+            }
+        )
+        .padding(.horizontal, ApricotSpacing.s5)
+        .padding(.bottom, ApricotSpacing.s6)
     }
 
     private var recentSection: some View {
