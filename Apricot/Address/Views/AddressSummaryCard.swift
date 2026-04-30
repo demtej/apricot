@@ -20,7 +20,17 @@ struct AddressSummaryCard: View {
     private var addressSection: some View {
         VStack(alignment: .leading, spacing: ApricotSpacing.s1) {
             sectionLabel("ADDRESS")
-            MonoChip(text: summary.address)
+            HStack(spacing: ApricotSpacing.s2) {
+                MonoChip(text: summary.shortAddress)
+                Spacer(minLength: 0)
+                Button {
+                    UIPasteboard.general.string = summary.address
+                } label: {
+                    Image(systemName: "doc.on.doc")
+                        .font(.system(size: 14))
+                        .foregroundStyle(Color.apricotAccent)
+                }
+            }
         }
     }
 
@@ -79,10 +89,11 @@ struct AddressSummaryCard: View {
 #Preview {
     AddressSummaryCard(summary: AddressSummaryItem(
         address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzz",
-        confirmedBalanceBTC: "0.05000000 BTC",
-        confirmedBalanceSats: "5,000,000 sat",
-        totalReceivedBTC: "0.10000000 BTC",
-        totalSentBTC: "0.05000000 BTC",
+        shortAddress: "bc1qar0s…59gtzz",
+        confirmedBalanceBTC: "0.05 BTC",
+        confirmedBalanceSats: "5,000,000 sats",
+        totalReceivedBTC: "0.10 BTC",
+        totalSentBTC: "0.05 BTC",
         transactionCount: 12
     ))
     .padding()

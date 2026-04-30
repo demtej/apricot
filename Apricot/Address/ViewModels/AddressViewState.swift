@@ -45,6 +45,7 @@ enum AddressSearchError: Equatable, Error {
 
 struct AddressSummaryItem: Equatable {
     let address: String
+    let shortAddress: String
     let confirmedBalanceBTC: String
     let confirmedBalanceSats: String
     let totalReceivedBTC: String
@@ -62,6 +63,10 @@ struct TransactionItem: Equatable, Hashable, Identifiable {
     let amountIsPositive: Bool
     let isConfirmed: Bool
     let statusLabel: String
+
+    var signedAmountDisplay: String {
+        (amountIsPositive ? "+" : "−") + amountDisplay
+    }
 }
 
 enum TransactionDirectionDisplay: Equatable {

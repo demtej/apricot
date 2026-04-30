@@ -160,11 +160,9 @@ struct TransactionDetailView: View {
                         .font(.apricotBody)
                         .foregroundStyle(Color.apricotFgSecondary)
                     Spacer()
-                    let prefix = detail.netAmountIsPositive ? "+" : "−"
-                    let color: Color = detail.netAmountIsPositive ? .apricotInFg : .apricotOutFg
-                    Text(prefix + detail.netAmountDisplay)
+                    Text(detail.signedNetAmountDisplay)
                         .apricotMono(.small)
-                        .foregroundStyle(color)
+                        .foregroundStyle(detail.netAmountIsPositive ? Color.apricotInFg : Color.apricotOutFg)
                 }
 
                 Divider().overlay(Color.apricotBorderSubtle)
@@ -241,8 +239,7 @@ struct TransactionDetailView: View {
             VStack(alignment: .trailing, spacing: 2) {
                 MonoText(text: item.amountBTC, size: .small)
                 Text(item.amountSats)
-                    .font(.apricotCaption)
-                    .monospacedDigit()
+                    .apricotMono(.small)
                     .foregroundStyle(Color.apricotFgMuted)
             }
         }
@@ -291,9 +288,9 @@ struct TransactionDetailView: View {
         TransactionDetailView(
             transaction: TransactionItem(
                 id: "a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d",
-                shortId: "a1075db5…",
+                shortId: "a1075db5…d48d",
                 direction: .incoming,
-                amountDisplay: "0.01000000 BTC",
+                amountDisplay: "0.01 BTC",
                 amountIsPositive: true,
                 isConfirmed: true,
                 statusLabel: "Confirmed"
