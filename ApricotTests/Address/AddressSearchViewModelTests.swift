@@ -202,4 +202,8 @@ final class MockBitcoinService: BitcoinServiceProtocol {
         }
         return try result.get()
     }
+
+    func fetchTransactionDetail(txId: String, forAddress: String) async throws -> TransactionDetailItem {
+        throw TransactionDetailError.unknown
+    }
 }

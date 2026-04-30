@@ -4,6 +4,8 @@ struct AddressView: View {
     let initialAddress: String
 
     @StateObject private var viewModel: AddressSearchViewModel
+    @State private var selectedTransaction: TransactionItem?
+    @State private var loadedAddress: String = ""
 
     init(address: String) {
         initialAddress = address
@@ -22,6 +24,9 @@ struct AddressView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Address")
+        .navigationDestination(item: $selectedTransaction) { tx in
+            TransactionDetailView(transaction: tx, forAddress: loadedAddress)
+        }
         .task {
             viewModel.addressInput = initialAddress
             viewModel.search()
@@ -74,7 +79,13 @@ struct AddressView: View {
                 transactionListHeader(count: transactions.count)
 
                 ForEach(transactions) { tx in
-                    TransactionRow(transaction: tx)
+                    Button {
+                        loadedAddress = summary.address
+                        selectedTransaction = tx
+                    } label: {
+                        TransactionRow(transaction: tx)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal, ApricotSpacing.s5)

@@ -54,7 +54,7 @@ struct AddressSummaryItem: Equatable {
 
 // MARK: - Transaction view model
 
-struct TransactionItem: Equatable, Identifiable {
+struct TransactionItem: Equatable, Hashable, Identifiable {
     let id: String
     let shortId: String
     let direction: TransactionDirectionDisplay
