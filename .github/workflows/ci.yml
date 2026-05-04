@@ -14,9 +14,43 @@ permissions:
 env:
   GRADLE_USER_HOME: ${{ github.workspace }}/.gradle-ci
   DERIVED_DATA_PATH: ${{ github.workspace }}/DerivedData
+  DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
 
 jobs:
-  ci:
+  swiftlint:
+    name: SwiftLint
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install SwiftLint
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+        run: brew list swiftlint >/dev/null 2>&1 || brew install swiftlint
+
+      - name: Run SwiftLint
+        run: make lint
+
+  swiftformat:
+    name: SwiftFormat
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install SwiftFormat
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+        run: brew list swiftformat >/dev/null 2>&1 || brew install swiftformat
+
+      - name: Run SwiftFormat check
+        run: make format-check
+
+  kmp-tests:
+    name: KMP Tests
     runs-on: macos-latest
 
     steps:
@@ -30,22 +64,28 @@ jobs:
           java-version: "17"
           cache: gradle
 
-      - name: Install CI tools
-        env:
-          HOMEBREW_NO_AUTO_UPDATE: "1"
-        run: |
-          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
-          brew list swiftlint >/dev/null 2>&1 || brew install swiftlint
-          brew list swiftformat >/dev/null 2>&1 || brew install swiftformat
-
-      - name: Run SwiftLint
-        run: make lint
-
-      - name: Run SwiftFormat check
-        run: make format-check
-
       - name: Run KMP tests
         run: ./gradlew :shared:allTests
+
+  ios-unit-tests:
+    name: iOS Unit Tests
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Install XcodeGen
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+        run: brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
 
       - name: Build KMP XCFramework
         run: make kmp
@@ -53,26 +93,84 @@ jobs:
       - name: Generate Xcode project
         run: make xcode
 
+      - name: List Xcode schemes
+        run: xcodebuild -project Apricot.xcodeproj -list
+
       - name: Resolve iOS simulator destination
         id: simulator
         run: |
+          set -euo pipefail
           chmod +x scripts/ci/select-ios-simulator.sh
-          echo "destination=$(scripts/ci/select-ios-simulator.sh Apricot.xcodeproj Apricot)" >> "$GITHUB_OUTPUT"
+          DEST=$(scripts/ci/select-ios-simulator.sh)
+          if [[ -z "$DEST" ]]; then
+            echo "ERROR: Simulator destination resolved to empty string" >&2
+            exit 1
+          fi
+          echo "destination=$DEST" >> "$GITHUB_OUTPUT"
 
-      - name: Run iOS tests
+      - name: Run iOS unit tests
+        id: unit-tests
         run: |
+          set -euo pipefail
+          DEST="${{ steps.simulator.outputs.destination }}"
+          if [[ -z "$DEST" ]]; then
+            echo "ERROR: destination is empty — check the 'Resolve iOS simulator destination' step" >&2
+            exit 1
+          fi
           xcodebuild \
             -project Apricot.xcodeproj \
             -scheme ApricotUnitTests \
-            -destination "${{ steps.simulator.outputs.destination }}" \
+            -destination "$DEST" \
             -derivedDataPath "$DERIVED_DATA_PATH" \
+            -resultBundlePath unit-tests.xcresult \
             test
 
-      - name: Build iOS app
+      - name: Upload unit test result bundle
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-tests-xcresult
+          path: unit-tests.xcresult
+          if-no-files-found: warn
+          retention-days: 7
+
+  # TODO: Snapshot tests disabled in CI — rendering differs between local (iOS 26.1)
+  # and the macos-15 runner (iOS 26.0.1), causing pixel-level mismatches.
+  # Re-enable after regenerating references from CI via update-snapshots.yml.
+  # ios-snapshot-tests:
+  #   ...
+
+  ios-build:
+    name: iOS Build
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Install XcodeGen
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+        run: brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+
+      - name: Build KMP XCFramework
+        run: make kmp
+
+      - name: Generate Xcode project
+        run: make xcode
+
+      - name: Build Apricot app
         run: |
           xcodebuild \
             -project Apricot.xcodeproj \
             -scheme Apricot \
-            -destination "${{ steps.simulator.outputs.destination }}" \
+            -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             build
