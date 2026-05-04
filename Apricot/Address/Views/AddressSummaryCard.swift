@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AddressSummaryCard: View {
     let summary: AddressSummaryItem
+    var showsInsights: Bool = true
 
     var body: some View {
         ApricotCard(style: .elevated) {
@@ -9,8 +10,10 @@ struct AddressSummaryCard: View {
                 addressSection
                 Divider().overlay(Color.apricotBorderSubtle)
                 balanceSection
-                Divider().overlay(Color.apricotBorderSubtle)
-                statsRow
+                if showsInsights {
+                    Divider().overlay(Color.apricotBorderSubtle)
+                    statsRow
+                }
             }
         }
     }
