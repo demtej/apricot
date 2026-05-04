@@ -6,7 +6,7 @@ PROJECT_PATH="${1:-Apricot.xcodeproj}"
 SCHEME_NAME="${2:-Apricot}"
 REQUESTED_DEVICE_NAME="${3:-}"
 
-destinations_output="$(xcodebuild -showdestinations -project "$PROJECT_PATH" -scheme "$SCHEME_NAME" 2>/dev/null || true)"
+destinations_output="$(xcodebuild -showdestinations -project "$PROJECT_PATH" -scheme "$SCHEME_NAME" 2>&1)"
 
 available_simulator_lines="$(
     printf '%s\n' "$destinations_output" \

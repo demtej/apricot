@@ -92,24 +92,53 @@ jobs:
       - name: Generate Xcode project
         run: make xcode
 
+      - name: List Xcode schemes
+        run: xcodebuild -project Apricot.xcodeproj -list
+
       - name: Resolve iOS simulator destination
         id: simulator
         run: |
+          set -euo pipefail
           chmod +x scripts/ci/select-ios-simulator.sh
-          echo "destination=$(scripts/ci/select-ios-simulator.sh Apricot.xcodeproj Apricot)" >> "$GITHUB_OUTPUT"
+          DEST=$(scripts/ci/select-ios-simulator.sh Apricot.xcodeproj ApricotUnitTests)
+          if [[ -z "$DEST" ]]; then
+            echo "ERROR: Simulator destination resolved to empty string" >&2
+            exit 1
+          fi
+          echo "destination=$DEST" >> "$GITHUB_OUTPUT"
 
-      - name: Run Apricot unit tests
+      - name: Run iOS unit tests
+        id: unit-tests
         run: |
+          set -euo pipefail
+          DEST="${{ steps.simulator.outputs.destination }}"
+          if [[ -z "$DEST" ]]; then
+            echo "ERROR: destination is empty — check the 'Resolve iOS simulator destination' step" >&2
+            exit 1
+          fi
           xcodebuild \
             -project Apricot.xcodeproj \
             -scheme ApricotUnitTests \
-            -destination "${{ steps.simulator.outputs.destination }}" \
+            -destination "$DEST" \
             -derivedDataPath "$DERIVED_DATA_PATH" \
+            -resultBundlePath unit-tests.xcresult \
             test
+
+      - name: Upload unit test result bundle
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-tests-xcresult
+          path: unit-tests.xcresult
+          if-no-files-found: warn
+          retention-days: 7
 
   ios-snapshot-tests:
     name: iOS Snapshot Tests
     runs-on: macos-latest
+
+    env:
+      TZ: UTC
 
     steps:
       - name: Checkout repository
@@ -133,20 +162,55 @@ jobs:
       - name: Generate Xcode project
         run: make xcode
 
+      - name: List Xcode schemes
+        run: xcodebuild -project Apricot.xcodeproj -list
+
       - name: Resolve iPhone 17 Pro simulator destination
         id: snapshot-simulator
         run: |
+          set -euo pipefail
           chmod +x scripts/ci/select-ios-simulator.sh
-          echo "destination=$(scripts/ci/select-ios-simulator.sh Apricot.xcodeproj Apricot 'iPhone 17 Pro')" >> "$GITHUB_OUTPUT"
+          DEST=$(scripts/ci/select-ios-simulator.sh Apricot.xcodeproj ApricotSnapshotTests 'iPhone 17 Pro')
+          if [[ -z "$DEST" ]]; then
+            echo "ERROR: iPhone 17 Pro simulator destination resolved to empty string" >&2
+            exit 1
+          fi
+          echo "destination=$DEST" >> "$GITHUB_OUTPUT"
 
-      - name: Run Apricot snapshot tests
+      - name: Run iOS snapshot tests
+        id: snapshot-tests
         run: |
+          set -euo pipefail
+          DEST="${{ steps.snapshot-simulator.outputs.destination }}"
+          if [[ -z "$DEST" ]]; then
+            echo "ERROR: destination is empty — check the 'Resolve iPhone 17 Pro simulator destination' step" >&2
+            exit 1
+          fi
           xcodebuild \
             -project Apricot.xcodeproj \
             -scheme ApricotSnapshotTests \
-            -destination "${{ steps.snapshot-simulator.outputs.destination }}" \
+            -destination "$DEST" \
             -derivedDataPath "$DERIVED_DATA_PATH" \
+            -resultBundlePath snapshot-tests.xcresult \
             test
+
+      - name: Upload snapshot test result bundle
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshot-tests-xcresult
+          path: snapshot-tests.xcresult
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Upload snapshot failure images
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshot-failures
+          path: /tmp/com.pointfreeco.swift-snapshot-testing
+          if-no-files-found: warn
+          retention-days: 7
 
   ios-build:
     name: iOS Build
@@ -174,17 +238,11 @@ jobs:
       - name: Generate Xcode project
         run: make xcode
 
-      - name: Resolve iOS simulator destination
-        id: simulator
-        run: |
-          chmod +x scripts/ci/select-ios-simulator.sh
-          echo "destination=$(scripts/ci/select-ios-simulator.sh Apricot.xcodeproj Apricot)" >> "$GITHUB_OUTPUT"
-
       - name: Build Apricot app
         run: |
           xcodebuild \
             -project Apricot.xcodeproj \
             -scheme Apricot \
-            -destination "${{ steps.simulator.outputs.destination }}" \
+            -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             build
