@@ -268,6 +268,29 @@ Initial priorities:
 - Push notifications.
 - AI-generated summaries.
 
+## PostHog Setup (Local)
+
+Feature flags are powered by PostHog. The API key and host are read from a local xcconfig file that is **not committed to the repo**.
+
+To configure PostHog locally:
+
+```bash
+cp Config/Apricot.example.xcconfig Config/Apricot.local.xcconfig
+```
+
+Then open `Config/Apricot.local.xcconfig` and fill in your values:
+
+```
+APRICOT_POSTHOG_API_KEY = phc_your_key_here
+APRICOT_POSTHOG_HOST = https://us.i.posthog.com
+```
+
+After editing, run `make xcode` to regenerate the Xcode project so the build settings are picked up.
+
+If `Config/Apricot.local.xcconfig` is absent or the keys are empty, the app falls back to `LocalFeatureFlags` with all flags enabled. The app builds and runs for any contributor without PostHog credentials.
+
+The remote flag key in PostHog is `address-insights-enabled`, which maps to `addressInsightsEnabled` in the app.
+
 ## Status
 
 Work in progress.

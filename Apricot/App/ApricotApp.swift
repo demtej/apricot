@@ -3,13 +3,13 @@ import SwiftUI
 @main
 struct ApricotApp: App {
     @StateObject private var recentSearchStore = RecentSearchStore()
-    private let featureFlags: LocalFeatureFlags
+    private let featureFlags: any FeatureFlagProviding
     private let observability: AppObservability
     private let bitcoinService: BitcoinServiceProtocol
 
     init() {
         let observability = AppObservability.live()
-        featureFlags = LocalFeatureFlags()
+        featureFlags = FeatureFlagFactory.make()
         self.observability = observability
         bitcoinService = LiveBitcoinService(observability: observability)
     }

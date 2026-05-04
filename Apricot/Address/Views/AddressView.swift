@@ -70,8 +70,8 @@ struct AddressView: View {
             ApricotLoadingState()
         case let .loaded(summary, transactions, showsInsights):
             loadedView(summary: summary, transactions: transactions, showsInsights: showsInsights)
-        case let .empty(summary, _):
-            emptyView(summary: summary)
+        case let .empty(summary, showsInsights):
+            emptyView(summary: summary, showsInsights: showsInsights)
         case let .failed(error):
             ApricotErrorState(
                 title: error.title,
@@ -91,7 +91,7 @@ struct AddressView: View {
     ) -> some View {
         ScrollView {
             LazyVStack(spacing: ApricotSpacing.s3) {
-                AddressSummaryCard(summary: summary)
+                AddressSummaryCard(summary: summary, showsInsights: showsInsights)
                     .padding(.top, ApricotSpacing.s4)
 
                 transactionListHeader(count: transactions.count)
@@ -128,10 +128,10 @@ struct AddressView: View {
 
     // MARK: - Empty
 
-    private func emptyView(summary: AddressSummaryItem) -> some View {
+    private func emptyView(summary: AddressSummaryItem, showsInsights: Bool) -> some View {
         ScrollView {
             VStack(spacing: ApricotSpacing.s4) {
-                AddressSummaryCard(summary: summary)
+                AddressSummaryCard(summary: summary, showsInsights: showsInsights)
                     .padding(.top, ApricotSpacing.s4)
 
                 ApricotEmptyState(

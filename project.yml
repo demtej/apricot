@@ -5,6 +5,11 @@ options:
     iOS: "17.0"
   createIntermediateGroups: true
 
+packages:
+  PostHog:
+    url: https://github.com/PostHog/posthog-ios
+    majorVersion: 3.0.0
+
 targets:
   Apricot:
     type: application
@@ -12,18 +17,21 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - path: Apricot
+    configFiles:
+      Debug: Config/Apricot.xcconfig
+      Release: Config/Apricot.xcconfig
     settings:
       SWIFT_VERSION: "5"
       PRODUCT_BUNDLE_IDENTIFIER: com.apricot.app
       MARKETING_VERSION: "1.0"
       CURRENT_PROJECT_VERSION: "1"
       TARGETED_DEVICE_FAMILY: "1"
-      GENERATE_INFOPLIST_FILE: YES
+      INFOPLIST_FILE: Apricot/Info.plist
       ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-      INFOPLIST_KEY_UILaunchScreen_Generation: YES
-      INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
       ENABLE_TESTABILITY: YES
     dependencies:
+      - package: PostHog
+        product: PostHog
       - framework: shared/build/XCFrameworks/debug/shared.xcframework
         embed: true
 
