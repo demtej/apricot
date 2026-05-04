@@ -15,8 +15,10 @@ final class AddressSearchViewModel: ObservableObject {
         service: BitcoinServiceProtocol = LiveBitcoinService(),
         featureFlags: any FeatureFlagProviding = LocalFeatureFlags(),
         recentSearchStore: RecentSearchStoring? = nil,
-        observability: AppObservability = .noop
+        observability: AppObservability = .noop,
+        initialState: AddressSearchState = .idle
     ) {
+        state = initialState
         self.service = service
         self.featureFlags = featureFlags
         self.recentSearchStore = recentSearchStore
