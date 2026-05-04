@@ -239,6 +239,26 @@ Initial testing priorities:
 - Snapshot tests for main screens.
 - UI test for the happy path: search address → open transaction.
 
+## Snapshot Tests
+
+Snapshot tests live under `ApricotSnapshotTests/Snapshots/` and use fixed Swift-only fixtures so they do not hit the network, PostHog, or the real KMP layer.
+
+To run them locally:
+
+```bash
+xcodebuild -project Apricot.xcodeproj -scheme ApricotSnapshotTests -destination 'platform=iOS Simulator,name=iPhone 17' test
+```
+
+To record or refresh the reference images, rerun the same command with `RECORD_SNAPSHOTS=1` in the environment, then commit the updated files under `ApricotSnapshotTests/Snapshots/__Snapshots__/`.
+
+Unit tests can be run separately with:
+
+```bash
+xcodebuild -project Apricot.xcodeproj -scheme ApricotUnitTests -destination 'platform=iOS Simulator,name=iPhone 17' test
+```
+
+The suite snapshots a fixed 390x844 light-mode configuration so results stay deterministic across local runs and CI.
+
 ## Development Approach
 
 The project will be built incrementally using Claude Code.

@@ -4,6 +4,7 @@ struct AddressView: View {
     let initialAddress: String
     private let service: BitcoinServiceProtocol
     private let observability: AppObservability
+    private let loadsOnAppear: Bool
 
     @StateObject private var viewModel: AddressSearchViewModel
     @State private var selectedTransaction: TransactionItem?
@@ -13,11 +14,13 @@ struct AddressView: View {
         address: String,
         viewModel: AddressSearchViewModel,
         service: BitcoinServiceProtocol,
-        observability: AppObservability = .noop
+        observability: AppObservability = .noop,
+        loadsOnAppear: Bool = true
     ) {
         initialAddress = address
         self.service = service
         self.observability = observability
+        self.loadsOnAppear = loadsOnAppear
         _viewModel = StateObject(wrappedValue: viewModel)
     }
 
@@ -42,6 +45,7 @@ struct AddressView: View {
             )
         }
         .task {
+            guard loadsOnAppear else { return }
             viewModel.addressInput = initialAddress
             viewModel.search()
         }

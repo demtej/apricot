@@ -3,6 +3,7 @@ import SwiftUI
 struct TransactionDetailView: View {
     let transaction: TransactionItem
     let forAddress: String
+    private let loadsOnAppear: Bool
 
     @StateObject private var viewModel: TransactionDetailViewModel
 
@@ -10,14 +11,28 @@ struct TransactionDetailView: View {
         transaction: TransactionItem,
         forAddress: String,
         service: BitcoinServiceProtocol = LiveBitcoinService(),
-        observability: AppObservability = .noop
+        observability: AppObservability = .noop,
+        loadsOnAppear: Bool = true
     ) {
         self.transaction = transaction
         self.forAddress = forAddress
+        self.loadsOnAppear = loadsOnAppear
         _viewModel = StateObject(wrappedValue: TransactionDetailViewModel(
             service: service,
             observability: observability
         ))
+    }
+
+    init(
+        transaction: TransactionItem,
+        forAddress: String,
+        viewModel: TransactionDetailViewModel,
+        loadsOnAppear: Bool = true
+    ) {
+        self.transaction = transaction
+        self.forAddress = forAddress
+        self.loadsOnAppear = loadsOnAppear
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
 
     var body: some View {
@@ -28,6 +43,7 @@ struct TransactionDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Transaction")
         .task {
+            guard loadsOnAppear else { return }
             viewModel.load(txId: transaction.id, forAddress: forAddress)
         }
     }

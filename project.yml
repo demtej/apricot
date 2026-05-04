@@ -9,6 +9,9 @@ packages:
   PostHog:
     url: https://github.com/PostHog/posthog-ios
     majorVersion: 3.0.0
+  SnapshotTesting:
+    url: https://github.com/pointfreeco/swift-snapshot-testing
+    majorVersion: 1.17.6
 
 targets:
   Apricot:
@@ -49,3 +52,56 @@ targets:
       BUNDLE_LOADER: $(TEST_HOST)
     dependencies:
       - target: Apricot
+
+  ApricotSnapshotTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: ApricotSnapshotTests
+    settings:
+      SWIFT_VERSION: "5"
+      PRODUCT_BUNDLE_IDENTIFIER: com.apricot.snapshot-tests
+      GENERATE_INFOPLIST_FILE: YES
+      TEST_HOST: $(BUILT_PRODUCTS_DIR)/Apricot.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Apricot
+      BUNDLE_LOADER: $(TEST_HOST)
+    dependencies:
+      - target: Apricot
+      - package: SnapshotTesting
+        product: SnapshotTesting
+
+schemes:
+  Apricot:
+    build:
+      targets:
+        Apricot: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+
+  ApricotUnitTests:
+    build:
+      targets:
+        Apricot: all
+        ApricotTests: [test]
+    test:
+      targets:
+        - name: ApricotTests
+    run:
+      config: Debug
+    archive:
+      config: Release
+
+  ApricotSnapshotTests:
+    build:
+      targets:
+        Apricot: all
+        ApricotSnapshotTests: [test]
+    test:
+      targets:
+        - name: ApricotSnapshotTests
+    run:
+      config: Debug
+    archive:
+      config: Release

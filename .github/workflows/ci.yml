@@ -63,7 +63,7 @@ jobs:
         run: |
           xcodebuild \
             -project Apricot.xcodeproj \
-            -scheme Apricot \
+            -scheme ApricotUnitTests \
             -destination "${{ steps.simulator.outputs.destination }}" \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             test

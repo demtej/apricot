@@ -11,8 +11,10 @@ final class TransactionDetailViewModel: ObservableObject {
 
     init(
         service: BitcoinServiceProtocol = LiveBitcoinService(),
-        observability: AppObservability = .noop
+        observability: AppObservability = .noop,
+        initialState: TransactionDetailState = .idle
     ) {
+        state = initialState
         self.service = service
         self.observability = observability
     }
