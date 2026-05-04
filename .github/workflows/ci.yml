@@ -177,6 +177,14 @@ jobs:
           fi
           echo "destination=$DEST" >> "$GITHUB_OUTPUT"
 
+      - name: Boot simulator
+        run: |
+          set -euo pipefail
+          UDID="${{ steps.snapshot-simulator.outputs.destination }}"
+          UDID="${UDID#id=}"
+          xcrun simctl boot "$UDID" 2>/dev/null || true
+          xcrun simctl bootstatus "$UDID" -b
+
       - name: Run iOS snapshot tests
         id: snapshot-tests
         run: |

@@ -1,4 +1,4 @@
-.PHONY: bootstrap kmp xcode lint format format-check clean
+.PHONY: bootstrap kmp xcode lint format format-check clean record-snapshots
 
 SWIFTLINT ?= swiftlint
 SWIFTFORMAT ?= swiftformat
@@ -25,6 +25,17 @@ format:
 format-check:
 	@command -v $(SWIFTFORMAT) >/dev/null || { echo "swiftformat is not installed. Install it with: brew install swiftformat"; exit 1; }
 	$(SWIFTFORMAT) . --config .swiftformat --lint --cache ignore
+
+record-snapshots: xcode
+	@DEST=$$(bash scripts/ci/select-ios-simulator.sh 'iPhone 17 Pro') && \
+	xcodebuild \
+		-project Apricot.xcodeproj \
+		-scheme ApricotSnapshotTests \
+		-destination "$$DEST" \
+		-derivedDataPath .build/DerivedData \
+		-testenv RECORD_SNAPSHOTS=1 \
+		test || true
+	@echo "Snapshots recorded. Review changes in ApricotSnapshotTests/Snapshots/__Snapshots__ before committing."
 
 clean:
 	./gradlew clean
