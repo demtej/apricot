@@ -9,12 +9,13 @@ permissions:
 env:
   GRADLE_USER_HOME: ${{ github.workspace }}/.gradle-ci
   DERIVED_DATA_PATH: ${{ github.workspace }}/DerivedData
+  DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
   TZ: UTC
 
 jobs:
   update-snapshots:
     name: Record snapshot references
-    runs-on: macos-latest
+    runs-on: macos-15
 
     steps:
       - name: Checkout repository

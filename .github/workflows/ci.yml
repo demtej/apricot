@@ -14,6 +14,7 @@ permissions:
 env:
   GRADLE_USER_HOME: ${{ github.workspace }}/.gradle-ci
   DERIVED_DATA_PATH: ${{ github.workspace }}/DerivedData
+  DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
 
 jobs:
   swiftlint:
@@ -68,7 +69,7 @@ jobs:
 
   ios-unit-tests:
     name: iOS Unit Tests
-    runs-on: macos-latest
+    runs-on: macos-15
 
     steps:
       - name: Checkout repository
@@ -135,7 +136,7 @@ jobs:
 
   ios-snapshot-tests:
     name: iOS Snapshot Tests
-    runs-on: macos-latest
+    runs-on: macos-15
 
     env:
       TZ: UTC
@@ -222,7 +223,7 @@ jobs:
 
   ios-build:
     name: iOS Build
-    runs-on: macos-latest
+    runs-on: macos-15
 
     steps:
       - name: Checkout repository
