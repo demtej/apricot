@@ -100,7 +100,7 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x scripts/ci/select-ios-simulator.sh
-          DEST=$(scripts/ci/select-ios-simulator.sh Apricot.xcodeproj ApricotUnitTests)
+          DEST=$(scripts/ci/select-ios-simulator.sh)
           if [[ -z "$DEST" ]]; then
             echo "ERROR: Simulator destination resolved to empty string" >&2
             exit 1
@@ -170,7 +170,7 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x scripts/ci/select-ios-simulator.sh
-          DEST=$(scripts/ci/select-ios-simulator.sh Apricot.xcodeproj ApricotSnapshotTests 'iPhone 17 Pro')
+          DEST=$(scripts/ci/select-ios-simulator.sh 'iPhone 17 Pro')
           if [[ -z "$DEST" ]]; then
             echo "ERROR: iPhone 17 Pro simulator destination resolved to empty string" >&2
             exit 1

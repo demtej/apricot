@@ -2,45 +2,48 @@
 
 set -euo pipefail
 
-PROJECT_PATH="${1:-Apricot.xcodeproj}"
-SCHEME_NAME="${2:-Apricot}"
-REQUESTED_DEVICE_NAME="${3:-}"
+REQUESTED_DEVICE_NAME="${1:-}"
 
-destinations_output="$(xcodebuild -showdestinations -project "$PROJECT_PATH" -scheme "$SCHEME_NAME" 2>&1)"
-
-available_simulator_lines="$(
-    printf '%s\n' "$destinations_output" \
-        | grep 'platform:iOS Simulator' \
-        | grep -v 'placeholder' || true
-)"
-
-if [[ -z "$available_simulator_lines" ]]; then
-    echo "No available iOS Simulator destination found for scheme '$SCHEME_NAME'." >&2
-    printf '%s\n' "$destinations_output" >&2
-    exit 1
-fi
+available_devices="$(xcrun simctl list devices available 2>&1)"
 
 if [[ -n "$REQUESTED_DEVICE_NAME" ]]; then
     simulator_line="$(
-        printf '%s\n' "$available_simulator_lines" \
-            | grep "name:$REQUESTED_DEVICE_NAME" \
-            | head -n 1
+        printf '%s\n' "$available_devices" \
+            | grep "$REQUESTED_DEVICE_NAME" \
+            | head -n 1 \
+            || true
     )"
 
     if [[ -z "$simulator_line" ]]; then
-        echo "Required iOS Simulator '$REQUESTED_DEVICE_NAME' is not available for scheme '$SCHEME_NAME'." >&2
-        echo "Available simulator destinations:" >&2
-        printf '%s\n' "$available_simulator_lines" >&2
+        echo "Required iOS Simulator '$REQUESTED_DEVICE_NAME' is not available." >&2
+        echo "Available simulators:" >&2
+        printf '%s\n' "$available_devices" >&2
         exit 1
     fi
 else
-    simulator_line="$(printf '%s\n' "$available_simulator_lines" | head -n 1)"
+    simulator_line="$(
+        printf '%s\n' "$available_devices" \
+            | grep 'iPhone' \
+            | head -n 1 \
+            || true
+    )"
+
+    if [[ -z "$simulator_line" ]]; then
+        echo "No available iPhone simulator found." >&2
+        printf '%s\n' "$available_devices" >&2
+        exit 1
+    fi
 fi
 
-simulator_id="$(printf '%s\n' "$simulator_line" | sed -nE 's/.*id:([^,}]+).*/\1/p')"
+simulator_id="$(
+    printf '%s\n' "$simulator_line" \
+        | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' \
+        | head -n 1 \
+        || true
+)"
 
 if [[ -z "$simulator_id" ]]; then
-    echo "Failed to extract simulator id from destination: $simulator_line" >&2
+    echo "Failed to extract simulator UDID from: $simulator_line" >&2
     exit 1
 fi
 
