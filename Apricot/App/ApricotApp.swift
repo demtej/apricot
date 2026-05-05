@@ -8,8 +8,9 @@ struct ApricotApp: App {
     private let bitcoinService: BitcoinServiceProtocol
 
     init() {
-        let observability = AppObservability.live()
+        // Feature flags must initialize first: PostHogSDK.shared.setup() runs here when PostHog is configured.
         featureFlags = FeatureFlagFactory.make()
+        let observability = ObservabilityFactory.make()
         self.observability = observability
         bitcoinService = LiveBitcoinService(observability: observability)
     }

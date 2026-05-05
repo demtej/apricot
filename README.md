@@ -290,7 +290,7 @@ Initial priorities:
 
 ## PostHog Setup (Local)
 
-Feature flags are powered by PostHog. The API key and host are read from a local xcconfig file that is **not committed to the repo**.
+PostHog powers both remote feature flags and production analytics. The API key and host are read from a local xcconfig file that is **not committed to the repo**.
 
 To configure PostHog locally:
 
@@ -307,9 +307,51 @@ APRICOT_POSTHOG_HOST = https://us.i.posthog.com
 
 After editing, run `make xcode` to regenerate the Xcode project so the build settings are picked up.
 
-If `Config/Apricot.local.xcconfig` is absent or the keys are empty, the app falls back to `LocalFeatureFlags` with all flags enabled. The app builds and runs for any contributor without PostHog credentials.
+### Without PostHog credentials
+
+If `Config/Apricot.local.xcconfig` is absent or the keys are empty:
+
+- Feature flags fall back to `LocalFeatureFlags` with all flags enabled.
+- Analytics fall back to `ConsoleAnalyticsTracker`, which logs events to the console via `ConsoleLogger`.
+- The app builds and runs for any contributor without PostHog credentials.
+
+### With PostHog credentials
+
+When `APRICOT_POSTHOG_API_KEY` and `APRICOT_POSTHOG_HOST` are set:
+
+- `PostHogAnalyticsTracker` becomes the active analytics backend, sending `ProductEvent`s to PostHog.
+- `ConsoleAnalyticsTracker` is no longer used at runtime but remains available for debug or fallback use.
+- `ConsoleLogger` continues to output structured logs to the console regardless of the analytics backend.
+- All events include privacy-safe previews — addresses are truncated to 10 characters and transaction IDs to 8+4 characters. Full addresses and transaction IDs are never sent.
+
+### Remote flag
 
 The remote flag key in PostHog is `address-insights-enabled`, which maps to `addressInsightsEnabled` in the app.
+
+### Analytics events
+
+The following events are tracked in PostHog when configured:
+
+| Event | Properties |
+|---|---|
+| `address_search_started` | `address_preview` |
+| `address_search_succeeded` | `address_preview`, `result_count`, `duration_ms` |
+| `address_search_failed` | `address_preview`, `error_category`, `duration_ms` |
+| `transaction_opened` | `tx_id_preview`, `address_preview` |
+| `transaction_detail_loaded` | `tx_id_preview`, `duration_ms` |
+| `transaction_detail_failed` | `tx_id_preview`, `error_category`, `duration_ms` |
+| `transaction_graph_viewed` | `tx_id_preview` |
+| `recent_search_selected` | `address_preview` |
+| `cache_hit` | `resource`, `key_preview` |
+| `cache_miss` | `resource`, `key_preview` |
+
+## Product Analytics
+
+Apricot includes provider-agnostic observability and sends product events to PostHog when configured.
+
+<p align="center">
+  <img src="docs/screenshots/posthog-dashboard.png" width="900" alt="Apricot PostHog analytics dashboard" />
+</p>
 
 ## Status
 
