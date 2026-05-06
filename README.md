@@ -136,6 +136,9 @@ All events use privacy-safe previews. Addresses are truncated to 10 characters a
 
 The initial remote flag is `address-insights-enabled` (PostHog key) → `addressInsightsEnabled` (app code). When enabled, the app shows additional address-level insights: first/last activity, incoming/outgoing/mixed transaction classification, and a simple activity summary.
 
+
+### Dashboard
+
 <p align="center">
   <img src="docs/screenshots/posthog-dashboard.png" width="900" alt="PostHog analytics dashboard" />
 </p>
