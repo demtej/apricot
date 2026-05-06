@@ -1,5 +1,3 @@
-# Apricot
-
 <p align="center">
   <img src="docs/assets/app-icon.png" width="96" alt="Apricot app icon" />
 </p>
@@ -10,327 +8,116 @@
   A human-friendly Bitcoin address explorer built with SwiftUI and Kotlin Multiplatform.
 </p>
 
-Apricot is a mobile-first Bitcoin address explorer designed to make blockchain activity easier to understand for non-technical users.
+<p align="center">
+  <img src="https://img.shields.io/badge/Swift-5.9-orange?logo=swift&logoColor=white" alt="Swift 5.9" />
+  <img src="https://img.shields.io/badge/iOS-17.0%2B-blue?logo=apple&logoColor=white" alt="iOS 17.0+" />
+  <img src="https://img.shields.io/badge/Kotlin_Multiplatform-2.0-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin Multiplatform" />
+  <img src="https://img.shields.io/badge/Xcode-15.x-1575F9?logo=xcode&logoColor=white" alt="Xcode 15" />
+</p>
 
-The app lets users search a public Bitcoin address, view its balance and activity, inspect transactions, and understand inputs, outputs, fees, confirmations, and transaction flow through a clean and visual interface.
+---
 
-## Project Goal
+Apricot lets users look up any public Bitcoin address, understand its balance and activity, and explore transactions through a clean visual interface — designed for people who want to understand what's happening on-chain without reading a block explorer.
 
-This project is built as a portfolio-grade mobile application focused on product quality, clean architecture, modularization, testing, feature flags, caching, observability, and modern engineering practices.
+This is a portfolio project focused on product quality, clean architecture, and modern engineering practices across the full mobile stack.
 
-The goal is not to build another dense blockchain explorer. The goal is to create a human-friendly Bitcoin explorer with a polished mobile experience and a strong technical foundation.
+---
 
-## Product Scope
+## Screenshots
 
-### MVP
+<p align="center">
+  <img src="docs/screenshots/home.png" width="220" alt="Home screen" />
+  <img src="docs/screenshots/address.png" width="220" alt="Address detail" />
+  <img src="docs/screenshots/transaction-detail.png" width="220" alt="Transaction detail" />
+  <img src="docs/screenshots/transaction-flow.png" width="220" alt="Transaction flow" />
+</p>
 
-- Search a public Bitcoin address.
-- Show confirmed and unconfirmed balance.
-- Show total received and total sent.
-- Show transaction count.
-- Show a list of transactions.
-- Open a transaction detail.
-- Explain inputs, outputs, fees, confirmations, timestamps, and transaction status in simple language.
-- Display a visual transaction flow.
+---
 
-### Optional Insights
+## Architecture
 
-Controlled by a feature flag:
-
-- First activity.
-- Last activity.
-- Incoming / outgoing / mixed transaction classification.
-- Simple address activity insights.
-
-## Technical Goals
-
-This project is intended to demonstrate:
-
-- SwiftUI mobile development.
-- Swift 5.9-compatible iOS code.
-- Kotlin Multiplatform shared business/data layer.
-- Modular architecture.
-- Clean separation between Domain, Data, and Presentation.
-- Repository pattern.
-- Use cases.
-- DTO to domain mapping.
-- Dependency injection without a heavy external framework.
-- Feature flags.
-- Caching.
-- Unit testing.
-- Snapshot testing.
-- UI testing.
-- SwiftLint and SwiftFormat.
-- GitHub Actions CI.
-- Observability through analytics and structured logging.
-- Strong README and architecture documentation.
-
-## Requirements
-
-- Swift 5.9
-- iOS 17.0+
-- SwiftUI
-- Kotlin Multiplatform
-- Xcode 15.x recommended
-- JDK and Gradle for the KMP shared module
-
-## Tooling
-
-Install the local formatting and linting tools with Homebrew:
-
-```bash
-brew install swiftlint swiftformat
 ```
-
-Available commands:
-
-```bash
-make lint
-make format
-make format-check
-```
-
-- `make lint`: runs SwiftLint with the project configuration.
-- `make format`: formats Swift files in `Apricot/` and `ApricotTests/` using the project configuration.
-- `make format-check`: runs SwiftFormat in lint mode to verify formatting without changing files.
-
-The iOS app should be written using Swift 5.9-compatible APIs. Avoid Swift 6-only language features or APIs that require newer compiler versions unless explicitly approved.
-
-## Architecture Direction
-
-The project will use a pragmatic modular architecture.
-
-```text
 Apricot iOS App
 ├── SwiftUI Presentation
 ├── Apricot Design System
 ├── Observability
 └── Shared KMP Module
-    ├── Domain
-    ├── Data
+    ├── Domain (Bitcoin models, repository interfaces)
+    ├── Data (DTOs, mappers, Mempool.space repository)
     ├── Use Cases
-    ├── Mempool API Client
-    └── Cache
+    ├── Cache (in-memory TTL)
+    └── Mempool API Client (Ktor)
 ```
 
-The iOS app owns:
+**Layer ownership:**
 
-- SwiftUI views.
-- Navigation.
-- App composition.
-- Platform-specific integrations.
-- Design system implementation.
-- iOS-specific tests.
+| Layer | Owns |
+|---|---|
+| iOS app | SwiftUI views, navigation, app composition, design system, platform integrations |
+| KMP shared module | Domain models, DTOs, mappers, repositories, use cases, API client, cache |
 
-The KMP shared module owns:
+**Boundaries enforced by convention:**
+- DTOs never reach the presentation layer — mappers convert them to domain models at the data boundary.
+- Domain models never import API-specific types.
+- The Mempool.space provider is hidden behind a `BitcoinRepository` interface; the iOS app never references it directly.
+- Observability and feature flags are accessed through protocols so implementations can be swapped without touching call sites.
 
-- Bitcoin domain models.
-- DTOs.
-- Mappers.
-- Repositories.
-- Use cases.
-- Mempool API client.
-- Cache logic.
-- Business logic tests.
+---
 
-## Data Provider
+## Technical Highlights
 
-The initial Bitcoin data provider will be `mempool.space`.
+### Kotlin Multiplatform shared layer
 
-The shared KMP module should hide provider-specific details from the iOS app.
+Business and data logic lives in a KMP module compiled to an XCFramework and embedded into the iOS app. The iOS app consumes domain models and use cases via Swift, with no knowledge of the underlying Kotlin types.
 
-## Design Direction
+The KMP module includes:
+- `BitcoinRepository` — repository interface and two concrete implementations: `MempoolBitcoinRepository` (live API) and `CachingBitcoinRepository` (TTL cache wrapper).
+- Three use cases: `GetAddressSummary`, `GetAddressTransactions`, `GetTransactionDetail`.
+- DTO types for the Mempool.space API and mappers that convert them to clean domain models.
+- An in-memory TTL cache with differentiated TTLs: confirmed transaction details are cached longer than pending ones; address summaries and transaction lists use short TTLs.
 
-Apricot should feel:
+### Design system
 
-- Calm.
-- Pastel.
-- Premium.
-- Educational.
-- Trustworthy.
-- Friendly for non-crypto users.
+The app ships its own design system implemented in Swift:
+- **Tokens**: `ApricotColors` (warm pastel palette with light/dark variants), `ApricotTypography` (Geist sans + JetBrains Mono), `ApricotSpacing`.
+- **Components**: `ApricotButton`, `ApricotCard`, `ApricotStatCard`, `ApricotSearchField`, `ApricotBadge`, `MonoText`, `ApricotLoadingState`, `ApricotErrorState`, `ApricotEmptyState`.
+- Blockchain-specific values (addresses, transaction IDs, fees, amounts) are always rendered in `MonoText` — a styled monospaced component that gives them a distinct, readable appearance.
 
-The app should avoid the typical neon/cyberpunk crypto aesthetic.
+Reference files for the design system are in `docs/design/`.
 
-The main UI should use a clean modern sans-serif typeface. Blockchain-specific data such as addresses, transaction IDs, hashes, fees, amounts, and block metadata should use a polished monospaced font with a subtle retro-computing feel.
+---
 
-Design reference files are located in:
+## Observability & Feature Flags
 
-```text
-docs/design/
-```
+Both are abstracted behind protocols so they can be swapped without changing call sites.
 
-Important design files:
+### PostHog integration (optional)
 
-```text
-docs/design/colors_and_type.css
-docs/design/components.css
-docs/design/design-system-summary.md
-docs/design/screenshots/
-docs/design/ui_kits/
-docs/design/preview/
-```
-
-The CSS files are design references only. The iOS app should use native SwiftUI components and Swift design tokens.
-
-## Feature Flag
-
-Initial feature flag:
-
-```text
-addressInsightsEnabled
-```
-
-When enabled, the app may show additional address-level insights such as:
-
-- First activity.
-- Last activity.
-- Incoming / outgoing / mixed transaction classification.
-- Simple activity insights.
-
-This flag is intentionally small and practical, so the project can demonstrate feature flagging without adding unnecessary complexity.
-
-## Observability Direction
-
-The project should include an observability layer abstracted behind protocols.
-
-Initial events:
-
-- `address_search_started`
-- `address_search_succeeded`
-- `address_search_failed`
-- `transaction_opened`
-- `transaction_graph_viewed`
-- `cache_hit`
-- `cache_miss`
-
-The first implementation can be local/console-based. Real analytics providers can be integrated later behind the same abstraction.
-
-## Cache Direction
-
-The shared KMP module should include a simple in-memory TTL cache.
-
-Initial cache targets:
-
-- Address summary.
-- Address transaction list.
-- Transaction detail.
-
-Suggested TTLs:
-
-- Address summary: short TTL.
-- Transaction list: short TTL.
-- Confirmed transaction detail: longer TTL.
-- Pending transaction detail: short TTL.
-
-## Testing Strategy
-
-Business logic should be tested.
-
-Initial testing priorities:
-
-- KMP domain models.
-- DTO to domain mappers.
-- Address summary calculations.
-- Transaction direction classification.
-- Repository behavior.
-- Cache hit/miss/expiration.
-- iOS ViewModel state transitions.
-- Snapshot tests for main screens.
-- UI test for the happy path: search address → open transaction.
-
-## Snapshot Tests
-
-Snapshot tests live under `ApricotSnapshotTests/Snapshots/` and use fixed Swift-only fixtures so they do not hit the network, PostHog, or the real KMP layer.
-
-To run them locally:
-
-```bash
-xcodebuild -project Apricot.xcodeproj -scheme ApricotSnapshotTests -destination 'platform=iOS Simulator,name=iPhone 17' test
-```
-
-To record or refresh the reference images, rerun the same command with `RECORD_SNAPSHOTS=1` in the environment, then commit the updated files under `ApricotSnapshotTests/Snapshots/__Snapshots__/`.
-
-Unit tests can be run separately with:
-
-```bash
-xcodebuild -project Apricot.xcodeproj -scheme ApricotUnitTests -destination 'platform=iOS Simulator,name=iPhone 17' test
-```
-
-The suite snapshots a fixed 390x844 light-mode configuration so results stay deterministic across local runs and CI.
-
-## Development Approach
-
-The project will be built incrementally using Claude Code.
-
-Each iteration should be small, reviewable, and validated before moving to the next one.
-
-Initial priorities:
-
-1. Project skeleton.
-2. KMP integration.
-3. Bitcoin domain models.
-4. Mempool API client.
-5. Address search flow.
-6. Transaction detail flow.
-7. Visual transaction graph.
-8. Feature flag.
-9. Cache.
-10. Tests.
-11. Tooling.
-12. Observability.
-13. Polish.
-
-## Out of Scope for Initial MVP
-
-- Wallet connection.
-- Portfolio tracking.
-- Push notifications.
-- AI-generated summaries.
-
-## PostHog Setup (Local)
-
-PostHog powers both remote feature flags and production analytics. The API key and host are read from a local xcconfig file that is **not committed to the repo**.
+PostHog powers remote feature flags and production analytics. Configuration is read from a local xcconfig file that is not committed to the repo.
 
 To configure PostHog locally:
 
 ```bash
 cp Config/Apricot.example.xcconfig Config/Apricot.local.xcconfig
+# then edit Config/Apricot.local.xcconfig and add your key and host
 ```
-
-Then open `Config/Apricot.local.xcconfig` and fill in your values:
 
 ```
 APRICOT_POSTHOG_API_KEY = phc_your_key_here
 APRICOT_POSTHOG_HOST = https://us.i.posthog.com
 ```
 
-After editing, run `make xcode` to regenerate the Xcode project so the build settings are picked up.
+After editing, run `make xcode` to regenerate the Xcode project.
 
 ### Without PostHog credentials
 
-If `Config/Apricot.local.xcconfig` is absent or the keys are empty:
-
+The app builds and runs for any contributor without PostHog access:
 - Feature flags fall back to `LocalFeatureFlags` with all flags enabled.
 - Analytics fall back to `ConsoleAnalyticsTracker`, which logs events to the console via `ConsoleLogger`.
-- The app builds and runs for any contributor without PostHog credentials.
-
-### With PostHog credentials
-
-When `APRICOT_POSTHOG_API_KEY` and `APRICOT_POSTHOG_HOST` are set:
-
-- `PostHogAnalyticsTracker` becomes the active analytics backend, sending `ProductEvent`s to PostHog.
-- `ConsoleAnalyticsTracker` is no longer used at runtime but remains available for debug or fallback use.
-- `ConsoleLogger` continues to output structured logs to the console regardless of the analytics backend.
-- All events include privacy-safe previews — addresses are truncated to 10 characters and transaction IDs to 8+4 characters. Full addresses and transaction IDs are never sent.
-
-### Remote flag
-
-The remote flag key in PostHog is `address-insights-enabled`, which maps to `addressInsightsEnabled` in the app.
 
 ### Analytics events
 
-The following events are tracked in PostHog when configured:
+All events use privacy-safe previews. Addresses are truncated to 10 characters and transaction IDs to 8+4 characters — full values are never sent.
 
 | Event | Properties |
 |---|---|
@@ -345,14 +132,102 @@ The following events are tracked in PostHog when configured:
 | `cache_hit` | `resource`, `key_preview` |
 | `cache_miss` | `resource`, `key_preview` |
 
-## Product Analytics
+### Feature flags
 
-Apricot includes provider-agnostic observability and sends product events to PostHog when configured.
+The initial remote flag is `address-insights-enabled` (PostHog key) → `addressInsightsEnabled` (app code). When enabled, the app shows additional address-level insights: first/last activity, incoming/outgoing/mixed transaction classification, and a simple activity summary.
 
 <p align="center">
-  <img src="docs/screenshots/posthog-dashboard.png" width="900" alt="Apricot PostHog analytics dashboard" />
+  <img src="docs/screenshots/posthog-dashboard.png" width="900" alt="PostHog analytics dashboard" />
 </p>
 
-## Status
+---
 
-Work in progress.
+## Testing & CI
+
+### KMP tests
+
+Unit tests for domain models, DTO mappers, use cases, cache hit/miss/expiration, and repository behavior.
+
+```bash
+./gradlew :shared:allTests
+```
+
+### iOS unit tests
+
+ViewModel state transition tests and business logic tests.
+
+```bash
+xcodebuild -project Apricot.xcodeproj -scheme ApricotUnitTests \
+  -destination 'platform=iOS Simulator,name=iPhone 17' test
+```
+
+### Snapshot tests
+
+Snapshot tests live under `ApricotSnapshotTests/` and use fixed Swift-only fixtures — no network calls, no PostHog, no real KMP layer. All snapshots are recorded at a fixed 390×844 light-mode configuration for determinism.
+
+```bash
+# Run locally
+xcodebuild -project Apricot.xcodeproj -scheme ApricotSnapshotTests \
+  -destination 'platform=iOS Simulator,name=iPhone 17' test
+
+# Record or refresh reference images
+make record-snapshots
+```
+
+Reference images are committed under `ApricotSnapshotTests/Snapshots/__Snapshots__/`.
+
+> **Note:** Snapshot test execution in CI is currently disabled. macOS CI runners and local Xcode environments can produce subtly different rendering output, causing spurious failures. The infrastructure is in place — it's a known limitation to address before shipping.
+
+### GitHub Actions CI
+
+The CI pipeline runs on every pull request and push to `main`:
+
+| Job | Runner | What it checks |
+|---|---|---|
+| SwiftLint | macos-latest | Lint rules via `make lint` |
+| SwiftFormat | macos-latest | Formatting via `make format-check` |
+| KMP Tests | macos-latest | All Kotlin shared module tests |
+| iOS Unit Tests | macos-15 | ApricotUnitTests scheme |
+| iOS Build | macos-15 | App compiles cleanly for simulator |
+
+---
+
+## Getting Started
+
+### Requirements
+
+- Xcode 15.x
+- Java 17+ (for Gradle)
+- `xcodegen` — `brew install xcodegen`
+- `swiftlint` and `swiftformat` — `brew install swiftlint swiftformat`
+
+### First-time setup
+
+```bash
+make bootstrap   # builds KMP XCFramework, then generates Apricot.xcodeproj
+```
+
+Open `Apricot.xcodeproj` in Xcode after running bootstrap.
+
+### Common commands
+
+```bash
+make kmp              # rebuild KMP XCFramework (required after shared/ changes)
+make xcode            # regenerate Apricot.xcodeproj from project.yml
+make lint             # run SwiftLint
+make format           # format Swift files
+make format-check     # check formatting without modifying files
+make clean            # clean Gradle outputs and remove generated Xcode project
+```
+
+---
+
+## Known Limitations & Future Work
+
+- **Snapshot tests in CI** — disabled due to rendering differences between local Xcode environments and macOS CI runners. Infrastructure is ready; execution pending a stable approach.
+- **UI tests** — the happy path (search → transaction detail) is planned but not yet implemented.
+- **Error handling** — basic error states are in place; deeper recovery flows are out of scope for the MVP.
+- **Single data provider** — Mempool.space is the only backend. The repository interface is designed to support additional providers.
+- **Bitcoin only** — Ethereum and other chains are out of scope.
+- **No wallet connection** — read-only explorer; no key management, signing, or transaction broadcasting.
+- **No App Store release** — this is a portfolio project, not a production app.
