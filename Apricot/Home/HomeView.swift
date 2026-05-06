@@ -32,6 +32,7 @@ struct HomeView: View {
                     heroSection
                     searchSection
                     recentSection
+                    disclaimerFooter
                 }
             }
         }
@@ -61,7 +62,7 @@ struct HomeView: View {
 
     private var heroSection: some View {
         VStack(alignment: .leading, spacing: ApricotSpacing.s2) {
-            Text("Look up a wallet\nor transaction")
+            Text("Look up an address\nor transaction")
                 .font(.apricotH1)
                 .tracking(-0.68)
                 .foregroundStyle(Color.apricotFgPrimary)
@@ -150,6 +151,18 @@ struct HomeView: View {
             )
         }
         .buttonStyle(.plain)
+    }
+
+    // MARK: - Disclaimer
+
+    private var disclaimerFooter: some View {
+        Text("Apricot displays publicly available Bitcoin blockchain data. Not financial advice. No wallet connection. No private keys.")
+            .font(.apricotLabel)
+            .foregroundStyle(Color.apricotFgMuted)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, ApricotSpacing.s5)
+            .padding(.top, ApricotSpacing.s6)
+            .padding(.bottom, ApricotSpacing.s4)
     }
 
     // MARK: - Empty state
