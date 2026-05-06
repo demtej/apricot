@@ -3,7 +3,7 @@ import SwiftUI
 @main
 struct ApricotApp: App {
     @StateObject private var recentSearchStore = RecentSearchStore()
-    private let featureFlags: any FeatureFlagProviding
+    private let featureFlags: any FeatureFlagProvider
     private let observability: AppObservability
     private let bitcoinService: BitcoinServiceProtocol
 

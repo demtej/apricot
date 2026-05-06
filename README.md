@@ -225,6 +225,20 @@ make clean            # clean Gradle outputs and remove generated Xcode project
 
 ---
 
+## Architecture Decisions
+
+Key technical decisions are recorded as Architecture Decision Records in [`docs/adr/`](docs/adr/). A few highlights:
+
+- [ADR 001](docs/adr/001-use-kotlin-multiplatform-for-shared-bitcoin-logic.md) — KMP hosts all Bitcoin domain logic, mappers, use cases, and the Ktor API client. The iOS app consumes it as an XCFramework via a Swift-native facade.
+- [ADR 002](docs/adr/002-use-mempool-space-as-initial-bitcoin-data-provider.md) — Mempool.space is the initial data provider, fully isolated behind repository interfaces so the rest of the app is provider-agnostic.
+- [ADR 003](docs/adr/003-use-xcodegen-as-project-source-of-truth.md) — `project.yml` is the source of truth for the Xcode project; `Apricot.xcodeproj` is generated and git-ignored.
+- [ADR 004](docs/adr/004-use-posthog-for-remote-feature-flags-and-analytics.md) — PostHog provides both remote feature flags (`FeatureFlagProvider`) and event analytics (`AnalyticsTracker`) behind protocol abstractions.
+- [ADR 005](docs/adr/005-use-in-memory-kmp-cache-for-mvp.md) — A simple TTL cache in the KMP shared module reduces redundant API calls within a session.
+- [ADR 006](docs/adr/006-keep-observability-provider-agnostic.md) — Analytics and logging are dispatched through protocols; PostHog is active when configured, console is the fallback.
+- [ADR 007](docs/adr/007-keep-snapshot-tests-local-until-ci-is-stabilized.md) — Snapshot tests run locally only until CI rendering is consistent enough to avoid false positives.
+
+---
+
 ## Known Limitations & Future Work
 
 - **Snapshot tests in CI** — disabled due to rendering differences between local Xcode environments and macOS CI runners. Infrastructure is ready; execution pending a stable approach.

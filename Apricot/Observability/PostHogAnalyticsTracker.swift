@@ -1,7 +1,7 @@
 import Foundation
 import PostHog
 
-final class PostHogAnalyticsTracker: AnalyticsTracking {
+final class PostHogAnalyticsTracker: AnalyticsTracker {
     typealias Capture = (_ eventName: String, _ properties: [String: Any]) -> Void
 
     private let capture: Capture

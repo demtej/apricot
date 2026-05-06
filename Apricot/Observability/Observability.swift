@@ -1,6 +1,6 @@
 import Foundation
 
-protocol AnalyticsTracking {
+protocol AnalyticsTracker {
     func track(_ event: ProductEvent)
 }
 
@@ -39,7 +39,7 @@ enum LogValue: Equatable, CustomStringConvertible {
 }
 
 struct AppObservability {
-    let analytics: AnalyticsTracking
+    let analytics: AnalyticsTracker
     let logger: Logging
 
     static let noop = AppObservability(
@@ -177,7 +177,7 @@ enum ObservabilityPrivacy {
     }
 }
 
-final class ConsoleAnalyticsTracker: AnalyticsTracking {
+final class ConsoleAnalyticsTracker: AnalyticsTracker {
     private let logger: Logging
 
     init(logger: Logging) {
@@ -209,7 +209,7 @@ final class ConsoleLogger: Logging {
     }
 }
 
-struct NoopAnalyticsTracker: AnalyticsTracking {
+struct NoopAnalyticsTracker: AnalyticsTracker {
     func track(_: ProductEvent) {}
 }
 

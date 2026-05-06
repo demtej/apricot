@@ -1,7 +1,7 @@
 @testable import Apricot
 import Foundation
 
-final class TestAnalyticsTracker: AnalyticsTracking {
+final class TestAnalyticsTracker: AnalyticsTracker {
     private(set) var events: [ProductEvent] = []
 
     func track(_ event: ProductEvent) {
