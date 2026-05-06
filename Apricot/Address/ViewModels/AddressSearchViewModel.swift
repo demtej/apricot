@@ -6,14 +6,14 @@ final class AddressSearchViewModel: ObservableObject {
     @Published var addressInput: String = ""
 
     private let service: BitcoinServiceProtocol
-    private let featureFlags: any FeatureFlagProviding
+    private let featureFlags: any FeatureFlagProvider
     private let recentSearchStore: RecentSearchStoring?
     private let observability: AppObservability
     private var searchTask: Task<Void, Never>?
 
     init(
         service: BitcoinServiceProtocol = LiveBitcoinService(),
-        featureFlags: any FeatureFlagProviding = LocalFeatureFlags(),
+        featureFlags: any FeatureFlagProvider = LocalFeatureFlags(),
         recentSearchStore: RecentSearchStoring? = nil,
         observability: AppObservability = .noop,
         initialState: AddressSearchState = .idle

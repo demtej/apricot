@@ -1,7 +1,7 @@
 import Foundation
 import PostHog
 
-final class PostHogFeatureFlags: FeatureFlagProviding {
+final class PostHogFeatureFlags: FeatureFlagProvider {
     private static let flagKey = "address-insights-enabled"
 
     init(apiKey: String, host: String) {

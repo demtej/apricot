@@ -10,7 +10,7 @@ enum ObservabilityFactory {
         let sanitizedHost = host.replacingOccurrences(of: "\\/", with: "/")
         let logger = ConsoleLogger()
 
-        let analytics: AnalyticsTracking = if !apiKey.isEmpty, !sanitizedHost.isEmpty {
+        let analytics: AnalyticsTracker = if !apiKey.isEmpty, !sanitizedHost.isEmpty {
             PostHogAnalyticsTracker()
         } else {
             ConsoleAnalyticsTracker(logger: logger)

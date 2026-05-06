@@ -1,8 +1,8 @@
-protocol FeatureFlagProviding {
+protocol FeatureFlagProvider {
     var addressInsightsEnabled: Bool { get }
 }
 
-struct LocalFeatureFlags: FeatureFlagProviding {
+struct LocalFeatureFlags: FeatureFlagProvider {
     let addressInsightsEnabled: Bool
 
     init(addressInsightsEnabled: Bool = true) {
