@@ -1,14 +1,18 @@
-.PHONY: bootstrap kmp xcode lint format format-check clean record-snapshots
+.PHONY: bootstrap kmp kmp-release xcode lint format format-check clean record-snapshots
 
 SWIFTLINT ?= swiftlint
 SWIFTFORMAT ?= swiftformat
 
-# First-time setup: build the KMP XCFramework, then generate the Xcode project.
-bootstrap: kmp xcode
+# First-time setup: build both KMP XCFramework variants, then generate the Xcode project.
+bootstrap: kmp kmp-release xcode
 
-# Build the shared KMP module as an XCFramework (required before opening Xcode).
+# Build the shared KMP module as a debug XCFramework (fast, for local development).
 kmp:
 	./gradlew assembleSharedDebugXCFramework
+
+# Build the shared KMP module as a release XCFramework (required for Archive / TestFlight).
+kmp-release:
+	./gradlew assembleSharedReleaseXCFramework
 
 # Regenerate Apricot.xcodeproj from project.yml.
 xcode:

@@ -11,10 +11,10 @@
 - [ ] `xcodebuild … build` succeeds with no warnings treated as errors
 - [ ] All snapshot tests pass locally (`xcodebuild test -scheme Apricot …`)
 - [ ] No `TODO` / `FIXME` / force-unwrap regressions introduced since last release
-- [ ] Bundle identifier set correctly in `project.yml` (e.g., `com.yourname.apricot`)
+- [ ] Bundle identifier is `com.demiantejo.apricot` in `project.yml`
 - [ ] `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` are set correctly in `project.yml`
 - [ ] Minimum deployment target is iOS 17.0
-- [ ] App builds against the release (non-debug) XCFramework
+- [ ] Release KMP XCFramework built: `make kmp-release` (Xcode project references `release/shared.xcframework`)
 
 ---
 
@@ -91,6 +91,8 @@
 ---
 
 ## 8. TestFlight
+
+> See `docs/app-store/testflight-checklist.md` for the full step-by-step upload guide.
 
 - [ ] Internal testers added in App Store Connect
 - [ ] Build uploaded via Xcode Organizer or `xcrun altool` / `xcrun notarytool`
