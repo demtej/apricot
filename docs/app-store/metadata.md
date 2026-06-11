@@ -73,25 +73,19 @@ bitcoin,blockchain,explorer,address,transaction,btc,mempool,crypto,wallet,lookup
 
 ## Support URL
 
-`https://<github-username>.github.io/apricot/support`
-
-*(Replace `<github-username>` with the actual GitHub username before submission. Source: docs/support.md)*
+`https://demtej.github.io/apricot/support`
 
 ---
 
 ## Marketing URL
 
-`https://<github-username>.github.io/apricot`
-
-*(Optional — replace `<github-username>` or remove before submission. Source: docs/index.md)*
+`https://demtej.github.io/apricot`
 
 ---
 
 ## Privacy Policy URL
 
-`https://<github-username>.github.io/apricot/privacy-policy`
-
-*(Required for App Store — replace `<github-username>` with the actual GitHub username before submission. Source: docs/privacy-policy.md)*
+`https://demtej.github.io/apricot/privacy-policy`
 
 ---
 
