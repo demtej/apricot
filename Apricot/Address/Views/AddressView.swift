@@ -1,5 +1,11 @@
 import SwiftUI
 
+private struct TransactionNavContext: Identifiable, Hashable {
+    let transaction: TransactionItem
+    let address: String
+    var id: String { transaction.id }
+}
+
 struct AddressView: View {
     let initialAddress: String
     private let service: BitcoinServiceProtocol
@@ -7,8 +13,7 @@ struct AddressView: View {
     private let loadsOnAppear: Bool
 
     @StateObject private var viewModel: AddressSearchViewModel
-    @State private var selectedTransaction: TransactionItem?
-    @State private var loadedAddress: String = ""
+    @State private var pendingNavigation: TransactionNavContext?
 
     init(
         address: String,
@@ -36,10 +41,10 @@ struct AddressView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Address")
-        .navigationDestination(item: $selectedTransaction) { tx in
+        .navigationDestination(item: $pendingNavigation) { ctx in
             TransactionDetailView(
-                transaction: tx,
-                forAddress: loadedAddress,
+                transaction: ctx.transaction,
+                forAddress: ctx.address,
                 service: service,
                 observability: observability
             )
@@ -102,9 +107,8 @@ struct AddressView: View {
 
                 ForEach(transactions) { tx in
                     Button {
-                        loadedAddress = summary.address
                         viewModel.didOpenTransaction(tx, forAddress: summary.address)
-                        selectedTransaction = tx
+                        pendingNavigation = TransactionNavContext(transaction: tx, address: summary.address)
                     } label: {
                         TransactionRow(transaction: tx, showsDirectionClassification: showsInsights)
                     }
