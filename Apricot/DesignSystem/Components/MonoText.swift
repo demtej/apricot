@@ -34,9 +34,11 @@ struct MonoChip: View {
 #Preview {
     VStack(alignment: .leading, spacing: 16) {
         MonoText(text: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq")
+            .middleTruncatedSingleLine()
         MonoText(text: "0.00142836", size: .number, color: .apricotInFg)
-        MonoText(text: "a1075db55d416d3ca…", size: .small, color: .apricotFgSecondary)
-        MonoChip(text: "bc1q…59gz")
+        MonoText(text: "a1075db55d416d3ca7af9b1c2e8f6d4c0b3a5e7d9", size: .small, color: .apricotFgSecondary)
+            .middleTruncatedSingleLine()
+        MonoChip(text: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq".abbreviated(to: 8))
     }
     .padding()
     .background(Color.apricotBgPage)
