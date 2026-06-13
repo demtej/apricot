@@ -102,3 +102,29 @@ extension View {
         modifier(ApricotMonoModifier(size: size))
     }
 }
+
+#Preview("Type Scale") {
+    VStack(alignment: .leading, spacing: 12) {
+        Text("Display").font(.apricotDisplay)
+        Text("Heading 1").font(.apricotH1)
+        Text("Heading 2").font(.apricotH2)
+        Text("Heading 3").font(.apricotH3)
+        Text("Title").font(.apricotTitle)
+        Text("Body").font(.apricotBody)
+        Text("Body strong").font(.apricotBodyStrong)
+        Text("Caption").font(.apricotCaption)
+        Text("LABEL").font(.apricotLabel).tracking(.apricotTrackingWide)
+    }
+    .padding()
+    .background(Color.apricotBgPage)
+}
+
+#Preview("Mono Styles") {
+    VStack(alignment: .leading, spacing: 12) {
+        Text("bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq").apricotMono(.regular)
+        Text("a1075db55d416d3ca…").apricotMono(.small)
+        Text("0.00142836").apricotMono(.number)
+    }
+    .padding()
+    .background(Color.apricotBgPage)
+}

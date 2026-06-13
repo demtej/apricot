@@ -150,3 +150,43 @@ extension Color {
         Color(UIColor.adaptive(light: 0x3F6A86, dark: 0x9CC0D6))
     }
 }
+
+#Preview("Backgrounds & Foregrounds") {
+    VStack(alignment: .leading, spacing: 8) {
+        swatch("apricotBgPage", .apricotBgPage)
+        swatch("apricotBgSurface", .apricotBgSurface)
+        swatch("apricotBgSurface2", .apricotBgSurface2)
+        swatch("apricotBgElevated", .apricotBgElevated)
+        swatch("apricotFgPrimary", .apricotFgPrimary)
+        swatch("apricotFgSecondary", .apricotFgSecondary)
+        swatch("apricotFgMuted", .apricotFgMuted)
+        swatch("apricotAccent", .apricotAccent)
+        swatch("apricotAccentSoft", .apricotAccentSoft)
+        swatch("apricotBorderDefault", .apricotBorderDefault)
+    }
+    .padding()
+    .background(Color.apricotBgPage)
+}
+
+#Preview("Transaction Direction Tokens") {
+    VStack(alignment: .leading, spacing: 8) {
+        swatch("apricotInBg / apricotInFg", .apricotInBg, fg: .apricotInFg)
+        swatch("apricotOutBg / apricotOutFg", .apricotOutBg, fg: .apricotOutFg)
+        swatch("apricotPendingBg / apricotPendingFg", .apricotPendingBg, fg: .apricotPendingFg)
+        swatch("apricotInfoBg / apricotInfoFg", .apricotInfoBg, fg: .apricotInfoFg)
+    }
+    .padding()
+    .background(Color.apricotBgPage)
+}
+
+private func swatch(_ name: String, _ bg: Color, fg: Color = .apricotFgPrimary) -> some View {
+    HStack {
+        RoundedRectangle(cornerRadius: 6)
+            .fill(bg)
+            .frame(width: 32, height: 32)
+            .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Color.apricotBorderDefault, lineWidth: 1))
+        Text(name)
+            .font(.apricotCaption)
+            .foregroundStyle(fg)
+    }
+}
