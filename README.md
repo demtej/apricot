@@ -207,7 +207,7 @@ The CI pipeline runs on every pull request and push to `main`:
 ### First-time setup
 
 ```bash
-make bootstrap   # builds KMP XCFramework, then generates Apricot.xcodeproj
+make bootstrap   # builds debug + release KMP XCFrameworks, then generates Apricot.xcodeproj
 ```
 
 Open `Apricot.xcodeproj` in Xcode after running bootstrap.
@@ -215,13 +215,36 @@ Open `Apricot.xcodeproj` in Xcode after running bootstrap.
 ### Common commands
 
 ```bash
-make kmp              # rebuild KMP XCFramework (required after shared/ changes)
+make kmp              # rebuild debug KMP XCFramework (required after shared/ changes)
+make kmp-release      # rebuild release KMP XCFramework (required for Archive / TestFlight)
+make kmp-all          # rebuild both debug and release KMP XCFrameworks
 make xcode            # regenerate Apricot.xcodeproj from project.yml
 make lint             # run SwiftLint
 make format           # format Swift files
 make format-check     # check formatting without modifying files
 make clean            # clean Gradle outputs and remove generated Xcode project
 ```
+
+For normal day-to-day development, `make kmp && make xcode` is enough — Xcode only needs the
+debug XCFramework when running on the simulator/device from the IDE.
+
+### Archive / TestFlight
+
+Archiving (Product > Archive, or a TestFlight upload) requires the **release** XCFramework at
+`shared/build/XCFrameworks/release/shared.xcframework`. If only the debug XCFramework has been
+built, Xcode fails with "There is no XCFramework found at
+shared/build/XCFrameworks/release/shared.xcframework".
+
+```bash
+make prepare-archive    # clean stale Xcode artifacts, build release XCFramework, regenerate project
+make validate-archive   # prepare-archive, then run a Release archive from the console via xcodebuild
+make preflight-release  # lint, format-check, build debug+release XCFrameworks, regenerate
+                         # project, run unit tests, and a Release build of the app
+```
+
+Before submitting to TestFlight / the App Store, run `make preflight-release` and then either
+`make prepare-archive` (to archive from Xcode's UI) or `make validate-archive` (to validate the
+archive entirely from the console).
 
 ---
 
