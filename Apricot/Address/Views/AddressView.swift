@@ -14,6 +14,7 @@ struct AddressView: View {
 
     @StateObject private var viewModel: AddressSearchViewModel
     @State private var pendingNavigation: TransactionNavContext?
+    @EnvironmentObject private var profileStore: WalletProfileStore
 
     init(
         address: String,
@@ -45,8 +46,11 @@ struct AddressView: View {
             TransactionDetailView(
                 transaction: ctx.transaction,
                 forAddress: ctx.address,
-                service: service,
-                observability: observability
+                viewModel: TransactionDetailViewModel(
+                    service: service,
+                    profileStore: profileStore,
+                    observability: observability
+                )
             )
         }
         .task {
@@ -162,4 +166,5 @@ struct AddressView: View {
             service: service
         )
     }
+    .environmentObject(WalletProfileStore.preview())
 }

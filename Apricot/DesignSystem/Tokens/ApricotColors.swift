@@ -29,7 +29,8 @@ extension Color {
         static let scale100 = Color(UIColor(hex: 0xFFE8D2))
         static let scale200 = Color(UIColor(hex: 0xFBD3AE))
         static let scale300 = Color(UIColor(hex: 0xF7B884))
-        static let scale400 = Color(UIColor(hex: 0xF4A26B)) // brand primary
+        static let scale400Hex: UInt32 = 0xF4A26B // brand primary
+        static let scale400 = Color(UIColor(hex: scale400Hex))
         static let scale500 = Color(UIColor(hex: 0xEE8A4E))
         static let scale600 = Color(UIColor(hex: 0xD9703A))
         static let scale700 = Color(UIColor(hex: 0xB0552A))

@@ -8,6 +8,7 @@ final class AddressSearchViewModel: ObservableObject {
     private let service: BitcoinServiceProtocol
     private let featureFlags: any FeatureFlagProvider
     private let recentSearchStore: RecentSearchStoring?
+    private let profileStore: WalletProfileStoring?
     private let observability: AppObservability
     private var searchTask: Task<Void, Never>?
 
@@ -15,6 +16,7 @@ final class AddressSearchViewModel: ObservableObject {
         service: BitcoinServiceProtocol = LiveBitcoinService(),
         featureFlags: any FeatureFlagProvider = LocalFeatureFlags(),
         recentSearchStore: RecentSearchStoring? = nil,
+        profileStore: WalletProfileStoring? = nil,
         observability: AppObservability = .noop,
         initialState: AddressSearchState = .idle
     ) {
@@ -22,6 +24,7 @@ final class AddressSearchViewModel: ObservableObject {
         self.service = service
         self.featureFlags = featureFlags
         self.recentSearchStore = recentSearchStore
+        self.profileStore = profileStore
         self.observability = observability
     }
 
@@ -73,6 +76,7 @@ final class AddressSearchViewModel: ObservableObject {
                 )
             }
             recentSearchStore?.add(address: address)
+            profileStore?.resolveProfile(for: address, kind: .searched)
             let durationMs = Self.durationMs(since: startedAt)
             let addressPreview = ObservabilityPrivacy.addressPreview(address)
             observability.analytics.track(.addressSearchSucceeded(

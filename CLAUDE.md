@@ -56,6 +56,7 @@ Open `Apricot.xcodeproj` in Xcode after running `make bootstrap`.
 Apricot iOS App
 ├── SwiftUI Presentation
 ├── Apricot Design System
+├── Wallet Profiles (SwiftData)
 ├── Observability
 └── Shared KMP Module
     ├── Domain (Bitcoin models)
@@ -66,7 +67,7 @@ Apricot iOS App
 ```
 
 **Layer ownership:**
-- iOS app: SwiftUI views, navigation, app composition, design system, platform integrations.
+- iOS app: SwiftUI views, navigation, app composition, design system, platform integrations, wallet profile persistence (SwiftData).
 - KMP shared module: domain models, DTOs, mappers, repositories, use cases, Mempool API client, cache.
 
 **Rules:**
@@ -76,6 +77,15 @@ Apricot iOS App
 - Feature flags must be abstracted behind a provider protocol.
 - Observability must be abstracted behind protocols.
 - Avoid business logic inside SwiftUI views.
+
+## Wallet Profiles
+
+Local, user-defined info for Bitcoin addresses (`Apricot/WalletProfiles/`), persisted with SwiftData.
+
+- `WalletProfile` (`@Model`): address, label, color, notes, kind (`searched` or `counterparty`), sequence number.
+- `WalletProfileStore`: resolves/creates profiles, auto-assigning default labels — `S1, S2, ...` for addresses the user searches directly, `C1, C2, ...` for addresses first seen as transaction counterparties. An address keeps its first-assigned label even if later encountered through the other path. Labels, colors, and notes are user-editable.
+
+This is an intentional exception to the "KMP owns repositories" rule above: profile data is purely local UI/UX state, not provider data, so it lives entirely in the iOS layer using SwiftData rather than the KMP shared module.
 
 ## Data Provider
 

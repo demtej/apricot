@@ -120,4 +120,5 @@ struct HomeView: View {
         }
     }
     .environmentObject(store)
+    .environmentObject(WalletProfileStore.preview())
 }
