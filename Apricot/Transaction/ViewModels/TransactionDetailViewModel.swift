@@ -5,17 +5,20 @@ final class TransactionDetailViewModel: ObservableObject {
     @Published private(set) var state: TransactionDetailState = .idle
 
     private let service: BitcoinServiceProtocol
+    private let profileStore: WalletProfileStoring?
     private let observability: AppObservability
     private var loadTask: Task<Void, Never>?
     private var graphViewTrackedTxId: String?
 
     init(
         service: BitcoinServiceProtocol = LiveBitcoinService(),
+        profileStore: WalletProfileStoring? = nil,
         observability: AppObservability = .noop,
         initialState: TransactionDetailState = .idle
     ) {
         state = initialState
         self.service = service
+        self.profileStore = profileStore
         self.observability = observability
     }
 
@@ -52,6 +55,7 @@ final class TransactionDetailViewModel: ObservableObject {
             let item = try await service.fetchTransactionDetail(txId: txId, forAddress: forAddress)
             guard !Task.isCancelled else { return }
             state = .loaded(item)
+            resolveCounterpartyProfiles(item, forAddress: forAddress)
             let durationMs = Self.durationMs(since: startedAt)
             let txPreview = ObservabilityPrivacy.txIdPreview(txId)
             observability.analytics.track(.transactionDetailLoaded(
@@ -78,6 +82,18 @@ final class TransactionDetailViewModel: ObservableObject {
                 "error_category": .string(detailError.analyticsCategory),
                 "tx_id_preview": .string(txPreview)
             ])
+        }
+    }
+
+    /// Assigns "counterparty" profiles to every input/output address other
+    /// than `forAddress`, so they're labeled consistently if encountered again.
+    private func resolveCounterpartyProfiles(_ item: TransactionDetailItem, forAddress: String) {
+        guard let profileStore else { return }
+        let counterpartyAddresses = (item.inputs + item.outputs)
+            .compactMap(\.address)
+            .filter { $0 != forAddress }
+        for address in Set(counterpartyAddresses) {
+            profileStore.resolveProfile(for: address, kind: .counterparty)
         }
     }
 

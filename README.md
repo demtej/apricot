@@ -40,6 +40,7 @@ This is a portfolio project focused on product quality, clean architecture, and 
 Apricot iOS App
 ├── SwiftUI Presentation
 ├── Apricot Design System
+├── Wallet Profiles (SwiftData)
 ├── Observability
 └── Shared KMP Module
     ├── Domain (Bitcoin models, repository interfaces)
@@ -53,8 +54,12 @@ Apricot iOS App
 
 | Layer | Owns |
 |---|---|
-| iOS app | SwiftUI views, navigation, app composition, design system, platform integrations |
+| iOS app | SwiftUI views, navigation, app composition, design system, platform integrations, wallet profile persistence (SwiftData) |
 | KMP shared module | Domain models, DTOs, mappers, repositories, use cases, API client, cache |
+
+### Wallet profiles
+
+Users can assign local info (label, color, notes) to any Bitcoin address — whether searched directly or seen as a transaction counterparty — so the same address is shown consistently everywhere. New addresses get an auto-generated label (`S1, S2, ...` for searches, `C1, C2, ...` for counterparties), which the user can rename and recolor, plus free-form notes. This is local-only state persisted with SwiftData (`Apricot/WalletProfiles/`), independent of the KMP shared module.
 
 **Boundaries enforced by convention:**
 - DTOs never reach the presentation layer — mappers convert them to domain models at the data boundary.

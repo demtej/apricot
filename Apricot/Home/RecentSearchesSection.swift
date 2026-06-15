@@ -32,6 +32,8 @@ private struct RecentSearchRow: View {
     let item: RecentSearch
     let onTap: () -> Void
 
+    @EnvironmentObject private var profileStore: WalletProfileStore
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 12) {
@@ -39,7 +41,7 @@ private struct RecentSearchRow: View {
                     Circle()
                         .fill(Color.apricotAccentSoft)
                         .frame(width: 32, height: 32)
-                    Text("bc")
+                    Text(profileStore.displayBadge(for: item.address))
                         .font(.system(size: 11, weight: .semibold, design: .monospaced))
                         .foregroundStyle(Color.Apricot.scale700)
                 }
@@ -104,6 +106,7 @@ private struct RecentSearchEmptyState: View {
         Color.apricotBgPage.ignoresSafeArea()
         RecentSearchesSection(searches: [], onSelect: { _ in })
     }
+    .environmentObject(WalletProfileStore.preview())
 }
 
 #Preview("With recent searches") {
@@ -117,4 +120,5 @@ private struct RecentSearchEmptyState: View {
         Color.apricotBgPage.ignoresSafeArea()
         RecentSearchesSection(searches: searches, onSelect: { _ in })
     }
+    .environmentObject(WalletProfileStore.preview())
 }

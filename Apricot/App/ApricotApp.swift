@@ -1,8 +1,11 @@
+import SwiftData
 import SwiftUI
 
 @main
 struct ApricotApp: App {
     @StateObject private var recentSearchStore = RecentSearchStore()
+    @StateObject private var profileStore: WalletProfileStore
+    private let aliasModelContainer: ModelContainer
     private let featureFlags: any FeatureFlagProvider
     private let observability: AppObservability
     private let bitcoinService: BitcoinServiceProtocol
@@ -13,6 +16,10 @@ struct ApricotApp: App {
         let observability = ObservabilityFactory.make()
         self.observability = observability
         bitcoinService = LiveBitcoinService(observability: observability)
+
+        let container = try! ModelContainer(for: WalletProfile.self)
+        aliasModelContainer = container
+        _profileStore = StateObject(wrappedValue: WalletProfileStore(context: container.mainContext))
     }
 
     var body: some Scene {
@@ -27,11 +34,14 @@ struct ApricotApp: App {
                         service: bitcoinService,
                         featureFlags: featureFlags,
                         recentSearchStore: recentSearchStore,
+                        profileStore: profileStore,
                         observability: observability
                     )
                 }
             }
             .environmentObject(recentSearchStore)
+            .environmentObject(profileStore)
         }
+        .modelContainer(aliasModelContainer)
     }
 }
