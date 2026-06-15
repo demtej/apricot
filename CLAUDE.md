@@ -80,7 +80,7 @@ Apricot iOS App
 
 ## Wallet Profiles
 
-Local, user-defined info for Bitcoin addresses (`Apricot/WalletProfiles/`), persisted with SwiftData.
+Local, user-defined info for Bitcoin addresses (`Apricot/Features/WalletProfiles/`), persisted with SwiftData.
 
 - `WalletProfile` (`@Model`): address, label, color, notes, kind (`searched` or `counterparty`), sequence number.
 - `WalletProfileStore`: resolves/creates profiles, auto-assigning default labels — `S1, S2, ...` for addresses the user searches directly, `C1, C2, ...` for addresses first seen as transaction counterparties. An address keeps its first-assigned label even if later encountered through the other path. Labels, colors, and notes are user-editable.

@@ -59,7 +59,7 @@ Apricot iOS App
 
 ### Wallet profiles
 
-Users can assign local info (label, color, notes) to any Bitcoin address — whether searched directly or seen as a transaction counterparty — so the same address is shown consistently everywhere. New addresses get an auto-generated label (`S1, S2, ...` for searches, `C1, C2, ...` for counterparties), which the user can rename and recolor, plus free-form notes. This is local-only state persisted with SwiftData (`Apricot/WalletProfiles/`), independent of the KMP shared module.
+Users can assign local info (label, color, notes) to any Bitcoin address — whether searched directly or seen as a transaction counterparty — so the same address is shown consistently everywhere. New addresses get an auto-generated label (`S1, S2, ...` for searches, `C1, C2, ...` for counterparties), which the user can rename and recolor, plus free-form notes. This is local-only state persisted with SwiftData (`Apricot/Features/WalletProfiles/`), independent of the KMP shared module.
 
 **Boundaries enforced by convention:**
 - DTOs never reach the presentation layer — mappers convert them to domain models at the data boundary.
