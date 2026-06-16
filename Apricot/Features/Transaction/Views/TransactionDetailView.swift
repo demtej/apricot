@@ -126,13 +126,7 @@ struct TransactionDetailView: View {
                         .lineLimit(nil)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: ApricotSpacing.s3)
-                    Button {
-                        UIPasteboard.general.string = detail.id
-                    } label: {
-                        Image(systemName: "doc.on.doc")
-                            .font(.system(size: 14))
-                            .foregroundStyle(Color.apricotAccent)
-                    }
+                    CopyButton(value: detail.id)
                 }
 
                 if detail.direction == .mixed && counterparty == nil {
@@ -147,34 +141,37 @@ struct TransactionDetailView: View {
                     // Counterparty wallet row
                     sectionLabel(displaysAlias ? "ALIAS" : "WALLET")
                     HStack(alignment: .top, spacing: ApricotSpacing.s3) {
-                        if displaysAlias, let alias = counterpartyAlias {
-                            Text(alias)
-                                .apricotMono(.small)
-                                .foregroundStyle(Color.apricotFgPrimary)
-                        } else {
-                            Text(counterparty)
-                                .apricotMono(.small)
-                                .foregroundStyle(Color.apricotFgPrimary)
-                                .lineLimit(nil)
-                                .fixedSize(horizontal: false, vertical: true)
+                        Group {
+                            if displaysAlias, let alias = counterpartyAlias {
+                                Text(alias)
+                                    .apricotMono(.small)
+                                    .foregroundStyle(Color.apricotFgPrimary)
+                            } else {
+                                Text(counterparty)
+                                    .apricotMono(.small)
+                                    .foregroundStyle(Color.apricotFgPrimary)
+                                    .lineLimit(nil)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
                         }
+                        .id(displaysAlias)
+                        .transition(.opacity.combined(with: .modifier(
+                            active: BlurModifier(radius: 8),
+                            identity: BlurModifier(radius: 0)
+                        )))
                         Spacer(minLength: ApricotSpacing.s3)
                         if counterpartyAlias != nil {
                             Button {
-                                showsRealAddress.toggle()
+                                withAnimation(.easeInOut(duration: 0.22)) {
+                                    showsRealAddress.toggle()
+                                }
                             } label: {
                                 Image(systemName: showsRealAddress ? "eye.slash" : "eye")
                                     .font(.system(size: 14))
                                     .foregroundStyle(Color.apricotAccent)
                             }
                         }
-                        Button {
-                            UIPasteboard.general.string = counterparty
-                        } label: {
-                            Image(systemName: "doc.on.doc")
-                                .font(.system(size: 14))
-                                .foregroundStyle(Color.apricotAccent)
-                        }
+                        CopyButton(value: counterparty)
                     }
                 }
             }

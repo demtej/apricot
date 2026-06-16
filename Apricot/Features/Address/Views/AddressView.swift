@@ -117,6 +117,7 @@ struct AddressView: View {
             }
             .padding(.horizontal, ApricotSpacing.s5)
             .padding(.bottom, ApricotSpacing.s10)
+            .animation(.easeInOut(duration: 0.22), value: showsRealAddress)
             Spacer()
         }
     }

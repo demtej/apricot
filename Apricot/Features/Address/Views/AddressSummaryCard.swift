@@ -28,34 +28,37 @@ struct AddressSummaryCard: View {
         return VStack(alignment: .leading, spacing: ApricotSpacing.s1) {
             sectionLabel(displaysAlias ? "ALIAS" : "ADDRESS")
             HStack(spacing: ApricotSpacing.s2) {
-                if displaysAlias, let alias {
-                    Text(alias)
-                        .apricotMono(.small)
-                        .foregroundStyle(Color.apricotFgPrimary)
-                        .lineLimit(1)
-                } else {
-                    MonoChip(text: summary.address)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.6)
-                        .truncationMode(.middle)
+                Group {
+                    if displaysAlias, let alias {
+                        Text(alias)
+                            .apricotMono(.small)
+                            .foregroundStyle(Color.apricotFgPrimary)
+                            .lineLimit(1)
+                    } else {
+                        MonoChip(text: summary.address)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+                            .truncationMode(.middle)
+                    }
                 }
+                .id(displaysAlias)
+                .transition(.opacity.combined(with: .modifier(
+                    active: BlurModifier(radius: 8),
+                    identity: BlurModifier(radius: 0)
+                )))
                 Spacer(minLength: 0)
                 if alias != nil {
                     Button {
-                        showsRealAddress.toggle()
+                        withAnimation(.easeInOut(duration: 0.22)) {
+                            showsRealAddress.toggle()
+                        }
                     } label: {
                         Image(systemName: showsRealAddress ? "eye.slash" : "eye")
                             .font(.system(size: 14))
                             .foregroundStyle(Color.apricotAccent)
                     }
                 }
-                Button {
-                    UIPasteboard.general.string = summary.address
-                } label: {
-                    Image(systemName: "doc.on.doc")
-                        .font(.system(size: 14))
-                        .foregroundStyle(Color.apricotAccent)
-                }
+                CopyButton(value: summary.address)
             }
         }
     }

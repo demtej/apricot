@@ -46,6 +46,11 @@ struct TransactionRow: View {
                     .apricotMono(.small)
                     .foregroundStyle(Color.apricotFgPrimary)
                     .lineLimit(1)
+                    .id(primaryText)
+                    .transition(.opacity.combined(with: .modifier(
+                        active: BlurModifier(radius: 8),
+                        identity: BlurModifier(radius: 0)
+                    )))
 
                 if transaction.counterpartyAddress != nil {
                     Text(transaction.shortId)
