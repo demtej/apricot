@@ -11,6 +11,7 @@ struct TransactionFlowCard: View {
     let feeSats: String
     var showsRealAddress: Bool = false
     var resolveAlias: ((String) -> String?)? = nil
+    var onInspect: (() -> Void)? = nil
 
     @State private var showAllInputs = false
     @State private var showAllOutputs = false
@@ -18,7 +19,17 @@ struct TransactionFlowCard: View {
     var body: some View {
         ApricotCard {
             VStack(alignment: .leading, spacing: ApricotSpacing.s3) {
-                sectionLabel("FLOW")
+                HStack {
+                    sectionLabel("FLOW")
+                    Spacer()
+                    if let onInspect {
+                        Button(action: onInspect) {
+                            Image(systemName: "magnifyingglass")
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.apricotAccent)
+                        }
+                    }
+                }
                 if isComplex {
                     complexSummary
                 } else {
