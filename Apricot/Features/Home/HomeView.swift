@@ -44,6 +44,9 @@ struct HomeView: View {
                 observability: observability
             )
         }
+        .onChange(of: searchedAddress) { _, new in
+            if new == nil { searchQuery = "" }
+        }
     }
 
     // MARK: - Sections

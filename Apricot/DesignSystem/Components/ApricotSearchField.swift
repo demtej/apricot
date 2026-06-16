@@ -8,11 +8,10 @@ struct ApricotSearchField: View {
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: ApricotSpacing.s3) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Color.apricotFgMuted)
-                .frame(width: 52)
 
             TextField(placeholder, text: $text)
                 .font(.system(size: 17))
@@ -21,8 +20,23 @@ struct ApricotSearchField: View {
                 .focused($isFocused)
                 .submitLabel(.search)
                 .onSubmit { onSubmit?() }
+
+            if !text.isEmpty {
+                Button {
+                    text = ""
+                    isFocused = true
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 16))
+                        .foregroundStyle(Color.apricotFgMuted)
+                }
+                .buttonStyle(.plain)
+            }
         }
+        .padding(.horizontal, ApricotSpacing.s4)
         .frame(minHeight: 56)
+        .contentShape(Capsule())
+        .onTapGesture { isFocused = true }
         .background(Color.apricotBgElevated)
         .clipShape(Capsule())
         .overlay(
