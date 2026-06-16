@@ -20,6 +20,7 @@ final class TransactionDetailViewSnapshotTests: SnapshotTestCase {
                     loadsOnAppear: false
                 )
             }
+            .environmentObject(WalletProfileStore.preview())
         )
     }
 }

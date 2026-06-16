@@ -54,5 +54,6 @@ final class AddressViewSnapshotTests: SnapshotTestCase {
                 loadsOnAppear: false
             )
         }
+        .environmentObject(WalletProfileStore.preview())
     }
 }
