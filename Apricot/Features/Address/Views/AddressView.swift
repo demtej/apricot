@@ -60,9 +60,7 @@ struct AddressView: View {
     @ViewBuilder
     private var content: some View {
         switch viewModel.state {
-        case .idle:
-            Spacer()
-        case .loading:
+        case .idle, .loading:
             ScrollView {
                 ApricotLoadingState()
                     .padding(.top, ApricotSpacing.s4)

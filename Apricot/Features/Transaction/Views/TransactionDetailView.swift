@@ -55,9 +55,7 @@ struct TransactionDetailView: View {
     @ViewBuilder
     private var content: some View {
         switch viewModel.state {
-        case .idle:
-            EmptyView()
-        case .loading:
+        case .idle, .loading:
             ScrollView {
                 ApricotLoadingState()
                     .padding(.top, ApricotSpacing.s4)
@@ -263,21 +261,24 @@ struct TransactionDetailView: View {
     // MARK: - Inputs / Outputs
 
     private func ioSection(title: String, count: Int, items: [IOItem]) -> some View {
-        VStack(alignment: .leading, spacing: ApricotSpacing.s2) {
-            HStack {
-                Text(title)
-                    .font(.apricotLabel)
-                    .tracking(.apricotTrackingWide)
-                    .foregroundStyle(Color.apricotFgSecondary)
-                Spacer()
-                Text("\(count)")
-                    .font(.apricotLabel)
-                    .foregroundStyle(Color.apricotFgMuted)
-            }
-            .padding(.top, ApricotSpacing.s2)
-
-            ForEach(items) { item in
-                ioRow(item: item)
+        LazyVStack(alignment: .leading, spacing: ApricotSpacing.s2, pinnedViews: []) {
+            Section {
+                ForEach(items) { item in
+                    ioRow(item: item)
+                }
+            } header: {
+                HStack {
+                    Text(title)
+                        .font(.apricotLabel)
+                        .tracking(.apricotTrackingWide)
+                        .foregroundStyle(Color.apricotFgSecondary)
+                    Spacer()
+                    Text("\(count)")
+                        .font(.apricotLabel)
+                        .foregroundStyle(Color.apricotFgMuted)
+                }
+                .padding(.top, ApricotSpacing.s2)
+                .background(Color.apricotBgPage)
             }
         }
     }

@@ -67,11 +67,16 @@ final class AddressViewModel: ObservableObject {
                     showsInsights: showsInsights
                 )
             }
-            recentSearchStore?.add(address: address)
-            profileStore?.resolveProfile(for: address, kind: .searched)
-            for tx in data.transactions {
-                if let counterparty = tx.counterpartyAddress {
-                    profileStore?.resolveProfile(for: counterparty, kind: .counterparty)
+            // Fire profile resolution after yielding to SwiftUI so the loaded
+            // state renders immediately rather than blocking on SwiftData I/O.
+            Task { [weak self] in
+                guard let self else { return }
+                recentSearchStore?.add(address: address)
+                profileStore?.resolveProfile(for: address, kind: .searched)
+                for tx in data.transactions {
+                    if let counterparty = tx.counterpartyAddress {
+                        profileStore?.resolveProfile(for: counterparty, kind: .counterparty)
+                    }
                 }
             }
             let durationMs = Self.durationMs(since: startedAt)
