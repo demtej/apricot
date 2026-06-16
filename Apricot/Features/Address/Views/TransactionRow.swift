@@ -32,22 +32,31 @@ struct TransactionRow: View {
 
     private var mainColumn: some View {
         VStack(alignment: .leading, spacing: 2) {
-            // Primary: counterparty alias/address when available, tx ID otherwise
-            Text(primaryText)
-                .apricotMono(.small)
-                .foregroundStyle(Color.apricotFgPrimary)
-                .lineLimit(1)
-
-            if !transaction.isConfirmed {
-                ApricotBadge(variant: .pending)
-            }
-
-            // Secondary: tx ID when counterparty is shown as primary
-            if transaction.counterpartyAddress != nil {
+            if isSelfTransfer {
+                Text("Internal transfer")
+                    .font(.apricotBody)
+                    .foregroundStyle(Color.apricotFgSecondary)
+                    .lineLimit(1)
                 Text(transaction.shortId)
                     .apricotMono(.small)
                     .foregroundStyle(Color.apricotFgMuted)
                     .lineLimit(1)
+            } else {
+                Text(primaryText)
+                    .apricotMono(.small)
+                    .foregroundStyle(Color.apricotFgPrimary)
+                    .lineLimit(1)
+
+                if transaction.counterpartyAddress != nil {
+                    Text(transaction.shortId)
+                        .apricotMono(.small)
+                        .foregroundStyle(Color.apricotFgMuted)
+                        .lineLimit(1)
+                }
+            }
+
+            if !transaction.isConfirmed {
+                ApricotBadge(variant: .pending)
             }
         }
     }
@@ -60,10 +69,11 @@ struct TransactionRow: View {
 
     // MARK: - Helpers
 
+    private var isSelfTransfer: Bool {
+        transaction.direction == .mixed && transaction.counterpartyAddress == nil
+    }
+
     private var primaryText: String {
-        guard transaction.counterpartyAddress != nil else {
-            return transaction.shortId
-        }
         if !showsRealAddress, let alias = counterpartyAlias {
             return alias
         }

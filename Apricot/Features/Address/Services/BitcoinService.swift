@@ -197,12 +197,6 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
         return TransactionDetailItem(
             id: txId,
             shortId: BitcoinFormatter.shortTxId(txId),
-            summary: buildSummary(
-                direction: direction,
-                status: status,
-                netAmountBTC: netAmountDisplay,
-                isPositive: netSats >= 0
-            ),
             direction: direction,
             status: status,
             confirmations: confirmations,
@@ -217,25 +211,6 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
             inputs: inputs,
             outputs: outputs
         )
-    }
-
-    private func buildSummary(
-        direction: TransactionDirectionDisplay,
-        status: TransactionStatusDisplay,
-        netAmountBTC: String,
-        isPositive _: Bool
-    ) -> String {
-        let statusWord = status == .pending ? "pending" : "confirmed"
-        switch direction {
-        case .incoming:
-            return "You received \(netAmountBTC) in this \(statusWord) transaction."
-        case .outgoing:
-            return "You sent \(netAmountBTC) in this \(statusWord) transaction."
-        case .mixed:
-            return "This \(statusWord) transaction both spent and received funds for this address."
-        case .unknown:
-            return "Transaction details for this address."
-        }
     }
 
     private func classifyTransactionError(_ error: Error) -> TransactionDetailError {

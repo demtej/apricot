@@ -79,7 +79,6 @@ struct TransactionDetailView: View {
     private func loadedView(detail: TransactionDetailItem) -> some View {
         ScrollView {
             LazyVStack(spacing: ApricotSpacing.s4) {
-                summaryCard(detail: detail)
                 identityCard(detail: detail)
                 if detail.status == .confirmed {
                     confirmationCard(detail: detail)
@@ -101,20 +100,6 @@ struct TransactionDetailView: View {
             .padding(.horizontal, ApricotSpacing.s5)
             .padding(.vertical, ApricotSpacing.s4)
             .padding(.bottom, ApricotSpacing.s10)
-        }
-    }
-
-    // MARK: - Summary
-
-    private func summaryCard(detail: TransactionDetailItem) -> some View {
-        ApricotCard(style: .elevated) {
-            HStack(alignment: .top, spacing: ApricotSpacing.s3) {
-                ApricotBadge(variant: detail.direction.badgeVariant)
-                Text(detail.summary)
-                    .font(.apricotBody)
-                    .foregroundStyle(Color.apricotFgPrimary)
-                Spacer(minLength: 0)
-            }
         }
     }
 
@@ -145,7 +130,13 @@ struct TransactionDetailView: View {
                     }
                 }
 
-                if let counterparty {
+                if detail.direction == .mixed && counterparty == nil {
+                    Divider().overlay(Color.apricotBorderSubtle)
+                    sectionLabel("TRANSFER TYPE")
+                    Text("Internal transfer — funds stayed within this wallet")
+                        .font(.apricotBody)
+                        .foregroundStyle(Color.apricotFgSecondary)
+                } else if let counterparty {
                     Divider().overlay(Color.apricotBorderSubtle)
 
                     // Counterparty wallet row
@@ -181,10 +172,6 @@ struct TransactionDetailView: View {
                         }
                     }
                 }
-
-                Divider().overlay(Color.apricotBorderSubtle)
-
-                ApricotBadge(variant: detail.status.badgeVariant)
             }
         }
     }

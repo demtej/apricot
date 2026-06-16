@@ -58,7 +58,6 @@ enum TransactionDetailError: Equatable, Error {
 struct TransactionDetailItem: Equatable {
     let id: String
     let shortId: String
-    let summary: String
     let direction: TransactionDirectionDisplay
     let status: TransactionStatusDisplay
     let confirmations: Int?
