@@ -52,7 +52,6 @@ enum SnapshotFixtures {
     static let detail = TransactionDetailItem(
         id: transactionId,
         shortId: "a1075db5…d48d",
-        summary: "You received 0.02500000 BTC in this confirmed transaction.",
         direction: .incoming,
         status: .confirmed,
         confirmations: 6,

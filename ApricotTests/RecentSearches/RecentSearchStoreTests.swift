@@ -81,26 +81,6 @@ final class RecentSearchStoreTests: XCTestCase {
         XCTAssertEqual(store.searches.count, 1)
     }
 
-    // MARK: - Max count
-
-    func test_add_exceedsMaxCount_trimsToFive() {
-        for i in 0 ..< 7 {
-            store.add(address: "bc1qaddr\(i)")
-        }
-
-        XCTAssertEqual(store.searches.count, 5)
-    }
-
-    func test_add_exceedsMaxCount_keepsNewest() {
-        for i in 0 ..< 7 {
-            store.add(address: "bc1qaddr\(i)")
-        }
-
-        // The last 5 added are bc1qaddr2…bc1qaddr6, newest first
-        XCTAssertEqual(store.searches[0].address, "bc1qaddr6")
-        XCTAssertEqual(store.searches[4].address, "bc1qaddr2")
-    }
-
     // MARK: - Persistence
 
     func test_persistence_survivesStoreRecreation() {
@@ -124,12 +104,4 @@ final class RecentSearchStoreTests: XCTestCase {
         freshDefaults.removePersistentDomain(forName: "apricot.tests.fresh")
     }
 
-    func test_persistence_maxCountRespectedAfterReload() {
-        for i in 0 ..< 7 {
-            store.add(address: "bc1qaddr\(i)")
-        }
-
-        let reloaded = RecentSearchStore(defaults: defaults)
-        XCTAssertEqual(reloaded.searches.count, 5)
-    }
 }

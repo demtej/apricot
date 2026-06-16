@@ -161,7 +161,6 @@ final class TransactionDetailViewModelTests: XCTestCase {
         TransactionDetailItem(
             id: id,
             shortId: String(id.prefix(8)) + "…",
-            summary: "You received 0.01000000 BTC in this confirmed transaction.",
             direction: .incoming,
             status: .confirmed,
             confirmations: 6,

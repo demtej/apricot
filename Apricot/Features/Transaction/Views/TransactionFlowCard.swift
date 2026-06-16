@@ -11,14 +11,30 @@ struct TransactionFlowCard: View {
     let feeSats: String
     var showsRealAddress: Bool = false
     var resolveAlias: ((String) -> String?)? = nil
+    var onInspect: (() -> Void)? = nil
 
     @State private var showAllInputs = false
     @State private var showAllOutputs = false
 
+    // Entrance animation (fires once on first appear)
+    @State private var inputsVisible = false
+    @State private var arrowProgress: CGFloat = 0
+    @State private var outputsVisible = false
+
     var body: some View {
         ApricotCard {
             VStack(alignment: .leading, spacing: ApricotSpacing.s3) {
-                sectionLabel("FLOW")
+                HStack {
+                    sectionLabel("FLOW")
+                    Spacer()
+                    if let onInspect {
+                        Button(action: onInspect) {
+                            Image(systemName: "magnifyingglass")
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.apricotAccent)
+                        }
+                    }
+                }
                 if isComplex {
                     complexSummary
                 } else {
@@ -40,8 +56,26 @@ struct TransactionFlowCard: View {
     private var flowDiagram: some View {
         HStack(alignment: .top, spacing: ApricotSpacing.s2) {
             inputsColumn
+                .opacity(inputsVisible ? 1 : 0)
             centerConnector
+                .mask(
+                    GeometryReader { geo in
+                        HStack(spacing: 0) {
+                            Rectangle().frame(width: arrowProgress * geo.size.width)
+                            Spacer(minLength: 0)
+                        }
+                    }
+                )
             outputsColumn
+                .opacity(outputsVisible ? 1 : 0)
+        }
+        .task {
+            guard !inputsVisible else { return }
+            withAnimation(.easeOut(duration: 0.35)) { inputsVisible = true }
+            try? await Task.sleep(nanoseconds: 300_000_000)
+            withAnimation(.easeInOut(duration: 0.5)) { arrowProgress = 1 }
+            try? await Task.sleep(nanoseconds: 520_000_000)
+            withAnimation(.easeOut(duration: 0.35)) { outputsVisible = true }
         }
     }
 
@@ -124,6 +158,7 @@ struct TransactionFlowCard: View {
     private var complexSummary: some View {
         HStack(spacing: ApricotSpacing.s3) {
             countChip(value: inputs.count, label: "inputs")
+                .opacity(inputsVisible ? 1 : 0)
             HStack(spacing: 0) {
                 LinearGradient(
                     colors: [Color.Apricot.scale200, Color.Apricot.scale400],
@@ -136,7 +171,24 @@ struct TransactionFlowCard: View {
                     .foregroundStyle(Color.Apricot.scale400)
             }
             .frame(maxWidth: .infinity)
+            .mask(
+                GeometryReader { geo in
+                    HStack(spacing: 0) {
+                        Rectangle().frame(width: arrowProgress * geo.size.width)
+                        Spacer(minLength: 0)
+                    }
+                }
+            )
             countChip(value: outputs.count, label: "outputs")
+                .opacity(outputsVisible ? 1 : 0)
+        }
+        .task {
+            guard !inputsVisible else { return }
+            withAnimation(.easeOut(duration: 0.35)) { inputsVisible = true }
+            try? await Task.sleep(nanoseconds: 300_000_000)
+            withAnimation(.easeInOut(duration: 0.5)) { arrowProgress = 1 }
+            try? await Task.sleep(nanoseconds: 520_000_000)
+            withAnimation(.easeOut(duration: 0.35)) { outputsVisible = true }
         }
     }
 

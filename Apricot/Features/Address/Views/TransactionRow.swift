@@ -27,30 +27,51 @@ struct TransactionRow: View {
     // MARK: - Sub-views
 
     private var directionBadge: some View {
-        ApricotBadge(
-            label: transaction.direction.label,
-            variant: transaction.direction.badgeVariant
-        )
+        ApricotBadge(variant: badgeVariant)
+    }
+
+    private var badgeVariant: ApricotBadgeVariant {
+        guard !transaction.isConfirmed else { return transaction.direction.badgeVariant }
+        switch transaction.direction {
+        case .incoming: return .pendingReceived
+        case .outgoing: return .pendingSent
+        default: return .pending
+        }
     }
 
     private var mainColumn: some View {
         VStack(alignment: .leading, spacing: 2) {
-            // Primary: counterparty alias/address when available, tx ID otherwise
-            Text(primaryText)
-                .apricotMono(.small)
-                .foregroundStyle(Color.apricotFgPrimary)
-                .lineLimit(1)
-
-            if !transaction.isConfirmed {
-                ApricotBadge(label: transaction.statusLabel, variant: .pending, showDot: true)
-            }
-
-            // Secondary: tx ID when counterparty is shown as primary
-            if transaction.counterpartyAddress != nil {
+            if isSelfTransfer {
+                Text("Internal transfer")
+                    .font(.apricotBody)
+                    .foregroundStyle(Color.apricotFgSecondary)
+                    .lineLimit(1)
                 Text(transaction.shortId)
                     .apricotMono(.small)
                     .foregroundStyle(Color.apricotFgMuted)
                     .lineLimit(1)
+            } else {
+                Text(primaryText)
+                    .apricotMono(.small)
+                    .foregroundStyle(Color.apricotFgPrimary)
+                    .lineLimit(1)
+                    .id(primaryText)
+                    .transition(.opacity.combined(with: .modifier(
+                        active: BlurModifier(radius: 8),
+                        identity: BlurModifier(radius: 0)
+                    )))
+
+                if transaction.counterpartyAddress != nil {
+                    Text(transaction.shortId)
+                        .apricotMono(.small)
+                        .foregroundStyle(Color.apricotFgMuted)
+                        .lineLimit(1)
+                }
+            }
+
+            // Pending badge only when there's no direction badge (e.g. showsDirectionClassification = false)
+            if !transaction.isConfirmed, !showsDirectionClassification {
+                ApricotBadge(variant: .pending)
             }
         }
     }
@@ -63,10 +84,11 @@ struct TransactionRow: View {
 
     // MARK: - Helpers
 
+    private var isSelfTransfer: Bool {
+        transaction.direction == .mixed && transaction.counterpartyAddress == nil
+    }
+
     private var primaryText: String {
-        guard transaction.counterpartyAddress != nil else {
-            return transaction.shortId
-        }
         if !showsRealAddress, let alias = counterpartyAlias {
             return alias
         }

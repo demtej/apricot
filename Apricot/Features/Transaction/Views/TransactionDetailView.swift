@@ -7,6 +7,7 @@ struct TransactionDetailView: View {
 
     @StateObject private var viewModel: TransactionDetailViewModel
     @State private var showsRealAddress = false
+    @State private var showsUTXOInspector = false
     @EnvironmentObject private var profileStore: WalletProfileStore
 
     init(
@@ -44,6 +45,11 @@ struct TransactionDetailView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Transaction")
+        .navigationDestination(isPresented: $showsUTXOInspector) {
+            if case let .loaded(detail) = viewModel.state {
+                TransactionUTXOView(detail: detail)
+            }
+        }
         .task {
             guard loadsOnAppear else { return }
             viewModel.load(txId: transaction.id, forAddress: forAddress)
@@ -79,7 +85,6 @@ struct TransactionDetailView: View {
     private func loadedView(detail: TransactionDetailItem) -> some View {
         ScrollView {
             LazyVStack(spacing: ApricotSpacing.s4) {
-                summaryCard(detail: detail)
                 identityCard(detail: detail)
                 if detail.status == .confirmed {
                     confirmationCard(detail: detail)
@@ -90,35 +95,16 @@ struct TransactionDetailView: View {
                     outputs: detail.outputs,
                     feeSats: detail.feeSats,
                     showsRealAddress: showsRealAddress,
-                    resolveAlias: { profileStore.profile(for: $0)?.label }
+                    resolveAlias: { profileStore.profile(for: $0)?.label },
+                    onInspect: { showsUTXOInspector = true }
                 )
                 .onAppear {
                     viewModel.trackTransactionGraphViewed(txId: detail.id)
                 }
-                ioSection(title: "INPUTS", count: detail.inputCount, items: detail.inputs)
-                ioSection(title: "OUTPUTS", count: detail.outputCount, items: detail.outputs)
             }
             .padding(.horizontal, ApricotSpacing.s5)
             .padding(.vertical, ApricotSpacing.s4)
             .padding(.bottom, ApricotSpacing.s10)
-        }
-    }
-
-    // MARK: - Summary
-
-    private func summaryCard(detail: TransactionDetailItem) -> some View {
-        ApricotCard(style: .elevated) {
-            HStack(alignment: .top, spacing: ApricotSpacing.s3) {
-                ApricotBadge(
-                    label: detail.direction.label,
-                    variant: detail.direction.badgeVariant,
-                    showDot: false
-                )
-                Text(detail.summary)
-                    .font(.apricotBody)
-                    .foregroundStyle(Color.apricotFgPrimary)
-                Spacer(minLength: 0)
-            }
         }
     }
 
@@ -140,59 +126,63 @@ struct TransactionDetailView: View {
                         .lineLimit(nil)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: ApricotSpacing.s3)
-                    Button {
-                        UIPasteboard.general.string = detail.id
-                    } label: {
-                        Image(systemName: "doc.on.doc")
-                            .font(.system(size: 14))
-                            .foregroundStyle(Color.apricotAccent)
-                    }
+                    CopyButton(value: detail.id)
                 }
 
-                if let counterparty {
+                if detail.direction == .mixed && counterparty == nil {
+                    Divider().overlay(Color.apricotBorderSubtle)
+                    sectionLabel("TRANSFER TYPE")
+                    Text("Internal transfer — funds stayed within this wallet")
+                        .font(.apricotBody)
+                        .foregroundStyle(Color.apricotFgSecondary)
+                } else if let counterparty {
                     Divider().overlay(Color.apricotBorderSubtle)
 
                     // Counterparty wallet row
                     sectionLabel(displaysAlias ? "ALIAS" : "WALLET")
-                    HStack(alignment: .top, spacing: ApricotSpacing.s3) {
-                        if displaysAlias, let alias = counterpartyAlias {
-                            Text(alias)
-                                .apricotMono(.small)
-                                .foregroundStyle(Color.apricotFgPrimary)
-                        } else {
+                    HStack(alignment: .center, spacing: ApricotSpacing.s3) {
+                        ZStack(alignment: .leading) {
+                            // Always reserves the height of the full address (2 lines)
                             Text(counterparty)
                                 .apricotMono(.small)
-                                .foregroundStyle(Color.apricotFgPrimary)
                                 .lineLimit(nil)
                                 .fixedSize(horizontal: false, vertical: true)
+                                .opacity(0)
+
+                            Group {
+                                if displaysAlias, let alias = counterpartyAlias {
+                                    Text(alias)
+                                        .apricotMono(.small)
+                                        .foregroundStyle(Color.apricotFgPrimary)
+                                } else {
+                                    Text(counterparty)
+                                        .apricotMono(.small)
+                                        .foregroundStyle(Color.apricotFgPrimary)
+                                        .lineLimit(nil)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                            .id(displaysAlias)
+                            .transition(.opacity.combined(with: .modifier(
+                                active: BlurModifier(radius: 8),
+                                identity: BlurModifier(radius: 0)
+                            )))
                         }
                         Spacer(minLength: ApricotSpacing.s3)
                         if counterpartyAlias != nil {
                             Button {
-                                showsRealAddress.toggle()
+                                withAnimation(.easeInOut(duration: 0.22)) {
+                                    showsRealAddress.toggle()
+                                }
                             } label: {
                                 Image(systemName: showsRealAddress ? "eye.slash" : "eye")
                                     .font(.system(size: 14))
                                     .foregroundStyle(Color.apricotAccent)
                             }
                         }
-                        Button {
-                            UIPasteboard.general.string = counterparty
-                        } label: {
-                            Image(systemName: "doc.on.doc")
-                                .font(.system(size: 14))
-                                .foregroundStyle(Color.apricotAccent)
-                        }
+                        CopyButton(value: counterparty)
                     }
                 }
-
-                Divider().overlay(Color.apricotBorderSubtle)
-
-                ApricotBadge(
-                    label: detail.status.label,
-                    variant: detail.status.badgeVariant,
-                    showDot: detail.status == .pending
-                )
             }
         }
     }
@@ -256,83 +246,6 @@ struct TransactionDetailView: View {
                 }
             }
         }
-    }
-
-    // MARK: - Inputs / Outputs
-
-    private func ioSection(title: String, count: Int, items: [IOItem]) -> some View {
-        LazyVStack(alignment: .leading, spacing: ApricotSpacing.s2, pinnedViews: []) {
-            Section {
-                ForEach(items) { item in
-                    ioRow(item: item)
-                }
-            } header: {
-                HStack {
-                    Text(title)
-                        .font(.apricotLabel)
-                        .tracking(.apricotTrackingWide)
-                        .foregroundStyle(Color.apricotFgSecondary)
-                    Spacer()
-                    Text("\(count)")
-                        .font(.apricotLabel)
-                        .foregroundStyle(Color.apricotFgMuted)
-                }
-                .padding(.top, ApricotSpacing.s2)
-                .background(Color.apricotBgPage)
-            }
-        }
-    }
-
-    private func ioRow(item: IOItem) -> some View {
-        HStack(alignment: .center, spacing: ApricotSpacing.s3) {
-            if item.isRelevantAddress {
-                Circle()
-                    .fill(Color.apricotAccent)
-                    .frame(width: 6, height: 6)
-            } else {
-                Circle()
-                    .fill(Color.clear)
-                    .frame(width: 6, height: 6)
-            }
-
-            VStack(alignment: .leading, spacing: 2) {
-                if let address = item.address {
-                    Text(address)
-                        .apricotMono(.small)
-                        .foregroundStyle(
-                            item.isRelevantAddress ? Color.apricotFgPrimary : Color.apricotFgSecondary
-                        )
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-                } else {
-                    Text("Coinbase / Unknown")
-                        .font(.apricotCaption)
-                        .italic()
-                        .foregroundStyle(Color.apricotFgMuted)
-                }
-            }
-
-            Spacer()
-
-            VStack(alignment: .trailing, spacing: 2) {
-                MonoText(text: item.amountBTC, size: .small)
-                Text(item.amountSats)
-                    .apricotMono(.small)
-                    .foregroundStyle(Color.apricotFgMuted)
-            }
-        }
-        .padding(14)
-        .background(Color.apricotBgElevated)
-        .clipShape(RoundedRectangle(cornerRadius: ApricotRadius.md))
-        .overlay(
-            RoundedRectangle(cornerRadius: ApricotRadius.md)
-                .strokeBorder(
-                    item.isRelevantAddress
-                        ? Color.apricotAccent.opacity(0.4)
-                        : Color.apricotBorderSubtle,
-                    lineWidth: 1
-                )
-        )
     }
 
     // MARK: - Shared helpers

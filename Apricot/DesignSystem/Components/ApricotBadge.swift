@@ -1,30 +1,45 @@
 import SwiftUI
 
 enum ApricotBadgeVariant {
-    case received, sent, pending, info, neutral
+    case received, sent, pending, pendingReceived, pendingSent, info, neutral
 }
 
 struct ApricotBadge: View {
-    let label: String
     var variant: ApricotBadgeVariant = .neutral
-    var showDot: Bool = true
 
     var body: some View {
-        HStack(spacing: 6) {
-            if showDot {
-                Circle()
-                    .fill(foreground)
-                    .opacity(0.85)
-                    .frame(width: 6, height: 6)
-            }
-            Text(label)
-                .font(.apricotLabel)
+        ZStack {
+            Image(systemName: iconName)
+                .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(foreground)
+                .frame(width: 26, height: 26)
+                .background(background)
+                .clipShape(Circle())
+
+            // Small clock pip in the corner for pending-directional variants
+            if variant == .pendingReceived || variant == .pendingSent {
+                Image(systemName: "clock.fill")
+                    .font(.system(size: 7, weight: .bold))
+                    .foregroundStyle(Color.apricotPendingFg)
+                    .frame(width: 11, height: 11)
+                    .background(Color.apricotPendingBg)
+                    .clipShape(Circle())
+                    .offset(x: 8, y: 8)
+            }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(background)
-        .clipShape(Capsule())
+        .frame(width: 26, height: 26)
+    }
+
+    private var iconName: String {
+        switch variant {
+        case .received: "arrow.down"
+        case .sent: "arrow.up"
+        case .pending: "clock"
+        case .pendingReceived: "arrow.down"
+        case .pendingSent: "arrow.up"
+        case .info: "info"
+        case .neutral: "circle.fill"
+        }
     }
 
     private var background: Color {
@@ -32,6 +47,8 @@ struct ApricotBadge: View {
         case .received: .apricotInBg
         case .sent: .apricotOutBg
         case .pending: .apricotPendingBg
+        case .pendingReceived: .apricotInBg.opacity(0.5)
+        case .pendingSent: .apricotOutBg.opacity(0.5)
         case .info: .apricotInfoBg
         case .neutral: .apricotBgSurface2
         }
@@ -42,6 +59,8 @@ struct ApricotBadge: View {
         case .received: .apricotInFg
         case .sent: .apricotOutFg
         case .pending: .apricotPendingFg
+        case .pendingReceived: .apricotInFg.opacity(0.6)
+        case .pendingSent: .apricotOutFg.opacity(0.6)
         case .info: .apricotInfoFg
         case .neutral: .apricotFgSecondary
         }
@@ -49,12 +68,12 @@ struct ApricotBadge: View {
 }
 
 #Preview {
-    VStack(spacing: 8) {
-        ApricotBadge(label: "Received", variant: .received)
-        ApricotBadge(label: "Sent", variant: .sent)
-        ApricotBadge(label: "Pending", variant: .pending)
-        ApricotBadge(label: "Info", variant: .info)
-        ApricotBadge(label: "Neutral", variant: .neutral)
+    HStack(spacing: 12) {
+        ApricotBadge(variant: .received)
+        ApricotBadge(variant: .sent)
+        ApricotBadge(variant: .pending)
+        ApricotBadge(variant: .info)
+        ApricotBadge(variant: .neutral)
     }
     .padding()
     .background(Color.apricotBgPage)
