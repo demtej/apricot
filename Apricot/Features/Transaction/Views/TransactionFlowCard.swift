@@ -16,6 +16,11 @@ struct TransactionFlowCard: View {
     @State private var showAllInputs = false
     @State private var showAllOutputs = false
 
+    // Entrance animation (fires once on first appear)
+    @State private var inputsVisible = false
+    @State private var arrowProgress: CGFloat = 0
+    @State private var outputsVisible = false
+
     var body: some View {
         ApricotCard {
             VStack(alignment: .leading, spacing: ApricotSpacing.s3) {
@@ -51,8 +56,26 @@ struct TransactionFlowCard: View {
     private var flowDiagram: some View {
         HStack(alignment: .top, spacing: ApricotSpacing.s2) {
             inputsColumn
+                .opacity(inputsVisible ? 1 : 0)
             centerConnector
+                .mask(
+                    GeometryReader { geo in
+                        HStack(spacing: 0) {
+                            Rectangle().frame(width: arrowProgress * geo.size.width)
+                            Spacer(minLength: 0)
+                        }
+                    }
+                )
             outputsColumn
+                .opacity(outputsVisible ? 1 : 0)
+        }
+        .task {
+            guard !inputsVisible else { return }
+            withAnimation(.easeOut(duration: 0.35)) { inputsVisible = true }
+            try? await Task.sleep(nanoseconds: 300_000_000)
+            withAnimation(.easeInOut(duration: 0.5)) { arrowProgress = 1 }
+            try? await Task.sleep(nanoseconds: 520_000_000)
+            withAnimation(.easeOut(duration: 0.35)) { outputsVisible = true }
         }
     }
 
