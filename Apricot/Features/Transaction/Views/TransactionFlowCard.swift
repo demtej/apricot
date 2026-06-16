@@ -158,6 +158,7 @@ struct TransactionFlowCard: View {
     private var complexSummary: some View {
         HStack(spacing: ApricotSpacing.s3) {
             countChip(value: inputs.count, label: "inputs")
+                .opacity(inputsVisible ? 1 : 0)
             HStack(spacing: 0) {
                 LinearGradient(
                     colors: [Color.Apricot.scale200, Color.Apricot.scale400],
@@ -170,7 +171,24 @@ struct TransactionFlowCard: View {
                     .foregroundStyle(Color.Apricot.scale400)
             }
             .frame(maxWidth: .infinity)
+            .mask(
+                GeometryReader { geo in
+                    HStack(spacing: 0) {
+                        Rectangle().frame(width: arrowProgress * geo.size.width)
+                        Spacer(minLength: 0)
+                    }
+                }
+            )
             countChip(value: outputs.count, label: "outputs")
+                .opacity(outputsVisible ? 1 : 0)
+        }
+        .task {
+            guard !inputsVisible else { return }
+            withAnimation(.easeOut(duration: 0.35)) { inputsVisible = true }
+            try? await Task.sleep(nanoseconds: 300_000_000)
+            withAnimation(.easeInOut(duration: 0.5)) { arrowProgress = 1 }
+            try? await Task.sleep(nanoseconds: 520_000_000)
+            withAnimation(.easeOut(duration: 0.35)) { outputsVisible = true }
         }
     }
 

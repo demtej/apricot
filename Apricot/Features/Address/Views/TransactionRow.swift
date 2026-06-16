@@ -27,7 +27,16 @@ struct TransactionRow: View {
     // MARK: - Sub-views
 
     private var directionBadge: some View {
-        ApricotBadge(variant: transaction.direction.badgeVariant)
+        ApricotBadge(variant: badgeVariant)
+    }
+
+    private var badgeVariant: ApricotBadgeVariant {
+        guard !transaction.isConfirmed else { return transaction.direction.badgeVariant }
+        switch transaction.direction {
+        case .incoming: return .pendingReceived
+        case .outgoing: return .pendingSent
+        default: return .pending
+        }
     }
 
     private var mainColumn: some View {
@@ -60,7 +69,8 @@ struct TransactionRow: View {
                 }
             }
 
-            if !transaction.isConfirmed {
+            // Pending badge only when there's no direction badge (e.g. showsDirectionClassification = false)
+            if !transaction.isConfirmed, !showsDirectionClassification {
                 ApricotBadge(variant: .pending)
             }
         }
