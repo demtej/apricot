@@ -18,6 +18,7 @@ struct CopyButton: View {
                 .font(.system(size: 14, weight: copied ? .semibold : .regular))
                 .foregroundStyle(copied ? Color.apricotInFg : Color.apricotAccent)
                 .contentTransition(.symbolEffect(.replace))
+                .frame(width: 20, height: 20)
         }
     }
 }

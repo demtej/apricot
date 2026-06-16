@@ -36,7 +36,7 @@ struct ApricotSearchField: View {
         .padding(.horizontal, ApricotSpacing.s4)
         .frame(minHeight: 56)
         .contentShape(Capsule())
-        .onTapGesture { isFocused = true }
+        .simultaneousGesture(TapGesture().onEnded { isFocused = true })
         .background(Color.apricotBgElevated)
         .clipShape(Capsule())
         .overlay(

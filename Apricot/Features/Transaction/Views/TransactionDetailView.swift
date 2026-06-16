@@ -140,25 +140,34 @@ struct TransactionDetailView: View {
 
                     // Counterparty wallet row
                     sectionLabel(displaysAlias ? "ALIAS" : "WALLET")
-                    HStack(alignment: .top, spacing: ApricotSpacing.s3) {
-                        Group {
-                            if displaysAlias, let alias = counterpartyAlias {
-                                Text(alias)
-                                    .apricotMono(.small)
-                                    .foregroundStyle(Color.apricotFgPrimary)
-                            } else {
-                                Text(counterparty)
-                                    .apricotMono(.small)
-                                    .foregroundStyle(Color.apricotFgPrimary)
-                                    .lineLimit(nil)
-                                    .fixedSize(horizontal: false, vertical: true)
+                    HStack(alignment: .center, spacing: ApricotSpacing.s3) {
+                        ZStack(alignment: .leading) {
+                            // Always reserves the height of the full address (2 lines)
+                            Text(counterparty)
+                                .apricotMono(.small)
+                                .lineLimit(nil)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .opacity(0)
+
+                            Group {
+                                if displaysAlias, let alias = counterpartyAlias {
+                                    Text(alias)
+                                        .apricotMono(.small)
+                                        .foregroundStyle(Color.apricotFgPrimary)
+                                } else {
+                                    Text(counterparty)
+                                        .apricotMono(.small)
+                                        .foregroundStyle(Color.apricotFgPrimary)
+                                        .lineLimit(nil)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
                             }
+                            .id(displaysAlias)
+                            .transition(.opacity.combined(with: .modifier(
+                                active: BlurModifier(radius: 8),
+                                identity: BlurModifier(radius: 0)
+                            )))
                         }
-                        .id(displaysAlias)
-                        .transition(.opacity.combined(with: .modifier(
-                            active: BlurModifier(radius: 8),
-                            identity: BlurModifier(radius: 0)
-                        )))
                         Spacer(minLength: ApricotSpacing.s3)
                         if counterpartyAlias != nil {
                             Button {
