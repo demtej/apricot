@@ -91,17 +91,44 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
         let txId = facade.transactionId(tx: tx)
         let netSats = facade.transactionNetAmountSats(tx: tx, forAddressString: address)
         let directionString = facade.transactionDirection(tx: tx, forAddressString: address)
+        let direction = parseDirection(directionString)
         let isConfirmed = facade.isTransactionConfirmed(tx: tx)
 
         return TransactionItem(
             id: txId,
             shortId: BitcoinFormatter.shortTxId(txId),
-            direction: parseDirection(directionString),
+            direction: direction,
             amountDisplay: BitcoinFormatter.btc(abs(netSats)),
             amountIsPositive: netSats >= 0,
             isConfirmed: isConfirmed,
-            statusLabel: isConfirmed ? "Confirmed" : "Pending"
+            statusLabel: isConfirmed ? "Confirmed" : "Pending",
+            counterpartyAddress: extractCounterpartyAddress(tx: tx, userAddress: address, direction: direction)
         )
+    }
+
+    private func extractCounterpartyAddress(
+        tx: BitcoinTransaction,
+        userAddress: String,
+        direction: TransactionDirectionDisplay
+    ) -> String? {
+        switch direction {
+        case .incoming:
+            for i in 0 ..< Int(facade.inputCount(tx: tx)) {
+                if let addr = facade.inputAddressAt(tx: tx, index: Int32(i)), addr != userAddress {
+                    return addr
+                }
+            }
+            return nil
+        case .outgoing:
+            for i in 0 ..< Int(facade.outputCount(tx: tx)) {
+                if let addr = facade.outputAddressAt(tx: tx, index: Int32(i)), addr != userAddress {
+                    return addr
+                }
+            }
+            return nil
+        case .mixed, .unknown:
+            return nil
+        }
     }
 
     private func parseDirection(_ raw: String) -> TransactionDirectionDisplay {

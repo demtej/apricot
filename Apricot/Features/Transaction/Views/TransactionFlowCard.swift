@@ -9,6 +9,8 @@ struct TransactionFlowCard: View {
     let inputs: [IOItem]
     let outputs: [IOItem]
     let feeSats: String
+    var showsRealAddress: Bool = false
+    var resolveAlias: ((String) -> String?)? = nil
 
     @State private var showAllInputs = false
     @State private var showAllOutputs = false
@@ -175,9 +177,16 @@ struct TransactionFlowCard: View {
     // MARK: - Node card
 
     private func flowNode(_ item: IOItem) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            if let address = item.address {
-                Text(address)
+        let displayText: String? = item.address.map { address in
+            if !showsRealAddress, let alias = resolveAlias?(address) {
+                return alias
+            }
+            return address
+        }
+
+        return VStack(alignment: .leading, spacing: 2) {
+            if let text = displayText {
+                Text(text)
                     .apricotMono(.small)
                     .foregroundStyle(
                         item.isRelevantAddress

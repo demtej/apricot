@@ -24,7 +24,8 @@ enum SnapshotFixtures {
             amountDisplay: "0.02500000 BTC",
             amountIsPositive: true,
             isConfirmed: true,
-            statusLabel: "Confirmed"
+            statusLabel: "Confirmed",
+            counterpartyAddress: "bc1qsender000000000000000000000000000000000"
         ),
         TransactionItem(
             id: "bb88e1f9c4416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5ab22",
@@ -33,7 +34,8 @@ enum SnapshotFixtures {
             amountDisplay: "0.01040000 BTC",
             amountIsPositive: false,
             isConfirmed: false,
-            statusLabel: "Pending"
+            statusLabel: "Pending",
+            counterpartyAddress: "bc1qrecipient111111111111111111111111111111"
         ),
         TransactionItem(
             id: "cc77e1f9c4416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5cc33",
@@ -42,7 +44,8 @@ enum SnapshotFixtures {
             amountDisplay: "0.00230000 BTC",
             amountIsPositive: true,
             isConfirmed: true,
-            statusLabel: "Confirmed"
+            statusLabel: "Confirmed",
+            counterpartyAddress: nil
         )
     ]
 

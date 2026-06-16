@@ -2,6 +2,8 @@ import SwiftUI
 
 struct AddressSummaryCard: View {
     let summary: AddressSummaryItem
+    var alias: String?
+    @Binding var showsRealAddress: Bool
     var showsInsights: Bool = true
 
     var body: some View {
@@ -21,11 +23,32 @@ struct AddressSummaryCard: View {
     // MARK: - Sections
 
     private var addressSection: some View {
-        VStack(alignment: .leading, spacing: ApricotSpacing.s1) {
-            sectionLabel("ADDRESS")
+        let displaysAlias = alias != nil && !showsRealAddress
+
+        return VStack(alignment: .leading, spacing: ApricotSpacing.s1) {
+            sectionLabel(displaysAlias ? "ALIAS" : "ADDRESS")
             HStack(spacing: ApricotSpacing.s2) {
-                MonoChip(text: summary.shortAddress)
+                if displaysAlias, let alias {
+                    Text(alias)
+                        .apricotMono(.small)
+                        .foregroundStyle(Color.apricotFgPrimary)
+                        .lineLimit(1)
+                } else {
+                    MonoChip(text: summary.address)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                        .truncationMode(.middle)
+                }
                 Spacer(minLength: 0)
+                if alias != nil {
+                    Button {
+                        showsRealAddress.toggle()
+                    } label: {
+                        Image(systemName: showsRealAddress ? "eye.slash" : "eye")
+                            .font(.system(size: 14))
+                            .foregroundStyle(Color.apricotAccent)
+                    }
+                }
                 Button {
                     UIPasteboard.general.string = summary.address
                 } label: {
@@ -90,15 +113,19 @@ struct AddressSummaryCard: View {
 }
 
 #Preview {
-    AddressSummaryCard(summary: AddressSummaryItem(
-        address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzz",
-        shortAddress: "bc1qar0s…59gtzz",
-        confirmedBalanceBTC: "0.05 BTC",
-        confirmedBalanceSats: "5,000,000 sats",
-        totalReceivedBTC: "0.10 BTC",
-        totalSentBTC: "0.05 BTC",
-        transactionCount: 12
-    ))
+    AddressSummaryCard(
+        summary: AddressSummaryItem(
+            address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzz",
+            shortAddress: "bc1qar0s…59gtzz",
+            confirmedBalanceBTC: "0.05 BTC",
+            confirmedBalanceSats: "5,000,000 sats",
+            totalReceivedBTC: "0.10 BTC",
+            totalSentBTC: "0.05 BTC",
+            transactionCount: 12
+        ),
+        alias: "S1",
+        showsRealAddress: .constant(false)
+    )
     .padding()
     .background(Color.apricotBgPage)
 }

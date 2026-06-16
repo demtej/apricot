@@ -3,7 +3,7 @@ import SwiftUI
 struct HomeView: View {
     private let bitcoinService: BitcoinServiceProtocol
     private let observability: AppObservability
-    private let makeAddressSearchViewModel: (RecentSearchStoring?) -> AddressSearchViewModel
+    private let makeAddressViewModel: (String, RecentSearchStoring?) -> AddressViewModel
     @StateObject private var viewModel: HomeViewModel
 
     @State private var searchQuery = ""
@@ -14,11 +14,11 @@ struct HomeView: View {
         bitcoinService: BitcoinServiceProtocol,
         viewModel: HomeViewModel,
         observability: AppObservability = .noop,
-        makeAddressSearchViewModel: @escaping (RecentSearchStoring?) -> AddressSearchViewModel
+        makeAddressViewModel: @escaping (String, RecentSearchStoring?) -> AddressViewModel
     ) {
         self.bitcoinService = bitcoinService
         self.observability = observability
-        self.makeAddressSearchViewModel = makeAddressSearchViewModel
+        self.makeAddressViewModel = makeAddressViewModel
         _viewModel = StateObject(wrappedValue: viewModel)
     }
 
@@ -39,7 +39,7 @@ struct HomeView: View {
         .navigationDestination(item: $searchedAddress) { address in
             AddressView(
                 address: address,
-                viewModel: makeAddressSearchViewModel(recentSearchStore),
+                viewModel: makeAddressViewModel(address, recentSearchStore),
                 service: bitcoinService,
                 observability: observability
             )
@@ -111,11 +111,12 @@ struct HomeView: View {
     let store = RecentSearchStore()
     let service = LiveBitcoinService()
     return NavigationStack {
-        HomeView(bitcoinService: service, viewModel: HomeViewModel()) {
-            AddressSearchViewModel(
+        HomeView(bitcoinService: service, viewModel: HomeViewModel()) { address, recentSearchStore in
+            AddressViewModel(
+                address: address,
                 service: service,
                 featureFlags: LocalFeatureFlags(addressInsightsEnabled: false),
-                recentSearchStore: $0
+                recentSearchStore: recentSearchStore
             )
         }
     }

@@ -6,6 +6,8 @@ struct TransactionDetailView: View {
     private let loadsOnAppear: Bool
 
     @StateObject private var viewModel: TransactionDetailViewModel
+    @State private var showsRealAddress = false
+    @EnvironmentObject private var profileStore: WalletProfileStore
 
     init(
         transaction: TransactionItem,
@@ -56,7 +58,10 @@ struct TransactionDetailView: View {
         case .idle:
             EmptyView()
         case .loading:
-            ApricotLoadingState()
+            ScrollView {
+                ApricotLoadingState()
+                    .padding(.top, ApricotSpacing.s4)
+            }
         case let .loaded(detail):
             loadedView(detail: detail)
         case let .failed(error):
@@ -85,7 +90,9 @@ struct TransactionDetailView: View {
                 TransactionFlowCard(
                     inputs: detail.inputs,
                     outputs: detail.outputs,
-                    feeSats: detail.feeSats
+                    feeSats: detail.feeSats,
+                    showsRealAddress: showsRealAddress,
+                    resolveAlias: { profileStore.profile(for: $0)?.label }
                 )
                 .onAppear {
                     viewModel.trackTransactionGraphViewed(txId: detail.id)
@@ -120,18 +127,18 @@ struct TransactionDetailView: View {
     // MARK: - Identity
 
     private func identityCard(detail: TransactionDetailItem) -> some View {
-        ApricotCard {
+        let counterparty = transaction.counterpartyAddress
+        let counterpartyAlias = counterparty.flatMap { profileStore.profile(for: $0)?.label }
+        let displaysAlias = counterpartyAlias != nil && !showsRealAddress
+
+        return ApricotCard {
             VStack(alignment: .leading, spacing: ApricotSpacing.s3) {
+                // Transaction ID row
                 sectionLabel("TRANSACTION ID")
-
-                MonoText(text: detail.shortId)
-
-                Divider().overlay(Color.apricotBorderSubtle)
-
                 HStack(alignment: .top, spacing: ApricotSpacing.s3) {
                     Text(detail.id)
                         .apricotMono(.small)
-                        .foregroundStyle(Color.apricotFgSecondary)
+                        .foregroundStyle(Color.apricotFgPrimary)
                         .lineLimit(nil)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: ApricotSpacing.s3)
@@ -141,6 +148,43 @@ struct TransactionDetailView: View {
                         Image(systemName: "doc.on.doc")
                             .font(.system(size: 14))
                             .foregroundStyle(Color.apricotAccent)
+                    }
+                }
+
+                if let counterparty {
+                    Divider().overlay(Color.apricotBorderSubtle)
+
+                    // Counterparty wallet row
+                    sectionLabel(displaysAlias ? "ALIAS" : "WALLET")
+                    HStack(alignment: .top, spacing: ApricotSpacing.s3) {
+                        if displaysAlias, let alias = counterpartyAlias {
+                            Text(alias)
+                                .apricotMono(.small)
+                                .foregroundStyle(Color.apricotFgPrimary)
+                        } else {
+                            Text(counterparty)
+                                .apricotMono(.small)
+                                .foregroundStyle(Color.apricotFgPrimary)
+                                .lineLimit(nil)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer(minLength: ApricotSpacing.s3)
+                        if counterpartyAlias != nil {
+                            Button {
+                                showsRealAddress.toggle()
+                            } label: {
+                                Image(systemName: showsRealAddress ? "eye.slash" : "eye")
+                                    .font(.system(size: 14))
+                                    .foregroundStyle(Color.apricotAccent)
+                            }
+                        }
+                        Button {
+                            UIPasteboard.general.string = counterparty
+                        } label: {
+                            Image(systemName: "doc.on.doc")
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.apricotAccent)
+                        }
                     }
                 }
 
@@ -326,7 +370,8 @@ struct TransactionDetailView: View {
                 amountDisplay: "0.01 BTC",
                 amountIsPositive: true,
                 isConfirmed: true,
-                statusLabel: "Confirmed"
+                statusLabel: "Confirmed",
+                counterpartyAddress: nil
             ),
             forAddress: "1A1zP1eP5QGefi2DMPTfTL5SLmv7Divf"
         )

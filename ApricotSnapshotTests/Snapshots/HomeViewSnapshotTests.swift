@@ -12,8 +12,8 @@ final class HomeViewSnapshotTests: SnapshotTestCase {
                 HomeView(
                     bitcoinService: service,
                     viewModel: HomeViewModel(),
-                    makeAddressSearchViewModel: { _ in
-                        AddressSearchViewModel(service: service)
+                    makeAddressViewModel: { address, _ in
+                        AddressViewModel(address: address, service: service)
                     }
                 )
             }
