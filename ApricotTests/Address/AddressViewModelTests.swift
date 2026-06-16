@@ -187,7 +187,37 @@ final class AddressViewModelTests: XCTestCase {
             amountDisplay: "0.01000000 BTC",
             amountIsPositive: direction != .outgoing,
             isConfirmed: true,
-            statusLabel: "Confirmed"
+            statusLabel: "Confirmed",
+            counterpartyAddress: nil
         )
+    }
+}
+
+// MARK: - Mock service
+
+final class MockBitcoinService: BitcoinServiceProtocol {
+    var result: Result<AddressData, Error> = .success(AddressData(
+        summary: AddressSummaryItem(
+            address: "bc1qdefault",
+            shortAddress: "bc1qdefault",
+            confirmedBalanceBTC: "0.00 BTC",
+            confirmedBalanceSats: "0 sats",
+            totalReceivedBTC: "0.00 BTC",
+            totalSentBTC: "0.00 BTC",
+            transactionCount: 0
+        ),
+        transactions: []
+    ))
+    var delay: UInt64 = 0
+
+    func fetchAddressData(address _: String) async throws -> AddressData {
+        if delay > 0 {
+            try await Task.sleep(nanoseconds: delay)
+        }
+        return try result.get()
+    }
+
+    func fetchTransactionDetail(txId _: String, forAddress _: String) async throws -> TransactionDetailItem {
+        throw TransactionDetailError.unknown
     }
 }
