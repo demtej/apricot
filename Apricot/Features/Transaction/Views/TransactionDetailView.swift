@@ -109,11 +109,7 @@ struct TransactionDetailView: View {
     private func summaryCard(detail: TransactionDetailItem) -> some View {
         ApricotCard(style: .elevated) {
             HStack(alignment: .top, spacing: ApricotSpacing.s3) {
-                ApricotBadge(
-                    label: detail.direction.label,
-                    variant: detail.direction.badgeVariant,
-                    showDot: false
-                )
+                ApricotBadge(variant: detail.direction.badgeVariant)
                 Text(detail.summary)
                     .font(.apricotBody)
                     .foregroundStyle(Color.apricotFgPrimary)
@@ -188,11 +184,7 @@ struct TransactionDetailView: View {
 
                 Divider().overlay(Color.apricotBorderSubtle)
 
-                ApricotBadge(
-                    label: detail.status.label,
-                    variant: detail.status.badgeVariant,
-                    showDot: detail.status == .pending
-                )
+                ApricotBadge(variant: detail.status.badgeVariant)
             }
         }
     }

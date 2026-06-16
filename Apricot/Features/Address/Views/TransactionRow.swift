@@ -27,10 +27,7 @@ struct TransactionRow: View {
     // MARK: - Sub-views
 
     private var directionBadge: some View {
-        ApricotBadge(
-            label: transaction.direction.label,
-            variant: transaction.direction.badgeVariant
-        )
+        ApricotBadge(variant: transaction.direction.badgeVariant)
     }
 
     private var mainColumn: some View {
@@ -42,7 +39,7 @@ struct TransactionRow: View {
                 .lineLimit(1)
 
             if !transaction.isConfirmed {
-                ApricotBadge(label: transaction.statusLabel, variant: .pending, showDot: true)
+                ApricotBadge(variant: .pending)
             }
 
             // Secondary: tx ID when counterparty is shown as primary

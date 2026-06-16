@@ -5,26 +5,25 @@ enum ApricotBadgeVariant {
 }
 
 struct ApricotBadge: View {
-    let label: String
     var variant: ApricotBadgeVariant = .neutral
-    var showDot: Bool = true
 
     var body: some View {
-        HStack(spacing: 6) {
-            if showDot {
-                Circle()
-                    .fill(foreground)
-                    .opacity(0.85)
-                    .frame(width: 6, height: 6)
-            }
-            Text(label)
-                .font(.apricotLabel)
-                .foregroundStyle(foreground)
+        Image(systemName: iconName)
+            .font(.system(size: 11, weight: .semibold))
+            .foregroundStyle(foreground)
+            .frame(width: 26, height: 26)
+            .background(background)
+            .clipShape(Circle())
+    }
+
+    private var iconName: String {
+        switch variant {
+        case .received: "arrow.down"
+        case .sent: "arrow.up"
+        case .pending: "clock"
+        case .info: "info"
+        case .neutral: "circle.fill"
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(background)
-        .clipShape(Capsule())
     }
 
     private var background: Color {
@@ -49,12 +48,12 @@ struct ApricotBadge: View {
 }
 
 #Preview {
-    VStack(spacing: 8) {
-        ApricotBadge(label: "Received", variant: .received)
-        ApricotBadge(label: "Sent", variant: .sent)
-        ApricotBadge(label: "Pending", variant: .pending)
-        ApricotBadge(label: "Info", variant: .info)
-        ApricotBadge(label: "Neutral", variant: .neutral)
+    HStack(spacing: 12) {
+        ApricotBadge(variant: .received)
+        ApricotBadge(variant: .sent)
+        ApricotBadge(variant: .pending)
+        ApricotBadge(variant: .info)
+        ApricotBadge(variant: .neutral)
     }
     .padding()
     .background(Color.apricotBgPage)
