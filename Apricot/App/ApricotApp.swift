@@ -29,8 +29,9 @@ struct ApricotApp: App {
                     bitcoinService: bitcoinService,
                     viewModel: HomeViewModel(observability: observability),
                     observability: observability
-                ) { recentSearchStore in
-                    AddressSearchViewModel(
+                ) { address, recentSearchStore in
+                    AddressViewModel(
+                        address: address,
                         service: bitcoinService,
                         featureFlags: featureFlags,
                         recentSearchStore: recentSearchStore,

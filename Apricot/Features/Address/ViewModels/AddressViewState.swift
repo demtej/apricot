@@ -76,9 +76,14 @@ struct TransactionItem: Equatable, Hashable, Identifiable {
     let amountIsPositive: Bool
     let isConfirmed: Bool
     let statusLabel: String
+    let counterpartyAddress: String?
 
     var signedAmountDisplay: String {
         (amountIsPositive ? "+" : "−") + amountDisplay
+    }
+
+    var counterpartyShortAddress: String? {
+        counterpartyAddress.map { BitcoinFormatter.shortAddress($0) }
     }
 }
 

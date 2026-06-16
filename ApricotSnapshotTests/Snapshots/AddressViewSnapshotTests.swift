@@ -39,7 +39,8 @@ final class AddressViewSnapshotTests: SnapshotTestCase {
 
     private func makeAddressView(state: AddressSearchState) -> some View {
         let service = SnapshotBitcoinService()
-        let viewModel = AddressSearchViewModel(
+        let viewModel = AddressViewModel(
+            address: SnapshotFixtures.address,
             service: service,
             observability: .noop,
             initialState: state

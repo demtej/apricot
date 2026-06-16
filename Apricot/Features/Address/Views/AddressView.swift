@@ -7,23 +7,24 @@ private struct TransactionNavContext: Identifiable, Hashable {
 }
 
 struct AddressView: View {
-    let initialAddress: String
+    private let address: String
     private let service: BitcoinServiceProtocol
     private let observability: AppObservability
     private let loadsOnAppear: Bool
 
-    @StateObject private var viewModel: AddressSearchViewModel
+    @StateObject private var viewModel: AddressViewModel
     @State private var pendingNavigation: TransactionNavContext?
+    @State private var showsRealAddress = false
     @EnvironmentObject private var profileStore: WalletProfileStore
 
     init(
         address: String,
-        viewModel: AddressSearchViewModel,
+        viewModel: AddressViewModel,
         service: BitcoinServiceProtocol,
         observability: AppObservability = .noop,
         loadsOnAppear: Bool = true
     ) {
-        initialAddress = address
+        self.address = address
         self.service = service
         self.observability = observability
         self.loadsOnAppear = loadsOnAppear
@@ -33,12 +34,7 @@ struct AddressView: View {
     var body: some View {
         ZStack {
             Color.apricotBgPage.ignoresSafeArea()
-
-            VStack(spacing: 0) {
-                searchHeader
-                Divider().overlay(Color.apricotBorderSubtle)
-                content
-            }
+            content
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Address")
@@ -55,21 +51,8 @@ struct AddressView: View {
         }
         .task {
             guard loadsOnAppear else { return }
-            viewModel.addressInput = initialAddress
-            viewModel.search()
+            viewModel.load()
         }
-    }
-
-    // MARK: - Search header
-
-    private var searchHeader: some View {
-        ApricotSearchField(
-            text: $viewModel.addressInput,
-            onSubmit: { viewModel.search() }
-        )
-        .padding(.horizontal, ApricotSpacing.s5)
-        .padding(.vertical, ApricotSpacing.s3)
-        .background(Color.apricotBgPage)
     }
 
     // MARK: - Content switcher
@@ -80,7 +63,10 @@ struct AddressView: View {
         case .idle:
             Spacer()
         case .loading:
-            ApricotLoadingState()
+            ScrollView {
+                ApricotLoadingState()
+                    .padding(.top, ApricotSpacing.s4)
+            }
         case let .loaded(summary, transactions, showsInsights):
             loadedView(summary: summary, transactions: transactions, showsInsights: showsInsights)
         case let .empty(summary, showsInsights):
@@ -90,7 +76,7 @@ struct AddressView: View {
                 title: error.title,
                 message: error.message,
                 retryTitle: "Try Again",
-                onRetry: { viewModel.search() }
+                onRetry: { viewModel.load() }
             )
         }
     }
@@ -104,8 +90,13 @@ struct AddressView: View {
     ) -> some View {
         ScrollView {
             LazyVStack(spacing: ApricotSpacing.s3) {
-                AddressSummaryCard(summary: summary, showsInsights: showsInsights)
-                    .padding(.top, ApricotSpacing.s4)
+                AddressSummaryCard(
+                    summary: summary,
+                    alias: profileStore.profile(for: summary.address)?.label,
+                    showsRealAddress: $showsRealAddress,
+                    showsInsights: showsInsights
+                )
+                .padding(.top, ApricotSpacing.s4)
 
                 transactionListHeader(count: transactions.count)
 
@@ -114,13 +105,21 @@ struct AddressView: View {
                         viewModel.didOpenTransaction(tx, forAddress: summary.address)
                         pendingNavigation = TransactionNavContext(transaction: tx, address: summary.address)
                     } label: {
-                        TransactionRow(transaction: tx, showsDirectionClassification: showsInsights)
+                        TransactionRow(
+                            transaction: tx,
+                            showsDirectionClassification: showsInsights,
+                            counterpartyAlias: tx.counterpartyAddress.flatMap {
+                                profileStore.profile(for: $0)?.label
+                            },
+                            showsRealAddress: showsRealAddress
+                        )
                     }
                     .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal, ApricotSpacing.s5)
             .padding(.bottom, ApricotSpacing.s10)
+            Spacer()
         }
     }
 
@@ -143,8 +142,13 @@ struct AddressView: View {
     private func emptyView(summary: AddressSummaryItem, showsInsights: Bool) -> some View {
         ScrollView {
             VStack(spacing: ApricotSpacing.s4) {
-                AddressSummaryCard(summary: summary, showsInsights: showsInsights)
-                    .padding(.top, ApricotSpacing.s4)
+                AddressSummaryCard(
+                    summary: summary,
+                    alias: profileStore.profile(for: summary.address)?.label,
+                    showsRealAddress: $showsRealAddress,
+                    showsInsights: showsInsights
+                )
+                .padding(.top, ApricotSpacing.s4)
 
                 ApricotEmptyState(
                     title: "No Transactions",
@@ -157,13 +161,95 @@ struct AddressView: View {
     }
 }
 
-#Preview {
+// MARK: - Previews
+
+#Preview("Loaded with alias") {
+    let service = LiveBitcoinService()
+    let profileStore = WalletProfileStore.preview()
+    return NavigationStack {
+        AddressView(
+            address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzz",
+            viewModel: AddressViewModel(
+                address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzz",
+                service: service,
+                initialState: .loaded(
+                    summary: AddressSummaryItem(
+                        address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzz",
+                        shortAddress: "bc1qar0s…59gtzz",
+                        confirmedBalanceBTC: "0.05 BTC",
+                        confirmedBalanceSats: "5,000,000 sats",
+                        totalReceivedBTC: "0.10 BTC",
+                        totalSentBTC: "0.05 BTC",
+                        transactionCount: 3
+                    ),
+                    transactions: [],
+                    showsInsights: true
+                )
+            ),
+            service: service,
+            loadsOnAppear: false
+        )
+    }
+    .environmentObject(profileStore)
+}
+
+#Preview("Loading") {
     let service = LiveBitcoinService()
     return NavigationStack {
         AddressView(
             address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzz",
-            viewModel: AddressSearchViewModel(service: service),
-            service: service
+            viewModel: AddressViewModel(
+                address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzz",
+                service: service,
+                initialState: .loading
+            ),
+            service: service,
+            loadsOnAppear: false
+        )
+    }
+    .environmentObject(WalletProfileStore.preview())
+}
+
+#Preview("Error") {
+    let service = LiveBitcoinService()
+    return NavigationStack {
+        AddressView(
+            address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzz",
+            viewModel: AddressViewModel(
+                address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzz",
+                service: service,
+                initialState: .failed(.network)
+            ),
+            service: service,
+            loadsOnAppear: false
+        )
+    }
+    .environmentObject(WalletProfileStore.preview())
+}
+
+#Preview("Empty address") {
+    let service = LiveBitcoinService()
+    return NavigationStack {
+        AddressView(
+            address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzz",
+            viewModel: AddressViewModel(
+                address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzz",
+                service: service,
+                initialState: .empty(
+                    summary: AddressSummaryItem(
+                        address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzz",
+                        shortAddress: "bc1qar0s…59gtzz",
+                        confirmedBalanceBTC: "0.00 BTC",
+                        confirmedBalanceSats: "0 sats",
+                        totalReceivedBTC: "0.00 BTC",
+                        totalSentBTC: "0.00 BTC",
+                        transactionCount: 0
+                    ),
+                    showsInsights: true
+                )
+            ),
+            service: service,
+            loadsOnAppear: false
         )
     }
     .environmentObject(WalletProfileStore.preview())
