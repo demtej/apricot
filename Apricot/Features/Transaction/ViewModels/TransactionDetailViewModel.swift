@@ -55,7 +55,8 @@ final class TransactionDetailViewModel: ObservableObject {
             let item = try await service.fetchTransactionDetail(txId: txId, forAddress: forAddress)
             guard !Task.isCancelled else { return }
             state = .loaded(item)
-            resolveCounterpartyProfiles(item, forAddress: forAddress)
+            // Yield to SwiftUI so the loaded state renders before SwiftData I/O.
+            Task { [weak self] in self?.resolveCounterpartyProfiles(item, forAddress: forAddress) }
             let durationMs = Self.durationMs(since: startedAt)
             let txPreview = ObservabilityPrivacy.txIdPreview(txId)
             observability.analytics.track(.transactionDetailLoaded(
