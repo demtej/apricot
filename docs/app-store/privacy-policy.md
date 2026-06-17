@@ -89,6 +89,6 @@ If this policy changes materially, we will update the "Last updated" date above.
 
 If you have questions about this privacy policy, contact us at:
 
-**Email:** demian.tejo@gmail.com
+**Email:** apricotappsupport@gmail.com
 
 *(Replace with a support email or web form URL before submission)*
