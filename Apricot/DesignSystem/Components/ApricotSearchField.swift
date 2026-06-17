@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ApricotSearchField: View {
     @Binding var text: String
-    var placeholder: String = "bc1q…  or  a1075db5…"
+    var placeholder: String = "Bitcoin Address"
     var onSubmit: (() -> Void)?
 
     @FocusState private var isFocused: Bool
