@@ -8,6 +8,8 @@ struct HomeView: View {
 
     @State private var searchQuery = ""
     @State private var searchedAddress: String? = nil
+    @State private var tickerDone = false
+    @State private var showDisclaimer = false
     @EnvironmentObject private var recentSearchStore: RecentSearchStore
 
     init(
@@ -26,13 +28,12 @@ struct HomeView: View {
         ZStack {
             Color.apricotBgPage.ignoresSafeArea()
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    brandHeader
-                    heroSection
-                    searchSection
+            VStack(alignment: .leading, spacing: 0) {
+                brandHeader
+                heroSection
+                searchSection
+                ScrollView {
                     recentSection
-                    disclaimerFooter
                 }
             }
         }
@@ -52,28 +53,51 @@ struct HomeView: View {
     // MARK: - Sections
 
     private var brandHeader: some View {
-        HStack(spacing: 10) {
-            ApricotLogo(size: 32)
-            Text("Apricot")
-                .font(.system(size: 20, weight: .semibold))
-                .tracking(-0.4)
-                .foregroundStyle(Color.apricotFgPrimary)
+        HStack(spacing: 0) {
+            HStack(spacing: 10) {
+                ApricotLogo(size: 32)
+                Text("Apricot")
+                    .font(.system(size: 20, weight: .semibold))
+                    .tracking(-0.4)
+                    .foregroundStyle(Color.apricotFgPrimary)
+                if !tickerDone {
+                    DisclaimerTicker(onComplete: {
+                        withAnimation(.spring(response: 0.45, dampingFraction: 0.65)) {
+                            tickerDone = true
+                        }
+                    })
+                    .frame(maxWidth: .infinity)
+                    .frame(maxHeight: 10)
+                } else {
+                    Spacer()
+                    Button {
+                        showDisclaimer = true
+                    } label: {
+                        Image(systemName: "info.circle.fill")
+                            .font(.system(size: 16, weight: .regular))
+                            .foregroundStyle(Color.apricotAccent)
+                    }
+                    .padding(.trailing, ApricotSpacing.s5)
+                    .transition(.opacity.combined(with: .scale(scale: 0.6)))
+                    .sheet(isPresented: $showDisclaimer) {
+                        DisclaimerSheet()
+                    }
+                }
+            }
+            .padding(.leading, ApricotSpacing.s5)
+            .layoutPriority(1)
+
+            
         }
-        .padding(.horizontal, ApricotSpacing.s5)
         .padding(.vertical, ApricotSpacing.s3)
     }
 
     private var heroSection: some View {
         VStack(alignment: .leading, spacing: ApricotSpacing.s2) {
-            Text("Look up an address\nor transaction")
+            Text("Look up an address")
                 .font(.apricotH1)
                 .tracking(-0.68)
                 .foregroundStyle(Color.apricotFgPrimary)
-
-            Text("Paste a Bitcoin address or transaction ID.\nWe'll explain what we find.")
-                .font(.apricotCaption)
-                .foregroundStyle(Color.apricotFgSecondary)
-                .lineSpacing(3)
         }
         .padding(.horizontal, ApricotSpacing.s5)
         .padding(.top, ApricotSpacing.s4)
@@ -97,17 +121,6 @@ struct HomeView: View {
         }
     }
 
-    // MARK: - Disclaimer
-
-    private var disclaimerFooter: some View {
-        Text("Apricot displays publicly available Bitcoin blockchain data. Not financial advice. No wallet connection. No private keys.")
-            .font(.apricotLabel)
-            .foregroundStyle(Color.apricotFgMuted)
-            .multilineTextAlignment(.center)
-            .padding(.horizontal, ApricotSpacing.s5)
-            .padding(.top, ApricotSpacing.s6)
-            .padding(.bottom, ApricotSpacing.s4)
-    }
 }
 
 #Preview {
