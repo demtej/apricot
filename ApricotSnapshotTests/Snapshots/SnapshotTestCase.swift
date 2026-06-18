@@ -29,6 +29,7 @@ class SnapshotTestCase: XCTestCase {
         line: UInt = #line
     ) {
         let rootView = view
+            .environment(\.apricotAnimationsEnabled, false)
             .environment(\.locale, Locale(identifier: "en_US_POSIX"))
             .environment(\.calendar, Calendar(identifier: .gregorian))
             .preferredColorScheme(.light)

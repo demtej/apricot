@@ -1,5 +1,18 @@
 import SwiftUI
 
+// MARK: - Environment key for disabling animations (used in snapshot tests)
+
+private struct ApricotAnimationsEnabledKey: EnvironmentKey {
+    static let defaultValue = true
+}
+
+extension EnvironmentValues {
+    var apricotAnimationsEnabled: Bool {
+        get { self[ApricotAnimationsEnabledKey.self] }
+        set { self[ApricotAnimationsEnabledKey.self] = newValue }
+    }
+}
+
 struct ApricotSearchField: View {
     @Binding var text: String
     var placeholder: String = "Bitcoin Address"
@@ -45,6 +58,12 @@ struct ApricotSearchField: View {
                 lineWidth: 1
             )
         )
+        .overlay {
+            PulsingBorderGlow()
+                .opacity(isFocused ? 0 : 1)
+                .animation(.easeInOut(duration: 0.25), value: isFocused)
+                .allowsHitTesting(false)
+        }
         .shadow(
             color: Color(red: 0.298, green: 0.212, blue: 0.11).opacity(0.05),
             radius: 3,
@@ -52,6 +71,75 @@ struct ApricotSearchField: View {
             y: 2
         )
         .animation(.easeInOut(duration: 0.14), value: isFocused)
+    }
+}
+
+// MARK: - Border glow
+
+private struct PulsingBorderGlow: View {
+    @Environment(\.apricotAnimationsEnabled) private var animationsEnabled
+
+    var body: some View {
+        ZStack {
+            // Constant soft glow behind the moving arc
+            Capsule()
+                .stroke(Color.apricotAccent.opacity(0.18), lineWidth: 10)
+                .blur(radius: 8)
+
+            // Moving gradient arc: transparent → orange → transparent
+            if animationsEnabled { TimelineView(.animation) { context in
+                let period = 4.5
+                let phase = CGFloat(
+                    context.date.timeIntervalSinceReferenceDate
+                        .truncatingRemainder(dividingBy: period) / period
+                )
+                // Glow layer — wider, softer
+                Canvas { ctx, size in
+                    let rect = CGRect(origin: .zero, size: size)
+                    let steps = 80
+                    let halfWidth: CGFloat = 0.17
+
+                    for i in 0 ..< steps {
+                        let t    = CGFloat(i)     / CGFloat(steps)
+                        let next = CGFloat(i + 1) / CGFloat(steps)
+                        let mid  = (t + next) / 2
+
+                        var dist = abs(mid - phase)
+                        dist = min(dist, 1 - dist)
+                        guard dist < halfWidth else { continue }
+
+                        let normalized = 1 - dist / halfWidth
+                        let opacity    = Double(normalized * normalized) * 0.45
+
+                        let seg = Capsule().trim(from: t, to: next).path(in: rect)
+                        ctx.stroke(seg, with: .color(Color.apricotAccent.opacity(opacity)), lineWidth: 7)
+                    }
+                }
+                .blur(radius: 5)
+                // Sharp line on top
+                Canvas { ctx, size in
+                    let rect = CGRect(origin: .zero, size: size)
+                    let steps = 80
+                    let halfWidth: CGFloat = 0.17
+
+                    for i in 0 ..< steps {
+                        let t    = CGFloat(i)     / CGFloat(steps)
+                        let next = CGFloat(i + 1) / CGFloat(steps)
+                        let mid  = (t + next) / 2
+
+                        var dist = abs(mid - phase)
+                        dist = min(dist, 1 - dist)
+                        guard dist < halfWidth else { continue }
+
+                        let normalized = 1 - dist / halfWidth
+                        let opacity    = Double(normalized * normalized)
+
+                        let seg = Capsule().trim(from: t, to: next).path(in: rect)
+                        ctx.stroke(seg, with: .color(Color.apricotAccent.opacity(opacity)), lineWidth: 1.5)
+                    }
+                }
+            } }  // TimelineView + if !reduceMotion
+        }
     }
 }
 
