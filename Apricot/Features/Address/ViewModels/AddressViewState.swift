@@ -8,6 +8,13 @@ enum AddressSearchState: Equatable {
     case loaded(summary: AddressSummaryItem, transactions: [TransactionItem], showsInsights: Bool)
     case empty(summary: AddressSummaryItem, showsInsights: Bool)
     case failed(AddressSearchError)
+
+    var isLoaded: Bool {
+        switch self {
+        case .loaded, .empty: true
+        default: false
+        }
+    }
 }
 
 // MARK: - Error

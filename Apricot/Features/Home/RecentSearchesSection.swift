@@ -38,12 +38,14 @@ private struct RecentSearchRow: View {
         Button(action: onTap) {
             HStack(spacing: 12) {
                 ZStack {
+                    let profile = profileStore.profile(for: item.address)
+                    let hexColor = profile?.colorHex ?? kDefaultWalletProfileColorHex
                     Circle()
-                        .fill(Color.apricotAccentSoft)
+                        .fill(Color(profileHex: hexColor))
                         .frame(width: 32, height: 32)
                     Text(profileStore.displayBadge(for: item.address))
                         .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                        .foregroundStyle(Color.Apricot.scale700)
+                        .foregroundStyle(.white)
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -121,4 +123,32 @@ private struct RecentSearchEmptyState: View {
         RecentSearchesSection(searches: searches, onSelect: { _ in })
     }
     .environmentObject(WalletProfileStore.preview())
+}
+
+#Preview("With profile colors") {
+    recentSearchesWithProfileColorsPreview()
+}
+
+@MainActor
+private func recentSearchesWithProfileColorsPreview() -> some View {
+    let store = WalletProfileStore.preview()
+    let addr1 = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
+    let addr2 = "3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy"
+    let addr3 = "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
+    store.rename(address: store.resolveProfile(for: addr1, kind: .searched).address, to: "Savings")
+    store.recolor(address: addr1, to: "1D9E75")
+    store.rename(address: store.resolveProfile(for: addr2, kind: .searched).address, to: "AL RIO")
+    store.recolor(address: addr2, to: "D4537E")
+    store.rename(address: store.resolveProfile(for: addr3, kind: .searched).address, to: "Cold")
+    store.recolor(address: addr3, to: "378ADD")
+    let searches = [
+        RecentSearch(address: addr1, searchedAt: Date()),
+        RecentSearch(address: addr2, searchedAt: Date().addingTimeInterval(-3600)),
+        RecentSearch(address: addr3, searchedAt: Date().addingTimeInterval(-7200)),
+    ]
+    return ZStack {
+        Color.apricotBgPage.ignoresSafeArea()
+        RecentSearchesSection(searches: searches, onSelect: { _ in })
+    }
+    .environmentObject(store)
 }

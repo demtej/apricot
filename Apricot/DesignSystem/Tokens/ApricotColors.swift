@@ -21,6 +21,20 @@ private extension UIColor {
     }
 }
 
+// MARK: - Hex color initializer (used by wallet profile color swatches)
+
+extension Color {
+    /// Creates a Color from a 6-digit hex string without '#' (e.g. "F4A26B").
+    init(profileHex hex: String) {
+        let value = UInt32(hex, radix: 16) ?? 0xF4A26B
+        self.init(
+            red: Double((value >> 16) & 0xFF) / 255,
+            green: Double((value >> 8) & 0xFF) / 255,
+            blue: Double(value & 0xFF) / 255
+        )
+    }
+}
+
 // MARK: - Brand palette (fixed, not adaptive)
 
 extension Color {

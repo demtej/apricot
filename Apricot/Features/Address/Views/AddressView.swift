@@ -15,6 +15,7 @@ struct AddressView: View {
     @StateObject private var viewModel: AddressViewModel
     @State private var pendingNavigation: TransactionNavContext?
     @State private var showsRealAddress = false
+    @State private var showsEditSheet = false
     @EnvironmentObject private var profileStore: WalletProfileStore
 
     init(
@@ -38,6 +39,22 @@ struct AddressView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Address")
+        .toolbar {
+            if viewModel.state.isLoaded {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showsEditSheet = true
+                    } label: {
+                        Image(systemName: "square.and.pencil")
+                            .foregroundStyle(Color.apricotAccent)
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showsEditSheet) {
+            EditAddressSheet(address: address)
+                .environmentObject(profileStore)
+        }
         .navigationDestination(item: $pendingNavigation) { ctx in
             TransactionDetailView(
                 transaction: ctx.transaction,

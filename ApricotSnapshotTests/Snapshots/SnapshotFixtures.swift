@@ -1,5 +1,6 @@
 @testable import Apricot
 import Foundation
+import SwiftData
 import XCTest
 
 enum SnapshotFixtures {
@@ -119,6 +120,31 @@ enum SnapshotFixtures {
             amountSats: "450,000 sat",
             isRelevantAddress: index == 1
         )
+    }
+
+    /// Creates a WalletProfileStore with profiles pre-inserted directly into the
+    /// ModelContext, bypassing WalletProfileStore mutating methods (which require
+    /// a run-loop cycle to flush SwiftData changes and are unsafe in sync test contexts).
+    @MainActor
+    static func makeWalletProfileStore(
+        _ entries: [(address: String, label: String, colorHex: String, notes: String)] = []
+    ) -> WalletProfileStore {
+        let container = try! ModelContainer(
+            for: WalletProfile.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let context = container.mainContext
+        for (i, entry) in entries.enumerated() {
+            context.insert(WalletProfile(
+                address: entry.address,
+                label: entry.label,
+                colorHex: entry.colorHex,
+                notes: entry.notes,
+                kind: .searched,
+                sequenceNumber: i + 1
+            ))
+        }
+        return WalletProfileStore(context: context)
     }
 
     static func makeRecentSearchStore() -> RecentSearchStore {

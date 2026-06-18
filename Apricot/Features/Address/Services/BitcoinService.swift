@@ -27,7 +27,7 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
         } else {
             let logger = observability.logger
             let analytics = observability.analytics
-            self.facade = IosAddressFacade.companion.create { eventName, resourceName, key in
+            self.facade = IosAddressFacade.companion.create(onCacheEvent: { eventName, resourceName, key in
                 guard let resource = CacheResource(rawValue: resourceName) else { return }
 
                 let preview = ObservabilityPrivacy.cacheKeyPreview(key, resource: resource)
@@ -47,7 +47,7 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
 
                 analytics.track(event)
                 logger.log(level: .debug, message: "Cache event observed", metadata: event.properties)
-            }
+            }, cacheEnabled: true)
         }
     }
 
