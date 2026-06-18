@@ -8,7 +8,7 @@
 
 If you encounter a bug, unexpected behavior, or have a question, please reach out:
 
-**Email:** [demian.tejo@gmail.com](mailto:demian.tejo@gmail.com)
+**Email:** [apricotappsupport@gmail.com](mailto:apricotappsupport@gmail.com)
 
 When reporting an issue, it helps to include:
 - A description of what you expected to happen
