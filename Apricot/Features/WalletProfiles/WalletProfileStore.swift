@@ -21,11 +21,12 @@ protocol WalletProfileStoring: AnyObject {
 }
 
 extension WalletProfileStoring {
-    /// A compact badge for `address`: its label if shorter than 4
-    /// characters, otherwise the first 3 characters of the label.
+    /// A compact badge for `address`: the label with spaces removed, capped at 3 characters.
+    /// e.g. "AL RIO" → "ALR", "S1" → "S1", "Savings" → "SAV"
     func displayBadge(for address: String) -> String {
         guard let label = profile(for: address)?.label else { return "" }
-        return label.count < 4 ? label : String(label.prefix(kBadgeMaxLength))
+        let compact = label.filter { !$0.isWhitespace }.uppercased()
+        return String(compact.prefix(kBadgeMaxLength))
     }
 }
 
