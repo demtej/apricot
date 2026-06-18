@@ -10,6 +10,8 @@ struct ApricotApp: App {
     private let observability: AppObservability
     private let bitcoinService: BitcoinServiceProtocol
 
+    @State private var isSplashVisible = true
+
     init() {
         // Feature flags must initialize first: PostHogSDK.shared.setup() runs here when PostHog is configured.
         featureFlags = FeatureFlagFactory.make()
@@ -24,24 +26,40 @@ struct ApricotApp: App {
 
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                HomeView(
-                    bitcoinService: bitcoinService,
-                    viewModel: HomeViewModel(observability: observability),
-                    observability: observability
-                ) { address, recentSearchStore in
-                    AddressViewModel(
-                        address: address,
-                        service: bitcoinService,
-                        featureFlags: featureFlags,
-                        recentSearchStore: recentSearchStore,
-                        profileStore: profileStore,
+            ZStack {
+                Color("LaunchBackground").ignoresSafeArea()
+
+                NavigationStack {
+                    HomeView(
+                        bitcoinService: bitcoinService,
+                        viewModel: HomeViewModel(observability: observability),
                         observability: observability
-                    )
+                    ) { address, recentSearchStore in
+                        AddressViewModel(
+                            address: address,
+                            service: bitcoinService,
+                            featureFlags: featureFlags,
+                            recentSearchStore: recentSearchStore,
+                            profileStore: profileStore,
+                            observability: observability
+                        )
+                    }
+                }
+                .environmentObject(recentSearchStore)
+                .environmentObject(profileStore)
+
+                if isSplashVisible {
+                    SplashView()
+                        .transition(.opacity)
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+                                withAnimation(.easeOut(duration: 0.35)) {
+                                    isSplashVisible = false
+                                }
+                            }
+                        }
                 }
             }
-            .environmentObject(recentSearchStore)
-            .environmentObject(profileStore)
         }
         .modelContainer(aliasModelContainer)
     }
