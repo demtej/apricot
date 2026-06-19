@@ -11,13 +11,14 @@ final class HomeViewSnapshotTests: SnapshotTestCase {
             of: NavigationStack {
                 HomeView(
                     bitcoinService: service,
-                    viewModel: HomeViewModel(),
+                    viewModel: HomeViewModel(readClipboard: { nil }),
                     makeAddressViewModel: { address, _ in
                         AddressViewModel(address: address, service: service)
                     }
                 )
             }
             .environmentObject(store)
+            .environmentObject(WalletProfileStore.preview())
         )
     }
 }

@@ -15,8 +15,9 @@ extension EnvironmentValues {
 
 struct ApricotSearchField: View {
     @Binding var text: String
-    var placeholder: String = "Bitcoin Address"
+    var placeholder: String = "Filter address"
     var onSubmit: (() -> Void)?
+    var onPaste: (() -> Void)?
 
     @FocusState private var isFocused: Bool
 
@@ -34,7 +35,19 @@ struct ApricotSearchField: View {
                 .submitLabel(.search)
                 .onSubmit { onSubmit?() }
 
-            if !text.isEmpty {
+            if text.isEmpty, let onPaste {
+                Button(action: onPaste) {
+                    VStack(spacing: 0) {
+                        Text("PASTE")
+                        Text("ADDRESS")
+                    }
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(Color.apricotAccent)
+                    .multilineTextAlignment(.center)
+                }
+                .buttonStyle(.plain)
+                .transition(.opacity)
+            } else if !text.isEmpty {
                 Button {
                     text = ""
                     isFocused = true
@@ -44,6 +57,7 @@ struct ApricotSearchField: View {
                         .foregroundStyle(Color.apricotFgMuted)
                 }
                 .buttonStyle(.plain)
+                .transition(.opacity)
             }
         }
         .padding(.horizontal, ApricotSpacing.s4)

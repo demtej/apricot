@@ -7,6 +7,9 @@ final class PostHogFeatureFlags: FeatureFlagProvider {
     init(apiKey: String, host: String) {
         let maskedKey = Self.mask(apiKey)
 
+        // Skip network setup when running under XCTest — PostHog hangs the test runner waiting for network.
+        guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
+
         let config = PostHogConfig(projectToken: apiKey, host: host)
         PostHogSDK.shared.setup(config)
 
