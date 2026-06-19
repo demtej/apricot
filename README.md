@@ -5,7 +5,7 @@
 <h1 align="center">Apricot</h1>
 
 <p align="center">
-  A human-friendly Bitcoin address explorer built with SwiftUI and Kotlin Multiplatform.
+  Bitcoin on-chain tracking, investigation, and audit — built with SwiftUI and Kotlin Multiplatform.
 </p>
 
 <p align="center">
@@ -17,9 +17,9 @@
 
 ---
 
-Apricot lets users look up any public Bitcoin address, understand its balance and activity, and explore transactions through a clean visual interface — designed for people who want to understand what's happening on-chain without reading a block explorer.
+Apricot is a Bitcoin address tracker designed for on-chain investigation and auditing. Users can search any public Bitcoin address, label it, attach notes, assign it a color, and relate it to other wallets seen in transactions — building a persistent local picture of on-chain activity across sessions.
 
-This is a portfolio project focused on product quality, clean architecture, and modern engineering practices across the full mobile stack.
+The core idea: every address you touch — whether you searched it or discovered it as a counterparty in a transaction — gets a profile. Profiles carry labels, colors, and notes you define. Over time this creates a graph of related wallets that you can use to follow fund flows, trace UTXOs, and audit transaction history without losing context between sessions.
 
 ---
 
@@ -28,9 +28,14 @@ This is a portfolio project focused on product quality, clean architecture, and 
 <p align="center">
   <img src="docs/screenshots/home.png" width="220" alt="Home screen" />
   <img src="docs/screenshots/address.png" width="220" alt="Address detail" />
+  <img src="docs/screenshots/address2.png" width="220" alt="Address detail edit" />
   <img src="docs/screenshots/transaction-detail.png" width="220" alt="Transaction detail" />
   <img src="docs/screenshots/transaction-flow.png" width="220" alt="Transaction flow" />
 </p>
+
+## Demo
+
+<img src="docs/screenshots/demo.gif" alt="Apricot app demo" width="320">
 
 ---
 
@@ -57,9 +62,15 @@ Apricot iOS App
 | iOS app | SwiftUI views, navigation, app composition, design system, platform integrations, wallet profile persistence (SwiftData) |
 | KMP shared module | Domain models, DTOs, mappers, repositories, use cases, API client, cache |
 
-### Wallet profiles
+### Wallet profiles and address tracking
 
-Users can assign local info (label, color, notes) to any Bitcoin address — whether searched directly or seen as a transaction counterparty — so the same address is shown consistently everywhere. New addresses get an auto-generated label (`S1, S2, ...` for searches, `C1, C2, ...` for counterparties), which the user can rename and recolor, plus free-form notes. This is local-only state persisted with SwiftData (`Apricot/Features/WalletProfiles/`), independent of the KMP shared module.
+Every Bitcoin address encountered in the app — whether searched directly or discovered as a counterparty in a transaction — gets a persistent wallet profile. Profiles are created automatically on first encounter and carry:
+
+- **Label** — auto-assigned (`S1, S2, …` for addresses you search; `C1, C2, …` for counterparties you discover), fully user-editable.
+- **Color** — visual tag for grouping related wallets at a glance.
+- **Notes** — free-form field for investigation context, suspicion flags, or audit trails.
+
+An address keeps its first-assigned label even if later encountered through a different path, so your annotations survive as you follow transaction chains. All profile data is local-only, persisted with SwiftData (`Apricot/Features/WalletProfiles/`), independent of the KMP shared module.
 
 **Boundaries enforced by convention:**
 - DTOs never reach the presentation layer — mappers convert them to domain models at the data boundary.
@@ -269,10 +280,11 @@ Key technical decisions are recorded as Architecture Decision Records in [`docs/
 
 ## Known Limitations & Future Work
 
+- **UTXO graph** — UTXO-level traceability (linking specific outputs across transactions) is the natural next step beyond address-level tracking; not yet implemented.
+- **Wallet relationship graph** — a visual graph of addresses linked through transactions is planned but not yet built.
 - **Snapshot tests in CI** — disabled due to rendering differences between local Xcode environments and macOS CI runners. Infrastructure is ready; execution pending a stable approach.
 - **UI tests** — the happy path (search → transaction detail) is planned but not yet implemented.
 - **Error handling** — basic error states are in place; deeper recovery flows are out of scope for the MVP.
 - **Single data provider** — Mempool.space is the only backend. The repository interface is designed to support additional providers.
 - **Bitcoin only** — Ethereum and other chains are out of scope.
-- **No wallet connection** — read-only explorer; no key management, signing, or transaction broadcasting.
-- **No App Store release** — this is a portfolio project, not a production app.
+- **No wallet connection** — read-only; no key management, signing, or transaction broadcasting.
