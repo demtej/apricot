@@ -365,7 +365,7 @@ private struct TagChip: View {
 private struct TagFlowLayout: Layout {
     var spacing: CGFloat = 8
 
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache _: inout ()) -> CGSize {
         let width = proposal.width ?? 0
         var x: CGFloat = 0
         var y: CGFloat = 0
@@ -383,7 +383,7 @@ private struct TagFlowLayout: Layout {
         return CGSize(width: width, height: y + rowHeight)
     }
 
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+    func placeSubviews(in bounds: CGRect, proposal _: ProposedViewSize, subviews: Subviews, cache _: inout ()) {
         var x = bounds.minX
         var y = bounds.minY
         var rowHeight: CGFloat = 0
@@ -404,20 +404,20 @@ private struct TagFlowLayout: Layout {
 // MARK: - Debug init (bypasses onAppear)
 
 #if DEBUG
-extension EditAddressSheet {
-    /// Bypasses `.onAppear` profile loading — use in snapshots and previews
-    /// to set the displayed state directly without touching SwiftData.
-    init(address: String, label: String, color: WalletProfileColor, notes: String, tags: [String] = []) {
-        self.address = address
-        _label = State(initialValue: label)
-        _selectedColor = State(initialValue: color)
-        _previousColor = State(initialValue: color)
-        _wipeProgress = State(initialValue: 1.0)
-        _notes = State(initialValue: notes)
-        _pendingTagNames = State(initialValue: tags)
-        _skipLoad = State(initialValue: true)
+    extension EditAddressSheet {
+        /// Bypasses `.onAppear` profile loading — use in snapshots and previews
+        /// to set the displayed state directly without touching SwiftData.
+        init(address: String, label: String, color: WalletProfileColor, notes: String, tags: [String] = []) {
+            self.address = address
+            _label = State(initialValue: label)
+            _selectedColor = State(initialValue: color)
+            _previousColor = State(initialValue: color)
+            _wipeProgress = State(initialValue: 1.0)
+            _notes = State(initialValue: notes)
+            _pendingTagNames = State(initialValue: tags)
+            _skipLoad = State(initialValue: true)
+        }
     }
-}
 #endif
 
 // MARK: - Previews

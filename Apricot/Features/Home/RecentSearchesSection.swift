@@ -143,7 +143,7 @@ private func recentSearchesWithProfileColorsPreview() -> some View {
     let searches = [
         RecentSearch(address: addr1, searchedAt: Date()),
         RecentSearch(address: addr2, searchedAt: Date().addingTimeInterval(-3600)),
-        RecentSearch(address: addr3, searchedAt: Date().addingTimeInterval(-7200)),
+        RecentSearch(address: addr3, searchedAt: Date().addingTimeInterval(-7200))
     ]
     return ZStack {
         Color.apricotBgPage.ignoresSafeArea()

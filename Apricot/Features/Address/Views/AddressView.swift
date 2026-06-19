@@ -3,7 +3,9 @@ import SwiftUI
 private struct TransactionNavContext: Identifiable, Hashable {
     let transaction: TransactionItem
     let address: String
-    var id: String { transaction.id }
+    var id: String {
+        transaction.id
+    }
 }
 
 struct AddressView: View {

@@ -19,9 +19,13 @@ struct ApricotApp: App {
         self.observability = observability
         bitcoinService = LiveBitcoinService(observability: observability)
 
-        let container = try! ModelContainer(for: WalletProfile.self, Tag.self)
-        aliasModelContainer = container
-        _profileStore = StateObject(wrappedValue: WalletProfileStore(context: container.mainContext))
+        do {
+            let container = try ModelContainer(for: WalletProfile.self, Tag.self)
+            aliasModelContainer = container
+            _profileStore = StateObject(wrappedValue: WalletProfileStore(context: container.mainContext))
+        } catch {
+            fatalError("Failed to initialize ModelContainer: \(error)")
+        }
     }
 
     var body: some Scene {

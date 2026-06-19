@@ -41,7 +41,7 @@ struct DisclaimerTicker: View {
                             stops: [
                                 .init(color: .clear, location: 0),
                                 .init(color: .black, location: 0.18),
-                                .init(color: .black, location: 1),
+                                .init(color: .black, location: 1)
                             ],
                             startPoint: .leading,
                             endPoint: .trailing

@@ -33,7 +33,7 @@ private struct ScrambleLetter: View {
     @State private var current: Character = "0"
     @State private var isSettled = false
 
-    // All mono chars have identical width — no overflow, no layout jumps
+    /// All mono chars have identical width — no overflow, no layout jumps
     private static let pool = Array("01xbcJHP3")
 
     var body: some View {
@@ -44,15 +44,15 @@ private struct ScrambleLetter: View {
             .overlay {
                 Text(String(current))
                     .font(isSettled
-                          ? .system(size: 48, weight: .semibold, design: .rounded)
-                          : .system(size: 48, weight: .regular, design: .monospaced))
+                        ? .system(size: 48, weight: .semibold, design: .rounded)
+                        : .system(size: 48, weight: .regular, design: .monospaced))
                     .fixedSize()
             }
             .task {
-                current = Self.pool.randomElement()!
+                current = Self.pool.randomElement() ?? "0"
                 let start = Date()
                 while Date().timeIntervalSince(start) < settleAfter {
-                    current = Self.pool.randomElement()!
+                    current = Self.pool.randomElement() ?? "0"
                     try? await Task.sleep(nanoseconds: 55_000_000)
                 }
                 current = target

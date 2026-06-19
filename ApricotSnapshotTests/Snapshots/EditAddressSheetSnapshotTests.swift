@@ -3,7 +3,6 @@ import SwiftUI
 
 @MainActor
 final class EditAddressSheetSnapshotTests: SnapshotTestCase {
-
     // MARK: - EditAddressSheet
 
     func test_editAddressSheet_defaultState() {
@@ -63,9 +62,18 @@ final class EditAddressSheetSnapshotTests: SnapshotTestCase {
 
     func test_recentSearches_defaultColors() {
         let searches = [
-            RecentSearch(address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", searchedAt: Date(timeIntervalSince1970: 1_000_000)),
-            RecentSearch(address: "3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy", searchedAt: Date(timeIntervalSince1970: 996_400)),
-            RecentSearch(address: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", searchedAt: Date(timeIntervalSince1970: 913_600)),
+            RecentSearch(
+                address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+                searchedAt: Date(timeIntervalSince1970: 1_000_000)
+            ),
+            RecentSearch(
+                address: "3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy",
+                searchedAt: Date(timeIntervalSince1970: 996_400)
+            ),
+            RecentSearch(
+                address: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+                searchedAt: Date(timeIntervalSince1970: 913_600)
+            )
         ]
 
         assertScreenSnapshot(

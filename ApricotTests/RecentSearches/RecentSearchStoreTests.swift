@@ -103,5 +103,4 @@ final class RecentSearchStoreTests: XCTestCase {
 
         freshDefaults.removePersistentDomain(forName: "apricot.tests.fresh")
     }
-
 }

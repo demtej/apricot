@@ -27,7 +27,7 @@ final class AddressViewModel: ObservableObject {
         self.recentSearchStore = recentSearchStore
         self.profileStore = profileStore
         self.observability = observability
-        self.state = initialState
+        state = initialState
     }
 
     func load() {

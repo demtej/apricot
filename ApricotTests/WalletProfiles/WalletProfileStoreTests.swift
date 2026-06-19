@@ -4,7 +4,9 @@ import XCTest
 
 @MainActor
 final class WalletProfileStoreTests: XCTestCase {
+    // swiftlint:disable:next implicitly_unwrapped_optional
     private var container: ModelContainer!
+    // swiftlint:disable:next implicitly_unwrapped_optional
     private var store: WalletProfileStore!
 
     override func setUp() async throws {
