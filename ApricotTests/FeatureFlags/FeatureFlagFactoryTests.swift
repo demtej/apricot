@@ -30,7 +30,8 @@ final class FeatureFlagFactoryTests: XCTestCase {
             makeRemote: { _, _ in
                 remoteInvoked = true
                 return stub
-            }
+            },
+            skipNetworkInTests: false
         )
 
         XCTAssertTrue(remoteInvoked)

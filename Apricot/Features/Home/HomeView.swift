@@ -10,7 +10,9 @@ struct HomeView: View {
     @State private var searchedAddress: String? = nil
     @State private var tickerDone = false
     @State private var showDisclaimer = false
+    @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject private var recentSearchStore: RecentSearchStore
+    @EnvironmentObject private var profileStore: WalletProfileStore
 
     init(
         bitcoinService: BitcoinServiceProtocol,
@@ -33,7 +35,11 @@ struct HomeView: View {
                 heroSection
                 searchSection
                 ScrollView {
-                    recentSection
+                    if isFiltering {
+                        filterSection
+                    } else {
+                        recentSection
+                    }
                 }
             }
         }
@@ -47,6 +53,10 @@ struct HomeView: View {
         }
         .onChange(of: searchedAddress) { _, new in
             if new == nil { searchQuery = "" }
+        }
+        .onAppear { viewModel.checkClipboard() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { viewModel.checkClipboard() }
         }
     }
 
@@ -104,11 +114,25 @@ struct HomeView: View {
         .padding(.bottom, ApricotSpacing.s4)
     }
 
+    private var isFiltering: Bool { !searchQuery.isEmpty }
+
+    private var filteredProfiles: [WalletProfile] {
+        let q = searchQuery.lowercased()
+        return profileStore.profiles.filter { profile in
+            profile.label.lowercased().contains(q)
+            || profile.notes.lowercased().contains(q)
+            || profile.tags.contains { $0.name.lowercased().contains(q) }
+        }
+    }
+
     private var searchSection: some View {
         ApricotSearchField(
             text: $searchQuery,
             onSubmit: {
                 searchedAddress = viewModel.submitSearch(query: searchQuery)
+            },
+            onPaste: viewModel.clipboardBitcoinAddress.map { address in
+                { searchedAddress = address }
             }
         )
         .padding(.horizontal, ApricotSpacing.s5)
@@ -118,6 +142,12 @@ struct HomeView: View {
     private var recentSection: some View {
         RecentSearchesSection(searches: recentSearchStore.searches) { item in
             searchedAddress = viewModel.selectRecentSearch(item)
+        }
+    }
+
+    private var filterSection: some View {
+        WalletFilterSection(profiles: filteredProfiles) { profile in
+            searchedAddress = profile.address
         }
     }
 
