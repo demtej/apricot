@@ -127,10 +127,10 @@ enum SnapshotFixtures {
     /// a run-loop cycle to flush SwiftData changes and are unsafe in sync test contexts).
     @MainActor
     static func makeWalletProfileStore(
-        _ entries: [(address: String, label: String, colorHex: String, notes: String)] = []
+        _ entries: [(address: String, label: String, color: WalletProfileColor, notes: String)] = []
     ) -> WalletProfileStore {
         let container = try! ModelContainer(
-            for: WalletProfile.self,
+            for: WalletProfile.self, Tag.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
         let context = container.mainContext
@@ -138,7 +138,7 @@ enum SnapshotFixtures {
             context.insert(WalletProfile(
                 address: entry.address,
                 label: entry.label,
-                colorHex: entry.colorHex,
+                color: entry.color,
                 notes: entry.notes,
                 kind: .searched,
                 sequenceNumber: i + 1

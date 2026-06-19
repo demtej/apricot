@@ -21,17 +21,31 @@ private extension UIColor {
     }
 }
 
-// MARK: - Hex color initializer (used by wallet profile color swatches)
+// MARK: - Wallet profile color palette
 
-extension Color {
-    /// Creates a Color from a 6-digit hex string without '#' (e.g. "F4A26B").
-    init(profileHex hex: String) {
-        let value = UInt32(hex, radix: 16) ?? 0xF4A26B
-        self.init(
-            red: Double((value >> 16) & 0xFF) / 255,
-            green: Double((value >> 8) & 0xFF) / 255,
-            blue: Double(value & 0xFF) / 255
-        )
+/// Typed color choices for wallet profile badges.
+/// Raw value is stored by SwiftData; unknown legacy values fall back to `.apricot`.
+enum WalletProfileColor: String, CaseIterable, Codable {
+    case apricot
+    case coral
+    case amber
+    case green
+    case teal
+    case blue
+    case pink
+    case purple
+
+    var color: Color {
+        switch self {
+        case .apricot: Color(UIColor(hex: 0xF4A26B))
+        case .coral:   Color(UIColor(hex: 0xD85A30))
+        case .amber:   Color(UIColor(hex: 0xEF9F27))
+        case .green:   Color(UIColor(hex: 0x639922))
+        case .teal:    Color(UIColor(hex: 0x1D9E75))
+        case .blue:    Color(UIColor(hex: 0x378ADD))
+        case .pink:    Color(UIColor(hex: 0xD4537E))
+        case .purple:  Color(UIColor(hex: 0x7F77DD))
+        }
     }
 }
 

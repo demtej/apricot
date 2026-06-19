@@ -39,9 +39,8 @@ private struct RecentSearchRow: View {
             HStack(spacing: 12) {
                 ZStack {
                     let profile = profileStore.profile(for: item.address)
-                    let hexColor = profile?.colorHex ?? kDefaultWalletProfileColorHex
                     Circle()
-                        .fill(Color(profileHex: hexColor))
+                        .fill((profile?.color ?? .apricot).color)
                         .frame(width: 32, height: 32)
                     Text(profileStore.displayBadge(for: item.address))
                         .font(.system(size: 11, weight: .semibold, design: .monospaced))
@@ -136,11 +135,11 @@ private func recentSearchesWithProfileColorsPreview() -> some View {
     let addr2 = "3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy"
     let addr3 = "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
     store.rename(address: store.resolveProfile(for: addr1, kind: .searched).address, to: "Savings")
-    store.recolor(address: addr1, to: "1D9E75")
+    store.recolor(address: addr1, to: .teal)
     store.rename(address: store.resolveProfile(for: addr2, kind: .searched).address, to: "AL RIO")
-    store.recolor(address: addr2, to: "D4537E")
+    store.recolor(address: addr2, to: .pink)
     store.rename(address: store.resolveProfile(for: addr3, kind: .searched).address, to: "Cold")
-    store.recolor(address: addr3, to: "378ADD")
+    store.recolor(address: addr3, to: .blue)
     let searches = [
         RecentSearch(address: addr1, searchedAt: Date()),
         RecentSearch(address: addr2, searchedAt: Date().addingTimeInterval(-3600)),

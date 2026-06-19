@@ -2,10 +2,6 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-/// Default color (hex, no #) assigned to newly created profiles, before the
-/// user customizes it.
-let kDefaultWalletProfileColorHex = String(format: "%06X", Color.Apricot.scale400Hex)
-
 /// Aliases longer than this are abbreviated to their first 3 characters for
 /// compact badges (e.g. RecentSearchRow's icon).
 private let kBadgeMaxLength = 3
@@ -15,9 +11,13 @@ protocol WalletProfileStoring: AnyObject {
     func profile(for address: String) -> WalletProfile?
     func resolveProfile(for address: String, kind: WalletProfileKind) -> WalletProfile
     func rename(address: String, to label: String)
-    func recolor(address: String, to colorHex: String)
+    func recolor(address: String, to color: WalletProfileColor)
     func setNotes(address: String, to notes: String)
     func displayBadge(for address: String) -> String
+    func addTag(_ tag: Tag, to address: String)
+    func removeTag(_ tag: Tag, from address: String)
+    func allTags() -> [Tag]
+    func createTagIfNeeded(name: String) -> Tag
 }
 
 extension WalletProfileStoring {
@@ -30,7 +30,7 @@ extension WalletProfileStoring {
     }
 }
 
-/// Manages user-defined info (label, color, notes) for Bitcoin addresses, backed by SwiftData.
+/// Manages user-defined info (label, color, notes, tags) for Bitcoin addresses, backed by SwiftData.
 @MainActor
 final class WalletProfileStore: ObservableObject, WalletProfileStoring {
     @Published private(set) var profiles: [WalletProfile] = []
@@ -61,7 +61,7 @@ final class WalletProfileStore: ObservableObject, WalletProfileStoring {
         let created = WalletProfile(
             address: address,
             label: "\(kind.labelPrefix)\(next)",
-            colorHex: kDefaultWalletProfileColorHex,
+            color: .apricot,
             kind: kind,
             sequenceNumber: next
         )
@@ -76,15 +76,46 @@ final class WalletProfileStore: ObservableObject, WalletProfileStoring {
         refresh()
     }
 
-    func recolor(address: String, to colorHex: String) {
+    func recolor(address: String, to color: WalletProfileColor) {
         guard let existing = profile(for: address) else { return }
-        existing.colorHex = colorHex
+        existing.color = color
         refresh()
     }
 
     func setNotes(address: String, to notes: String) {
         guard let existing = profile(for: address) else { return }
         existing.notes = notes
+        refresh()
+    }
+
+    // MARK: - Tags
+
+    func createTagIfNeeded(name: String) -> Tag {
+        let normalized = name.trimmingCharacters(in: .whitespaces).uppercased()
+        let descriptor = FetchDescriptor<Tag>(predicate: #Predicate { $0.name == normalized })
+        if let existing = (try? context.fetch(descriptor))?.first {
+            return existing
+        }
+        let tag = Tag(name: normalized)
+        context.insert(tag)
+        return tag
+    }
+
+    func allTags() -> [Tag] {
+        let descriptor = FetchDescriptor<Tag>(sortBy: [SortDescriptor(\.createdAt)])
+        return (try? context.fetch(descriptor)) ?? []
+    }
+
+    func addTag(_ tag: Tag, to address: String) {
+        guard let profile = profile(for: address) else { return }
+        guard !profile.tags.contains(where: { $0.name == tag.name }) else { return }
+        profile.tags.append(tag)
+        refresh()
+    }
+
+    func removeTag(_ tag: Tag, from address: String) {
+        guard let profile = profile(for: address) else { return }
+        profile.tags.removeAll { $0.name == tag.name }
         refresh()
     }
 
@@ -112,7 +143,7 @@ extension WalletProfileStore {
     /// An in-memory store for previews and tests.
     static func preview() -> WalletProfileStore {
         let container = try! ModelContainer(
-            for: WalletProfile.self,
+            for: WalletProfile.self, Tag.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
         return WalletProfileStore(context: container.mainContext)
