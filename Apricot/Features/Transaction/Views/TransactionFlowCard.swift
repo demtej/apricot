@@ -13,6 +13,8 @@ struct TransactionFlowCard: View {
     var resolveAlias: ((String) -> String?)? = nil
     var onInspect: (() -> Void)? = nil
 
+    @Environment(\.apricotAnimationsEnabled) private var animationsEnabled
+
     @State private var showAllInputs = false
     @State private var showAllOutputs = false
 
@@ -53,24 +55,29 @@ struct TransactionFlowCard: View {
 
     // MARK: - Full flow diagram
 
+    private var effectiveInputsVisible: Bool { !animationsEnabled || inputsVisible }
+    private var effectiveOutputsVisible: Bool { !animationsEnabled || outputsVisible }
+    private var effectiveArrowProgress: CGFloat { animationsEnabled ? arrowProgress : 1 }
+
     private var flowDiagram: some View {
         HStack(alignment: .top, spacing: ApricotSpacing.s2) {
             inputsColumn
-                .opacity(inputsVisible ? 1 : 0)
+                .opacity(effectiveInputsVisible ? 1 : 0)
             centerConnector
                 .mask(
                     GeometryReader { geo in
                         HStack(spacing: 0) {
-                            Rectangle().frame(width: arrowProgress * geo.size.width)
+                            Rectangle().frame(width: effectiveArrowProgress * geo.size.width)
                             Spacer(minLength: 0)
                         }
                     }
                 )
             outputsColumn
-                .opacity(outputsVisible ? 1 : 0)
+                .opacity(effectiveOutputsVisible ? 1 : 0)
         }
         .task {
             guard !inputsVisible else { return }
+            guard animationsEnabled else { return }
             withAnimation(.easeOut(duration: 0.35)) { inputsVisible = true }
             try? await Task.sleep(nanoseconds: 300_000_000)
             withAnimation(.easeInOut(duration: 0.5)) { arrowProgress = 1 }
@@ -158,7 +165,7 @@ struct TransactionFlowCard: View {
     private var complexSummary: some View {
         HStack(spacing: ApricotSpacing.s3) {
             countChip(value: inputs.count, label: "inputs")
-                .opacity(inputsVisible ? 1 : 0)
+                .opacity(effectiveInputsVisible ? 1 : 0)
             HStack(spacing: 0) {
                 LinearGradient(
                     colors: [Color.Apricot.scale200, Color.Apricot.scale400],
@@ -174,16 +181,17 @@ struct TransactionFlowCard: View {
             .mask(
                 GeometryReader { geo in
                     HStack(spacing: 0) {
-                        Rectangle().frame(width: arrowProgress * geo.size.width)
+                        Rectangle().frame(width: effectiveArrowProgress * geo.size.width)
                         Spacer(minLength: 0)
                     }
                 }
             )
             countChip(value: outputs.count, label: "outputs")
-                .opacity(outputsVisible ? 1 : 0)
+                .opacity(effectiveOutputsVisible ? 1 : 0)
         }
         .task {
             guard !inputsVisible else { return }
+            guard animationsEnabled else { return }
             withAnimation(.easeOut(duration: 0.35)) { inputsVisible = true }
             try? await Task.sleep(nanoseconds: 300_000_000)
             withAnimation(.easeInOut(duration: 0.5)) { arrowProgress = 1 }
@@ -206,6 +214,10 @@ struct TransactionFlowCard: View {
         .frame(width: 80)
         .background(Color.apricotBgSurface2)
         .clipShape(RoundedRectangle(cornerRadius: ApricotRadius.md))
+        .overlay(
+            RoundedRectangle(cornerRadius: ApricotRadius.md)
+                .strokeBorder(Color.apricotBorderSubtle, lineWidth: 1)
+        )
     }
 
     // MARK: - Fee row
@@ -269,7 +281,7 @@ struct TransactionFlowCard: View {
                 .strokeBorder(
                     item.isRelevantAddress
                         ? Color.apricotAccent.opacity(0.5)
-                        : Color.clear,
+                        : Color.apricotBorderSubtle,
                     lineWidth: 1
                 )
         )
