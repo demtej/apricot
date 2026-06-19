@@ -24,22 +24,36 @@ class SnapshotTestCase: XCTestCase {
     func assertScreenSnapshot(
         of view: some View,
         named name: String? = nil,
+        colorScheme: ColorScheme = .light,
         file: StaticString = #filePath,
         testName: String = #function,
         line: UInt = #line
     ) {
+        let uiStyle: UIUserInterfaceStyle = colorScheme == .dark ? .dark : .light
+        let config = ViewImageConfig(
+            safeArea: Self.fixedDeviceConfig.safeArea,
+            size: Self.fixedDeviceConfig.size,
+            traits: UITraitCollection(traitsFrom: [
+                UITraitCollection(userInterfaceStyle: uiStyle),
+                UITraitCollection(horizontalSizeClass: .compact),
+                UITraitCollection(verticalSizeClass: .regular),
+                UITraitCollection(displayScale: 3)
+            ])
+        )
+
         let rootView = view
             .environment(\.apricotAnimationsEnabled, false)
             .environment(\.locale, Locale(identifier: "en_US_POSIX"))
             .environment(\.calendar, Calendar(identifier: .gregorian))
-            .preferredColorScheme(.light)
+            .preferredColorScheme(colorScheme)
 
         let controller = UIHostingController(rootView: rootView)
+        controller.overrideUserInterfaceStyle = uiStyle
         controller.view.backgroundColor = UIColor(Color.apricotBgPage)
 
         assertSnapshot(
             of: controller,
-            as: .image(on: Self.fixedDeviceConfig),
+            as: .image(on: config),
             named: name,
             record: Self.isRecording,
             file: file,

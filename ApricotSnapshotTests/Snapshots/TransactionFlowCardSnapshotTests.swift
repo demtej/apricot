@@ -14,6 +14,18 @@ final class TransactionFlowCardSnapshotTests: SnapshotTestCase {
         )
     }
 
+    func test_transactionFlowCard_simple_dark() {
+        assertScreenSnapshot(
+            of: makeCard(
+                inputs: SnapshotFixtures.simpleInputs,
+                outputs: SnapshotFixtures.simpleOutputs,
+                feeSats: "1,200 sat"
+            ),
+            named: "simple_dark",
+            colorScheme: .dark
+        )
+    }
+
     func test_transactionFlowCard_complexFallback() {
         assertScreenSnapshot(
             of: makeCard(
@@ -22,6 +34,18 @@ final class TransactionFlowCardSnapshotTests: SnapshotTestCase {
                 feeSats: "3,400 sat"
             ),
             named: "complex_fallback"
+        )
+    }
+
+    func test_transactionFlowCard_complexFallback_dark() {
+        assertScreenSnapshot(
+            of: makeCard(
+                inputs: SnapshotFixtures.complexInputs,
+                outputs: SnapshotFixtures.complexOutputs,
+                feeSats: "3,400 sat"
+            ),
+            named: "complex_fallback_dark",
+            colorScheme: .dark
         )
     }
 
