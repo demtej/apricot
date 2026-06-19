@@ -47,7 +47,7 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
 
                 analytics.track(event)
                 logger.log(level: .debug, message: "Cache event observed", metadata: event.properties)
-            }, cacheEnabled: true)
+            })
         }
     }
 

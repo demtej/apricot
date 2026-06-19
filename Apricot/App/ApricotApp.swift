@@ -19,7 +19,7 @@ struct ApricotApp: App {
         self.observability = observability
         bitcoinService = LiveBitcoinService(observability: observability)
 
-        let container = try! ModelContainer(for: WalletProfile.self)
+        let container = try! ModelContainer(for: WalletProfile.self, Tag.self)
         aliasModelContainer = container
         _profileStore = StateObject(wrappedValue: WalletProfileStore(context: container.mainContext))
     }

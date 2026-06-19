@@ -11,7 +11,7 @@ final class EditAddressSheetSnapshotTests: SnapshotTestCase {
             of: EditAddressSheet(
                 address: SnapshotFixtures.address,
                 label: "S1",
-                colorHex: kDefaultWalletProfileColorHex,
+                color: .apricot,
                 notes: ""
             )
             .environmentObject(SnapshotFixtures.makeWalletProfileStore()),
@@ -24,7 +24,7 @@ final class EditAddressSheetSnapshotTests: SnapshotTestCase {
             of: EditAddressSheet(
                 address: SnapshotFixtures.address,
                 label: "Savings",
-                colorHex: "1D9E75",
+                color: .teal,
                 notes: "Cold storage — moved here after the April rebalance."
             )
             .environmentObject(SnapshotFixtures.makeWalletProfileStore()),
@@ -37,11 +37,25 @@ final class EditAddressSheetSnapshotTests: SnapshotTestCase {
             of: EditAddressSheet(
                 address: SnapshotFixtures.address,
                 label: "AL RIO",
-                colorHex: "D4537E",
+                color: .pink,
                 notes: ""
             )
             .environmentObject(SnapshotFixtures.makeWalletProfileStore()),
             named: "alias_with_spaces"
+        )
+    }
+
+    func test_editAddressSheet_withTags() {
+        assertScreenSnapshot(
+            of: EditAddressSheet(
+                address: SnapshotFixtures.address,
+                label: "Cold Storage",
+                color: .blue,
+                notes: "Long-term hold.",
+                tags: ["cold storage", "dca"]
+            )
+            .environmentObject(SnapshotFixtures.makeWalletProfileStore()),
+            named: "with_tags"
         )
     }
 

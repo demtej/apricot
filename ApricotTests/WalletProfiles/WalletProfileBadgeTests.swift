@@ -16,25 +16,30 @@ private final class MockWalletProfileStore: WalletProfileStoring {
         profiles[address]?.label = label
     }
 
-    func recolor(address: String, to colorHex: String) {
-        profiles[address]?.colorHex = colorHex
+    func recolor(address: String, to color: WalletProfileColor) {
+        profiles[address]?.color = color
     }
 
     func setNotes(address: String, to notes: String) {
         profiles[address]?.notes = notes
     }
 
+    func addTag(_ tag: Tag, to address: String) {}
+    func removeTag(_ tag: Tag, from address: String) {}
+    func allTags() -> [Tag] { [] }
+    func createTagIfNeeded(name: String) -> Tag { Tag(name: name) }
+
     // MARK: - Test helpers
 
     struct WalletProfile_Mock {
         var label: String
-        var colorHex: String
+        var color: WalletProfileColor
         var notes: String
     }
 
     /// Seed a profile directly — no SwiftData involved.
-    func seed(address: String, label: String, colorHex: String = "F4A26B", notes: String = "") {
-        profiles[address] = WalletProfile_Mock(label: label, colorHex: colorHex, notes: notes)
+    func seed(address: String, label: String, color: WalletProfileColor = .apricot, notes: String = "") {
+        profiles[address] = WalletProfile_Mock(label: label, color: color, notes: notes)
     }
 
     func displayBadge(for address: String) -> String {
