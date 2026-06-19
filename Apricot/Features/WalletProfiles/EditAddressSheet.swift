@@ -401,24 +401,22 @@ private struct TagFlowLayout: Layout {
     }
 }
 
-// MARK: - Debug init (bypasses onAppear)
+// MARK: - Preview init (bypasses onAppear)
 
-#if DEBUG
-    extension EditAddressSheet {
-        /// Bypasses `.onAppear` profile loading — use in snapshots and previews
-        /// to set the displayed state directly without touching SwiftData.
-        init(address: String, label: String, color: WalletProfileColor, notes: String, tags: [String] = []) {
-            self.address = address
-            _label = State(initialValue: label)
-            _selectedColor = State(initialValue: color)
-            _previousColor = State(initialValue: color)
-            _wipeProgress = State(initialValue: 1.0)
-            _notes = State(initialValue: notes)
-            _pendingTagNames = State(initialValue: tags)
-            _skipLoad = State(initialValue: true)
-        }
+extension EditAddressSheet {
+    /// Bypasses `.onAppear` profile loading — use in snapshots and previews
+    /// to set the displayed state directly without touching SwiftData.
+    init(address: String, label: String, color: WalletProfileColor, notes: String, tags: [String] = []) {
+        self.address = address
+        _label = State(initialValue: label)
+        _selectedColor = State(initialValue: color)
+        _previousColor = State(initialValue: color)
+        _wipeProgress = State(initialValue: 1.0)
+        _notes = State(initialValue: notes)
+        _pendingTagNames = State(initialValue: tags)
+        _skipLoad = State(initialValue: true)
     }
-#endif
+}
 
 // MARK: - Previews
 

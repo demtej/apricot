@@ -7,6 +7,7 @@ import SwiftUI
 private let kBadgeMaxLength = 3
 
 /// Protocol allows swapping the SwiftData-backed store for a mock in tests.
+@MainActor
 protocol WalletProfileStoring: AnyObject {
     func profile(for address: String) -> WalletProfile?
     func resolveProfile(for address: String, kind: WalletProfileKind) -> WalletProfile
@@ -138,19 +139,17 @@ final class WalletProfileStore: ObservableObject, WalletProfileStoring {
     }
 }
 
-#if DEBUG
-    extension WalletProfileStore {
-        /// An in-memory store for previews and tests.
-        static func preview() -> WalletProfileStore {
-            do {
-                let container = try ModelContainer(
-                    for: WalletProfile.self, Tag.self,
-                    configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-                )
-                return WalletProfileStore(context: container.mainContext)
-            } catch {
-                fatalError("Failed to create preview ModelContainer: \(error)")
-            }
+extension WalletProfileStore {
+    /// An in-memory store for previews and tests.
+    static func preview() -> WalletProfileStore {
+        do {
+            let container = try ModelContainer(
+                for: WalletProfile.self, Tag.self,
+                configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+            )
+            return WalletProfileStore(context: container.mainContext)
+        } catch {
+            fatalError("Failed to create preview ModelContainer: \(error)")
         }
     }
-#endif
+}

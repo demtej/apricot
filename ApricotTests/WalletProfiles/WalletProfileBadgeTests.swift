@@ -3,6 +3,7 @@ import XCTest
 
 // MARK: - Mock
 
+@MainActor
 private final class MockWalletProfileStore: WalletProfileStoring {
     private var profiles: [String: WalletProfileMock] = [:]
 
@@ -58,6 +59,7 @@ private final class MockWalletProfileStore: WalletProfileStoring {
 
 // MARK: - Tests
 
+@MainActor
 final class WalletProfileBadgeTests: XCTestCase {
     private let store = MockWalletProfileStore()
 
