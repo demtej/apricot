@@ -4,11 +4,13 @@ import XCTest
 // MARK: - Mock
 
 private final class MockWalletProfileStore: WalletProfileStoring {
-    private var profiles: [String: WalletProfile_Mock] = [:]
+    private var profiles: [String: WalletProfileMock] = [:]
 
-    func profile(for address: String) -> WalletProfile? { nil }
+    func profile(for _: String) -> WalletProfile? {
+        nil
+    }
 
-    func resolveProfile(for address: String, kind: WalletProfileKind) -> WalletProfile {
+    func resolveProfile(for _: String, kind _: WalletProfileKind) -> WalletProfile {
         fatalError("Not needed for badge tests")
     }
 
@@ -24,14 +26,19 @@ private final class MockWalletProfileStore: WalletProfileStoring {
         profiles[address]?.notes = notes
     }
 
-    func addTag(_ tag: Tag, to address: String) {}
-    func removeTag(_ tag: Tag, from address: String) {}
-    func allTags() -> [Tag] { [] }
-    func createTagIfNeeded(name: String) -> Tag { Tag(name: name) }
+    func addTag(_: Tag, to _: String) {}
+    func removeTag(_: Tag, from _: String) {}
+    func allTags() -> [Tag] {
+        []
+    }
+
+    func createTagIfNeeded(name: String) -> Tag {
+        Tag(name: name)
+    }
 
     // MARK: - Test helpers
 
-    struct WalletProfile_Mock {
+    struct WalletProfileMock {
         var label: String
         var color: WalletProfileColor
         var notes: String
@@ -39,7 +46,7 @@ private final class MockWalletProfileStore: WalletProfileStoring {
 
     /// Seed a profile directly — no SwiftData involved.
     func seed(address: String, label: String, color: WalletProfileColor = .apricot, notes: String = "") {
-        profiles[address] = WalletProfile_Mock(label: label, color: color, notes: notes)
+        profiles[address] = WalletProfileMock(label: label, color: color, notes: notes)
     }
 
     func displayBadge(for address: String) -> String {

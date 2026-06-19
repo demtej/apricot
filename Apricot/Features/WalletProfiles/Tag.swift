@@ -10,6 +10,6 @@ final class Tag {
 
     init(name: String) {
         self.name = name
-        self.createdAt = .now
+        createdAt = .now
     }
 }

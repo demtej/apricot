@@ -1,7 +1,7 @@
 @testable import Apricot
 import XCTest
 
-final class String_AbbreviatedTests: XCTestCase {
+final class StringAbbreviatedTests: XCTestCase {
     func test_stringShorterThanMaxLength_isUnchanged() {
         XCTAssertEqual("abc".abbreviated(to: 6), "abc")
     }

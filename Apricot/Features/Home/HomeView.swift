@@ -96,8 +96,6 @@ struct HomeView: View {
             }
             .padding(.leading, ApricotSpacing.s5)
             .layoutPriority(1)
-
-            
         }
         .padding(.vertical, ApricotSpacing.s3)
     }
@@ -114,14 +112,16 @@ struct HomeView: View {
         .padding(.bottom, ApricotSpacing.s4)
     }
 
-    private var isFiltering: Bool { !searchQuery.isEmpty }
+    private var isFiltering: Bool {
+        !searchQuery.isEmpty
+    }
 
     private var filteredProfiles: [WalletProfile] {
         let q = searchQuery.lowercased()
         return profileStore.profiles.filter { profile in
             profile.label.lowercased().contains(q)
-            || profile.notes.lowercased().contains(q)
-            || profile.tags.contains { $0.name.lowercased().contains(q) }
+                || profile.notes.lowercased().contains(q)
+                || profile.tags.contains { $0.name.lowercased().contains(q) }
         }
     }
 
@@ -150,7 +150,6 @@ struct HomeView: View {
             searchedAddress = profile.address
         }
     }
-
 }
 
 #Preview {

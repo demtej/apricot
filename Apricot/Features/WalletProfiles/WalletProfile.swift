@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 /// Where an address was first encountered, determining its default label prefix.
-enum WalletProfileKind: String, Codable, Sendable {
+enum WalletProfileKind: String, Codable {
     /// The user searched for this address directly.
     case searched
     /// The address was first seen as a counterparty in a transaction.
@@ -10,8 +10,8 @@ enum WalletProfileKind: String, Codable, Sendable {
 
     var labelPrefix: String {
         switch self {
-        case .searched: return "S"
-        case .counterparty: return "C"
+        case .searched: "S"
+        case .counterparty: "C"
         }
     }
 }
@@ -57,7 +57,7 @@ final class WalletProfile {
     ) {
         self.address = address
         self.label = label
-        self.colorHex = color.rawValue
+        colorHex = color.rawValue
         self.notes = notes
         kindRaw = kind.rawValue
         self.sequenceNumber = sequenceNumber

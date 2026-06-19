@@ -114,16 +114,16 @@ private struct PulsingBorderGlow: View {
                     let halfWidth: CGFloat = 0.17
 
                     for i in 0 ..< steps {
-                        let t    = CGFloat(i)     / CGFloat(steps)
+                        let t = CGFloat(i) / CGFloat(steps)
                         let next = CGFloat(i + 1) / CGFloat(steps)
-                        let mid  = (t + next) / 2
+                        let mid = (t + next) / 2
 
                         var dist = abs(mid - phase)
                         dist = min(dist, 1 - dist)
                         guard dist < halfWidth else { continue }
 
                         let normalized = 1 - dist / halfWidth
-                        let opacity    = Double(normalized * normalized) * 0.45
+                        let opacity = Double(normalized * normalized) * 0.45
 
                         let seg = Capsule().trim(from: t, to: next).path(in: rect)
                         ctx.stroke(seg, with: .color(Color.apricotAccent.opacity(opacity)), lineWidth: 7)
@@ -137,22 +137,22 @@ private struct PulsingBorderGlow: View {
                     let halfWidth: CGFloat = 0.17
 
                     for i in 0 ..< steps {
-                        let t    = CGFloat(i)     / CGFloat(steps)
+                        let t = CGFloat(i) / CGFloat(steps)
                         let next = CGFloat(i + 1) / CGFloat(steps)
-                        let mid  = (t + next) / 2
+                        let mid = (t + next) / 2
 
                         var dist = abs(mid - phase)
                         dist = min(dist, 1 - dist)
                         guard dist < halfWidth else { continue }
 
                         let normalized = 1 - dist / halfWidth
-                        let opacity    = Double(normalized * normalized)
+                        let opacity = Double(normalized * normalized)
 
                         let seg = Capsule().trim(from: t, to: next).path(in: rect)
                         ctx.stroke(seg, with: .color(Color.apricotAccent.opacity(opacity)), lineWidth: 1.5)
                     }
                 }
-            } }  // TimelineView + if !reduceMotion
+            } } // TimelineView + if !reduceMotion
         }
     }
 }

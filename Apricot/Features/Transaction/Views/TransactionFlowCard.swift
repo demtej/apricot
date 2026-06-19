@@ -10,8 +10,8 @@ struct TransactionFlowCard: View {
     let outputs: [IOItem]
     let feeSats: String
     var showsRealAddress: Bool = false
-    var resolveAlias: ((String) -> String?)? = nil
-    var onInspect: (() -> Void)? = nil
+    var resolveAlias: ((String) -> String?)?
+    var onInspect: (() -> Void)?
 
     @Environment(\.apricotAnimationsEnabled) private var animationsEnabled
 
@@ -55,9 +55,17 @@ struct TransactionFlowCard: View {
 
     // MARK: - Full flow diagram
 
-    private var effectiveInputsVisible: Bool { !animationsEnabled || inputsVisible }
-    private var effectiveOutputsVisible: Bool { !animationsEnabled || outputsVisible }
-    private var effectiveArrowProgress: CGFloat { animationsEnabled ? arrowProgress : 1 }
+    private var effectiveInputsVisible: Bool {
+        !animationsEnabled || inputsVisible
+    }
+
+    private var effectiveOutputsVisible: Bool {
+        !animationsEnabled || outputsVisible
+    }
+
+    private var effectiveArrowProgress: CGFloat {
+        animationsEnabled ? arrowProgress : 1
+    }
 
     private var flowDiagram: some View {
         HStack(alignment: .top, spacing: ApricotSpacing.s2) {

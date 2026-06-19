@@ -139,14 +139,18 @@ final class WalletProfileStore: ObservableObject, WalletProfileStoring {
 }
 
 #if DEBUG
-extension WalletProfileStore {
-    /// An in-memory store for previews and tests.
-    static func preview() -> WalletProfileStore {
-        let container = try! ModelContainer(
-            for: WalletProfile.self, Tag.self,
-            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-        )
-        return WalletProfileStore(context: container.mainContext)
+    extension WalletProfileStore {
+        /// An in-memory store for previews and tests.
+        static func preview() -> WalletProfileStore {
+            do {
+                let container = try ModelContainer(
+                    for: WalletProfile.self, Tag.self,
+                    configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+                )
+                return WalletProfileStore(context: container.mainContext)
+            } catch {
+                fatalError("Failed to create preview ModelContainer: \(error)")
+            }
+        }
     }
-}
 #endif

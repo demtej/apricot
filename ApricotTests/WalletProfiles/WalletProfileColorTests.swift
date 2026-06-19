@@ -4,7 +4,6 @@ import SwiftUI
 import XCTest
 
 final class WalletProfileColorTests: XCTestCase {
-
     func test_allCases_colorDoesNotCrash() {
         for c in WalletProfileColor.allCases {
             _ = c.color
@@ -19,13 +18,13 @@ final class WalletProfileColorTests: XCTestCase {
 
     func test_rawValues_areExpectedStrings() {
         XCTAssertEqual(WalletProfileColor.apricot.rawValue, "apricot")
-        XCTAssertEqual(WalletProfileColor.coral.rawValue,   "coral")
-        XCTAssertEqual(WalletProfileColor.amber.rawValue,   "amber")
-        XCTAssertEqual(WalletProfileColor.green.rawValue,   "green")
-        XCTAssertEqual(WalletProfileColor.teal.rawValue,    "teal")
-        XCTAssertEqual(WalletProfileColor.blue.rawValue,    "blue")
-        XCTAssertEqual(WalletProfileColor.pink.rawValue,    "pink")
-        XCTAssertEqual(WalletProfileColor.purple.rawValue,  "purple")
+        XCTAssertEqual(WalletProfileColor.coral.rawValue, "coral")
+        XCTAssertEqual(WalletProfileColor.amber.rawValue, "amber")
+        XCTAssertEqual(WalletProfileColor.green.rawValue, "green")
+        XCTAssertEqual(WalletProfileColor.teal.rawValue, "teal")
+        XCTAssertEqual(WalletProfileColor.blue.rawValue, "blue")
+        XCTAssertEqual(WalletProfileColor.pink.rawValue, "pink")
+        XCTAssertEqual(WalletProfileColor.purple.rawValue, "purple")
     }
 
     func test_legacyHexRawValue_returnsNil() {
@@ -43,6 +42,7 @@ final class WalletProfileColorTests: XCTestCase {
 
 @MainActor
 final class WalletProfileColorFallbackTests: XCTestCase {
+    // swiftlint:disable:next implicitly_unwrapped_optional
     private var container: ModelContainer!
 
     override func setUp() async throws {

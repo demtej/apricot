@@ -3,7 +3,7 @@ import SwiftUI
 struct DisclaimerSheet: View {
     @Environment(\.dismiss) private var dismiss
 
-    private let supportURL = URL(string: "https://demtej.github.io/apricot/support")!
+    private let supportURL = URL(string: "https://demtej.github.io/apricot/support")
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
@@ -18,24 +18,28 @@ struct DisclaimerSheet: View {
                         .foregroundStyle(Color.apricotFgPrimary)
                 }
 
-                Text("Apricot displays publicly available Bitcoin blockchain data. Not financial advice. No wallet connection. No private keys.")
-                    .font(.apricotBody)
-                    .foregroundStyle(Color.apricotFgSecondary)
-                    .lineSpacing(4)
-                    .fixedSize(horizontal: false, vertical: true)
+                Text(
+                    "Apricot displays publicly available Bitcoin blockchain data. Not financial advice. No wallet connection. No private keys."
+                )
+                .font(.apricotBody)
+                .foregroundStyle(Color.apricotFgSecondary)
+                .lineSpacing(4)
+                .fixedSize(horizontal: false, vertical: true)
 
                 Divider()
                     .overlay(Color.apricotBorderSubtle)
 
-                Link(destination: supportURL) {
-                    HStack(spacing: ApricotSpacing.s2) {
-                        Text("More info")
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(Color.apricotAccent)
-                        Image(systemName: "arrow.up.right")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(Color.apricotAccent)
-                        Spacer()
+                if let supportURL {
+                    Link(destination: supportURL) {
+                        HStack(spacing: ApricotSpacing.s2) {
+                            Text("More info")
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundStyle(Color.apricotAccent)
+                            Image(systemName: "arrow.up.right")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(Color.apricotAccent)
+                            Spacer()
+                        }
                     }
                 }
 

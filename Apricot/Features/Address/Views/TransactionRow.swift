@@ -3,7 +3,7 @@ import SwiftUI
 struct TransactionRow: View {
     let transaction: TransactionItem
     let showsDirectionClassification: Bool
-    var counterpartyAlias: String? = nil
+    var counterpartyAlias: String?
     var showsRealAddress: Bool = false
 
     var body: some View {

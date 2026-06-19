@@ -129,7 +129,7 @@ struct TransactionDetailView: View {
                     CopyButton(value: detail.id)
                 }
 
-                if detail.direction == .mixed && counterparty == nil {
+                if detail.direction == .mixed, counterparty == nil {
                     Divider().overlay(Color.apricotBorderSubtle)
                     sectionLabel("TRANSFER TYPE")
                     Text("Internal transfer — funds stayed within this wallet")
