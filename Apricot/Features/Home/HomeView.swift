@@ -126,17 +126,61 @@ struct HomeView: View {
     }
 
     private var searchSection: some View {
-        ApricotSearchField(
-            text: $searchQuery,
-            onSubmit: {
-                searchedAddress = viewModel.submitSearch(query: searchQuery)
-            },
-            onPaste: viewModel.clipboardBitcoinAddress.map { address in
-                { searchedAddress = address }
+        VStack(spacing: 0) {
+            ApricotSearchField(
+                text: $searchQuery,
+                onSubmit: {
+                    searchedAddress = viewModel.submitSearch(query: searchQuery)
+                },
+                onPaste: viewModel.clipboardBitcoinAddress.map { address in
+                    { searchedAddress = address }
+                }
+            )
+
+            if showEmptyHint {
+                emptyStateHint
+                    .transition(.opacity.combined(with: .move(edge: .top)))
             }
-        )
+        }
         .padding(.horizontal, ApricotSpacing.s5)
         .padding(.bottom, ApricotSpacing.s6)
+        .animation(.spring(response: 0.4, dampingFraction: 0.75), value: showEmptyHint)
+    }
+
+    private var showEmptyHint: Bool {
+        recentSearchStore.searches.isEmpty
+            && viewModel.clipboardBitcoinAddress == nil
+            && !isFiltering
+    }
+
+    private var emptyStateHint: some View {
+        HStack(spacing: ApricotSpacing.s3) {
+            Image(systemName: "doc.on.clipboard")
+                .font(.system(size: 15, weight: .light))
+                .foregroundStyle(Color.apricotAccent.opacity(0.7))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Paste a Bitcoin address")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(Color.apricotFgPrimary)
+                Text("Copy one to your clipboard and it'll appear here")
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundStyle(Color.apricotFgSecondary)
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal, ApricotSpacing.s4)
+        .padding(.vertical, ApricotSpacing.s3)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color.apricotAccent.opacity(0.06))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .strokeBorder(Color.apricotAccent.opacity(0.15), lineWidth: 0.5)
+                )
+        )
+        .padding(.top, ApricotSpacing.s3)
     }
 
     private var recentSection: some View {
