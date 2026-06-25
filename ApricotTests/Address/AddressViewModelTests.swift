@@ -132,6 +132,16 @@ final class AddressViewModelTests: XCTestCase {
         XCTAssertEqual(vm.state, .failed(.network))
     }
 
+    func test_load_timeout_setsFailedNetworkState() async throws {
+        mockService.result = .failure(AddressSearchError.network)
+
+        let vm = makeViewModel()
+        vm.load()
+        try await waitForNonLoading(vm)
+
+        XCTAssertEqual(vm.state, .failed(.network))
+    }
+
     // MARK: - didOpenTransaction
 
     func test_didOpenTransaction_tracksTransactionOpened() {

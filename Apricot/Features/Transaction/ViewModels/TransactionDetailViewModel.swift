@@ -55,7 +55,6 @@ final class TransactionDetailViewModel: ObservableObject {
             let item = try await service.fetchTransactionDetail(txId: txId, forAddress: forAddress)
             guard !Task.isCancelled else { return }
             state = .loaded(item)
-            // Yield to SwiftUI so the loaded state renders before SwiftData I/O.
             Task { [weak self] in self?.resolveCounterpartyProfiles(item, forAddress: forAddress) }
             let durationMs = Self.durationMs(since: startedAt)
             let txPreview = ObservabilityPrivacy.txIdPreview(txId)
@@ -68,7 +67,7 @@ final class TransactionDetailViewModel: ObservableObject {
                 "tx_id_preview": .string(txPreview)
             ])
         } catch {
-            guard !Task.isCancelled else { return }
+            if Task.isCancelled { return }
             let detailError = (error as? TransactionDetailError) ?? .unknown
             state = .failed(detailError)
             let durationMs = Self.durationMs(since: startedAt)
@@ -86,8 +85,6 @@ final class TransactionDetailViewModel: ObservableObject {
         }
     }
 
-    /// Assigns "counterparty" profiles to every input/output address other
-    /// than `forAddress`, so they're labeled consistently if encountered again.
     private func resolveCounterpartyProfiles(_ item: TransactionDetailItem, forAddress: String) {
         guard let profileStore else { return }
         let counterpartyAddresses = (item.inputs + item.outputs)

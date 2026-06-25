@@ -67,8 +67,6 @@ final class AddressViewModel: ObservableObject {
                     showsInsights: showsInsights
                 )
             }
-            // Fire profile resolution after yielding to SwiftUI so the loaded
-            // state renders immediately rather than blocking on SwiftData I/O.
             Task { [weak self] in
                 guard let self else { return }
                 recentSearchStore?.add(address: address)
@@ -92,7 +90,7 @@ final class AddressViewModel: ObservableObject {
                 "result_count": .int(data.transactions.count)
             ])
         } catch {
-            guard !Task.isCancelled else { return }
+            if Task.isCancelled { return }
             let searchError = (error as? AddressSearchError) ?? .unknown
             state = .failed(searchError)
             let durationMs = Self.durationMs(since: startedAt)

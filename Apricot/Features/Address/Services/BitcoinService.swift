@@ -52,30 +52,26 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
     }
 
     func fetchAddressData(address: String) async throws -> AddressData {
-        // Fetch summary and transactions concurrently.
-        // KMP @Throws suspend functions are auto-bridged by Swift to async throws.
-        async let summaryTask = facade.getAddressSummary(addressString: address)
-        async let transactionsTask = facade.getAddressTransactions(addressString: address)
+        try await withRequestTimeout {
+            async let summaryTask = self.facade.getAddressSummary(addressString: address)
+            async let transactionsTask = self.facade.getAddressTransactions(addressString: address)
 
-        do {
-            let (summary, transactions) = try await (summaryTask, transactionsTask)
-            let summaryItem = mapSummary(summary, address: address)
-            // Kotlin List<BitcoinTransaction> is bridged as NSArray<SharedBitcoinTransaction *>,
-            // which arrives in Swift as [BitcoinTransaction].
-            let txItems = transactions.map {
-                mapTransaction($0, address: address)
+            do {
+                let (summary, transactions) = try await (summaryTask, transactionsTask)
+                let summaryItem = self.mapSummary(summary, address: address)
+                let txItems = transactions.map {
+                    self.mapTransaction($0, address: address)
+                }
+                return AddressData(summary: summaryItem, transactions: txItems)
+            } catch {
+                throw self.classifyError(error)
             }
-            return AddressData(summary: summaryItem, transactions: txItems)
-        } catch {
-            throw classifyError(error)
         }
     }
 
     // MARK: - Mappers
 
     private func mapSummary(_ summary: AddressSummary, address: String) -> AddressSummaryItem {
-        // Satoshi is a Kotlin value class with Long underneath; it is unboxed to Int64 in ObjC.
-        // Accessing summary.balance gives Int64 directly — no .amount needed.
         AddressSummaryItem(
             address: address,
             shortAddress: BitcoinFormatter.shortAddress(address),
@@ -141,11 +137,13 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
     }
 
     func fetchTransactionDetail(txId: String, forAddress: String) async throws -> TransactionDetailItem {
-        do {
-            let tx = try await facade.getTransactionDetail(txId: txId)
-            return mapTransactionDetail(tx, txId: txId, forAddress: forAddress)
-        } catch {
-            throw classifyTransactionError(error)
+        try await withRequestTimeout {
+            do {
+                let tx = try await self.facade.getTransactionDetail(txId: txId)
+                return self.mapTransactionDetail(tx, txId: txId, forAddress: forAddress)
+            } catch {
+                throw self.classifyTransactionError(error)
+            }
         }
     }
 
@@ -213,6 +211,28 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
         )
     }
 
+    // MARK: - Timeout
+
+    private static let requestTimeoutSeconds: TimeInterval = 20
+
+    private func withRequestTimeout<T: Sendable>(
+        operation: @Sendable @escaping () async throws -> T
+    ) async throws -> T {
+        try await withThrowingTaskGroup(of: T.self) { group in
+            group.addTask { try await operation() }
+            group.addTask {
+                let ns = UInt64(Self.requestTimeoutSeconds * 1_000_000_000)
+                try await Task.sleep(nanoseconds: ns)
+                throw URLError(.timedOut)
+            }
+            defer { group.cancelAll() }
+            guard let result = try await group.next() else {
+                throw AddressSearchError.network
+            }
+            return result
+        }
+    }
+
     private func classifyTransactionError(_ error: Error) -> TransactionDetailError {
         let description = error.localizedDescription
         if description.contains("not found") || description.contains("Not Found") ||
@@ -229,7 +249,6 @@ final class LiveBitcoinService: BitcoinServiceProtocol {
     // MARK: - Error classification
 
     private func classifyError(_ error: Error) -> AddressSearchError {
-        // BitcoinRepositoryError.NotFound sets message "Resource not found"
         let description = error.localizedDescription
         if description.contains("not found") || description.contains("Not Found") ||
             description.contains("Resource not found")
