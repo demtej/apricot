@@ -5,7 +5,7 @@
 <h1 align="center">Apricot</h1>
 
 <p align="center">
-  Bitcoin on-chain tracking, investigation, and audit — built with SwiftUI and Kotlin Multiplatform.
+  Bitcoin on-chain research and address tracking — built with SwiftUI and Kotlin Multiplatform.
 </p>
 
 <p align="center">
@@ -15,11 +15,20 @@
   <img src="https://img.shields.io/badge/Xcode-15.x-1575F9?logo=xcode&logoColor=white" alt="Xcode 15" />
 </p>
 
+<p align="center">
+  <strong>Status: Available on the App Store</strong><br>
+  <a href="https://apps.apple.com/us/app/apricot-bitcoin-explorer/id6767230810">Download on the App Store</a>
+</p>
+
 ---
 
-Apricot is a Bitcoin address tracker designed for on-chain investigation and auditing. Users can search any public Bitcoin address, label it, attach notes, assign it a color, and relate it to other wallets seen in transactions — building a persistent local picture of on-chain activity across sessions.
+> **Disclaimer:** Apricot is not a wallet, does not manage private keys, does not custody funds, does not support trading, and does not provide financial advice. It only displays publicly available Bitcoin blockchain data.
 
-The core idea: every address you touch — whether you searched it or discovered it as a counterparty in a transaction — gets a profile. Profiles carry labels, colors, and notes you define. Over time this creates a graph of related wallets that you can use to follow fund flows, trace UTXOs, and audit transaction history without losing context between sessions.
+---
+
+Apricot is a read-only Bitcoin address tracker for on-chain research. Search any public Bitcoin address, label it, attach notes, assign a color, and relate it to other addresses seen in transactions — building a persistent local picture of on-chain activity across sessions.
+
+The core idea: every address you touch — whether you searched it or discovered it as a counterparty in a transaction — gets a profile. Profiles carry labels, colors, and notes you define. Over time this creates a map of related addresses that you can use to follow fund flows, trace UTXOs, and explore transaction history without losing context between sessions.
 
 ---
 
@@ -36,6 +45,22 @@ The core idea: every address you touch — whether you searched it or discovered
 ## Demo
 
 <img src="docs/screenshots/demo.gif" alt="Apricot app demo" width="320">
+
+---
+
+## Why this project exists
+
+Apricot is a portfolio project built to walk a complete product lifecycle end to end:
+
+- **Architecture** — layered SwiftUI app with a Kotlin Multiplatform shared module (domain models, use cases, API client, cache).
+- **Product iteration** — incremental scope: address search → transaction detail → wallet profiles → insights → transaction flow.
+- **Testing** — KMP unit tests, iOS ViewModel tests, local snapshot tests with deterministic fixtures.
+- **CI** — SwiftLint, SwiftFormat, KMP tests, iOS unit tests, and build validation on every pull request.
+- **Observability** — protocol-backed analytics and feature flags with a PostHog integration and console fallback.
+- **Documentation** — Architecture Decision Records for every significant technical choice.
+- **Shipping** — release build validation, signing setup, App Store screenshots and metadata, TestFlight distribution, and App Review iteration.
+
+The goal was to ship a real app through the full process, not just write code.
 
 ---
 
@@ -195,7 +220,7 @@ make record-snapshots
 
 Reference images are committed under `ApricotSnapshotTests/Snapshots/__Snapshots__/`.
 
-> **Note:** Snapshot test execution in CI is currently disabled. macOS CI runners and local Xcode environments can produce subtly different rendering output, causing spurious failures. The infrastructure is in place — it's a known limitation to address before shipping.
+> **Note:** Snapshot test execution in CI is currently disabled due to rendering differences between local and CI environments. Snapshot tests remain available locally, and CI stabilization is planned as future work.
 
 ### GitHub Actions CI
 
@@ -258,9 +283,23 @@ make preflight-release  # lint, format-check, build debug+release XCFrameworks, 
                          # project, run unit tests, and a Release build of the app
 ```
 
-Before submitting to TestFlight / the App Store, run `make preflight-release` and then either
+To build a release-ready archive, run `make preflight-release` and then either
 `make prepare-archive` (to archive from Xcode's UI) or `make validate-archive` (to validate the
 archive entirely from the console).
+
+---
+
+## Shipping notes
+
+Apricot went through the full App Store submission process:
+
+- Release build validation with `make preflight-release` and `make validate-archive`.
+- Signing setup with distribution certificates and provisioning profiles.
+- App Store screenshots, metadata, and privacy details.
+- TestFlight distribution for pre-release testing.
+- App Review iteration, including production error-state hardening based on reviewer feedback.
+
+Going through this process end to end — including the review cycle — was a deliberate part of the project's learning goals.
 
 ---
 
@@ -278,13 +317,14 @@ Key technical decisions are recorded as Architecture Decision Records in [`docs/
 
 ---
 
-## Known Limitations & Future Work
+## Known Limitations
 
-- **UTXO graph** — UTXO-level traceability (linking specific outputs across transactions) is the natural next step beyond address-level tracking; not yet implemented.
-- **Wallet relationship graph** — a visual graph of addresses linked through transactions is planned but not yet built.
-- **Snapshot tests in CI** — disabled due to rendering differences between local Xcode environments and macOS CI runners. Infrastructure is ready; execution pending a stable approach.
-- **UI tests** — the happy path (search → transaction detail) is planned but not yet implemented.
-- **Error handling** — basic error states are in place; deeper recovery flows are out of scope for the MVP.
-- **Single data provider** — Mempool.space is the only backend. The repository interface is designed to support additional providers.
+- **Read-only** — no key management, signing, or transaction broadcasting. Apricot only reads public blockchain data.
 - **Bitcoin only** — Ethereum and other chains are out of scope.
-- **No wallet connection** — read-only; no key management, signing, or transaction broadcasting.
+- **Single data provider** — Mempool.space is the only backend. The repository interface is designed to support additional providers.
+- **No backend** — all data is fetched live from the public API; no server-side caching or user accounts.
+- **No push alerts** — no background monitoring or notifications for address activity.
+- **Snapshot tests in CI** — disabled due to rendering differences between local and CI environments. Tests run locally; CI stabilization is planned as future work.
+- **UI tests** — the happy path (search → transaction detail) is planned but not yet automated.
+- **UTXO graph** — UTXO-level traceability across transactions is not yet implemented.
+- **Wallet relationship graph** — a visual graph of addresses linked through transactions is planned but not yet built.
